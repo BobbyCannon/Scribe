@@ -110,9 +110,10 @@ function Set-BuildNumbers
         $newAssemblyFileVersionLine = $oldAssemblyFileVersionLine.Replace($oldAssemblyFileVersion, $newVersionNumber)
         Write-Verbose $newAssemblyFileVersionLine
     
-        (Get-Content $file) | % {
-            $_.Replace($oldAssemblyVersionLine, $newAssemblyVersionLine).Replace($oldAssemblyFileVersionLine, $newAssemblyFileVersionLine) 
-        } | Set-Content $file -Encoding UTF8
+        $content = [IO.File]::ReadAllText($file)
+        $content = $content.Replace($oldAssemblyVersionLine, $newAssemblyVersionLine).Replace($oldAssemblyFileVersionLine, $newAssemblyFileVersionLine) 
+        
+        [IO.File]::WriteAllText($file, $content)
     }
 }
 
