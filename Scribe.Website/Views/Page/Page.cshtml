@@ -1,0 +1,93 @@
+﻿@model PageView
+
+@{
+	ViewBag.Title = Model.Title;
+}
+<div id="page" ng-controller="controller">
+	<div id="pageHeader" class="row">
+		<div class="span12">
+			<h1 id="pageHeaderTitle">{{model.title}}</h1>
+			<small ng-show="model.editingBy.length > 0">
+				This page is current being edited by {{ model.editingBy }}.
+			</small>
+		</div>
+		<div class="span12 text-right-then-center">
+			@if (Request.IsAuthenticated)
+			{
+				<a id="pageEditingByLink" ng-href="/EditPage/{{ model.id }}/{{ model.titleForLink }}" ng-show="model.editingBy.length === 0 || model.editingBy == currentUser">Edit</a>
+			}
+		</div>
+	</div>
+	<div id="preview" ng-bind-html="model.html"></div>
+	<div id="pageFooter" ng-show="model.id > 0">
+		<div class="darkGray pull-right">
+			<span ng-repeat="$tag in model.tags">
+				<a class="margin-0" ng-attr-id="{{ 'tag-' + $tag }}" ng-href="/PagesWithTag/{{ $tag }}">{{ $tag }}</a><span ng-show="$index < model.tags.length - 1">,</span>
+			</span>
+		</div>
+		This page was last updated <span id="pageLastModified">{{ model.lastModified }}</span> ago by <span id="pageModifiedBy">{{ model.modifiedBy }}</span>.
+		<a id="pageHistoryLink" ng-href="/PageHistory/{{ model.id }}/{{ model.titleForLink }}">History</a>
+		@if (Request.IsAuthenticated)
+		{
+			<a id="pageEditingByLink2" ng-href="/EditPage/{{ model.id }}/{{ model.titleForLink }}" ng-show="model.editingBy.length === 0 || model.editingBy == currentUser">Edit</a>
+		}
+		<span id="pageEditingBySpan" ng-show="model.editingBy.length > 0">
+			<br />This page is current being edited by <span id="pageEditingBy">{{ model.editingBy }}</span>.
+		</span>
+		<a id="pageUpdatedLink" class="clickable" ng-show="model.hasBeenUpdated" ng-click="reload()">The page has been updated. Click here to reload.</a>
+	</div>
+</div>
+@section scripts
+{
+	<script type="text/javascript">
+
+		scribe.controller('controller', [
+			'$scope', '$http', '$window',
+			function ($scope, $http, $window) {
+				'use strict';
+
+				$scope.model = @(Html.Raw(Model.ToJson()));
+				$scope.currentUser = '@(Request.RequestContext.HttpContext.User.Identity.GetDisplayName())';
+
+				$scope.reload = function () {
+					$window.location.reload();
+				}
+
+				var service = $.connection.notificationHub;
+
+				service.client.pageAvailableForEdit = function (id) {
+					if ($scope.model.id !== id) {
+						return;
+					}
+
+					$scope.$apply(function () {
+						$scope.model.editingBy = '';
+					});
+				};
+
+				service.client.PageLockedForEdit = function (id, editorName) {
+					if ($scope.model.id !== id || editorName === $scope.currentUser) {
+						return;
+					}
+
+					$scope.$apply(function () {
+						$scope.model.editingBy = editorName;
+					});
+				}
+
+				service.client.pageUpdated = function (id) {
+					if ($scope.model.id !== id) {
+						return;
+					}
+
+					$scope.$apply(function () {
+						toastr.info("This page has been updated.");
+						$scope.model.hasBeenUpdated = true;
+					});
+				};
+
+				$.connection.hub.start();
+			}
+		]);
+	</script>
+}

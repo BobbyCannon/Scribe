@@ -1,0 +1,1043 @@
+﻿$hoverPercent: 12%;
+$black: #000;
+$blackish: #565656;
+$blue: #0085dc;
+$darkBlue: darken($blue, 25%);
+$brown: #826b5b;
+$burgundy: #8d3939;
+$gray: #ccc;
+$lightishGray: #ddd;
+$lightGray: #f5f5f5;
+$darkGray: #999;
+$green: #35aa47;
+$orange: #ff9000;
+$purple: #852b99;
+$red: #d84a38;
+$white: #fff;
+
+$colorArray: black $black,
+	blackish $blackish,
+	blue $blue,
+	darkBlue $darkBlue,
+	brown $brown,
+	burgundy $burgundy,
+	gray $gray,
+	lightishGray $lightishGray,
+	lightGray $lightGray,
+	darkGray $darkGray,
+	green $green,
+	orange $orange,
+	purple $purple,
+	red $red,
+	white $white;
+
+@each $colorName in $colorArray {
+	.#{nth($colorName, 1)} {
+		color: nth($colorName, 2);
+	}
+	
+	.#{nth($colorName, 1)}-bg {
+		background-color: nth($colorName, 2);
+	}
+}
+
+$font-family: "wf_SegoeUI","Segoe UI","Segoe","Segoe WP","Tahoma","Verdana","Arial","sans-serif";
+$font-family-light: "wf_SegoeUILight","Segoe UI Light","Segoe WP Light","Segoe UI","Segoe","Segoe WP","Tahoma","Verdana","Arial","sans-serif";
+
+@mixin rem-units($property, $values, $suffix: '') {
+	// placeholder variables
+	$shorthandPixels:	"";
+	$shorthandRems:		"";
+
+	// values may be a list; shorthand notation
+	@each $value in $values {
+		// if 0 or auto then don't add a unit to the value
+		@if $value == 0 or $value == auto {
+			$shorthandPixels:	#{ $shorthandPixels + " " + $value };
+			$shorthandRems:		#{ $shorthandRems + " " + $value };
+		} @else {
+			$shorthandPixels:	#{ $shorthandPixels + " " + $value + px };
+			$shorthandRems:		#{ $shorthandRems + " " + ($value * 0.0625) + rem };
+		}
+	}
+
+	// output the property with a rem value and px fall back
+	@if ($suffix == '') {
+		#{$property}: $shorthandPixels;
+		#{$property}: $shorthandRems;
+	} @else {
+		$suffix: ' ' + $suffix;
+		#{$property}: $shorthandPixels + $suffix;
+		#{$property}: $shorthandRems + $suffix;
+	}
+}
+
+@function exponent($base, $power) {
+	$return: 1;
+
+	@if $power >= 0 {
+		@for $i from 1 through $power {
+			$return: $return * $base;
+		}
+	}
+	@else {
+		@for $i from $power to 0 {
+			$return: $return / $base;
+		}
+	}
+	@return $return;
+}
+
+@mixin clearfix() {
+	&:before,
+	&:after {
+		content: " ";
+		display: table;
+	}
+	&:after {
+		clear: both;
+	}
+}
+
+$font-size-base: 16;
+$font-scale: 1.2;
+$font-scale-small: 1.122;
+$line-height: $font-scale * exponent($font-scale, 1);
+
+@mixin border-box() {
+	-webkit-box-sizing:	border-box;
+	-moz-box-sizing: border-box;
+	box-sizing:	border-box;
+}
+
+@mixin box-shadow() {
+	box-shadow: inset 0 1px 1px $lightGray;
+	-moz-transition: box-shadow 0.5s ease-in-out;
+	-o-transition: box-shadow 0.5s ease-in-out;
+	-webkit-transition: box-shadow 0.5s ease-in-out;
+	transition: box-shadow 0.5s ease-in-out;
+}
+
+html,
+body {
+	@include border-box();
+	font-family: $font-family;
+	@include rem-units(font-size, $font-size-base);
+	line-height: $line-height;
+	padding: 0;
+	margin: 0;
+}
+
+#header {
+	background: $darkBlue;
+	color: $white;
+	@include border-box();
+	@include rem-units(height, 84);
+	margin: 0 auto;
+	position: relative;
+
+	> .container {
+		@include rem-units(padding, 5 20 20 20);
+	}
+
+	ul {
+		list-style: none;
+		padding: 0;
+		@include clearfix();
+		@include border-box();
+		margin: 10px 0 0 0;
+
+		li {
+			font-family: $font-family-light;
+			font-size: 1em;
+			display: inline-block;
+		}
+	}
+
+	h2 {
+		@include rem-units(font-size, 36);
+		color: $black;
+		padding: 0;
+		margin: 0;
+
+		> img {
+			@include rem-units(padding-bottom, 4);
+			vertical-align: middle;
+		}
+	}
+}
+
+#content {
+	
+}
+
+.container{
+	@include border-box();
+	margin: 0 auto;
+	@include rem-units(padding, 20);
+	@include rem-units(max-width, 1200);
+}
+
+ul#headerLogin {
+	clear: both;
+	float: right;
+	margin: 0;
+	padding: 0;
+
+	li {
+		font-family: $font-family-light;
+		@include rem-units(font-size, 16);
+
+		a {
+			color: $white;
+		}
+	}
+}
+
+div#headerSearch {
+	clear: both;
+	float: right;
+	margin: 8px 0 0 0;
+	padding: 0;
+
+	> input {
+		margin: 0;
+	}
+}
+
+ul#headerMenu {
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	bottom: 10px;
+
+	li {
+		font-family: $font-family-light;
+		@include rem-units(font-size, 20);
+		@include rem-units(margin-right, 20);
+
+		a {
+			color: $white;
+		}
+	}
+}
+
+a {
+	background-color: transparent;
+	@include border-box();
+	color: $blue;
+	text-decoration: none;
+	vertical-align: top;
+
+	&:active,
+	&:hover {
+		outline: 0;
+	}
+
+	&.missing-page-link {
+		color: $burgundy;
+	}
+}
+
+@for $i from 1 through 6 {
+	h#{$i} {
+		font-family: $font-family-light;
+		font-style: normal;
+		font-weight: 300;
+		color: $darkBlue;
+		@include rem-units(font-size, $font-size-base + ((7 - $i) * 2));
+		@include rem-units(margin, 0 0 10 0);
+	}
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.row {
+	@include clearfix();
+	@include border-box();
+	@include rem-units(margin, 0 0 10 0);
+	height: auto;
+	width: 100%;
+
+	> [class*="span"]:last-of-type {
+		margin-right: 0;
+	}
+}
+
+[class*="span"] {
+	@include border-box();
+	@include clearfix();
+	overflow-wrap: break-word;
+	float: left;
+}
+
+.span {
+	@include border-box();
+	@include clearfix();
+	vertical-align: top;
+	width: auto;
+}
+
+@for $i from 1 through 24 {
+	.span#{$i} {
+		@include border-box();
+		@include clearfix();
+		vertical-align: top;
+		width: percentage($i / 24);
+	}
+}
+
+@for $i from 1 through 24 {
+	.cell#{$i} {
+		@include border-box();
+		@include clearfix();
+		vertical-align: top;
+		width: percentage($i / 24);
+	}
+}
+
+@for $i from 1 through 23 {
+	.offset#{$i} {
+		margin-left: percentage($i / 24);
+	}
+}
+
+textarea,
+input[type=email],
+input[type=number],
+input[type=password],
+input[type=text],
+input[type=time],
+datalist,
+input[list],
+select {
+	@include rem-units(padding, 8 10);
+	@include rem-units(margin, 0 0 10 0);
+	@include border-box();
+	background-color: $white;
+	border: 1px solid $gray;
+	@include box-shadow();
+	color: $blackish;
+	line-height: 1.2em;
+	font-family: Helvetica, Arial;
+	@include rem-units(font-size, 16);
+	@include rem-units(height, 36);
+	@include rem-units(min-height, 36);
+	@include rem-units(width, 230);
+	vertical-align: top;
+	
+	&.input-validation-error,
+    &.ng-dirty.ng-invalid-pattern,
+    &.ng-dirty.ng-invalid-required,
+    &.ng-dirty.ng-invalid-min,
+    &.ng-dirty.ng-invalid-max {
+        border-bottom: 2px solid $red !important;
+    }
+
+	&.loading {
+		background-image: URL("data:image/gif;base64,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");
+		background-repeat: no-repeat;
+		background-position: calc(100% - 5px), center;
+		padding-right: 32px;
+	}
+	
+	&.small {
+		@include rem-units(width, 64);
+	}
+	
+	&.medium {
+		@include rem-units(width, 150);
+	}
+	
+	&.x-large {
+		@include rem-units(width, 320);
+	}
+
+	&.expand {
+		width: 100%;
+	}
+
+	&.disabled,
+	&:disabled {
+		background-color: #eee;
+		border-color: $darkGray;
+		color: $darkGray;
+		cursor: not-allowed;
+	}
+
+    &.stretch {
+        width: 100%;
+    }
+
+	&::-ms-clear {
+		display: none;
+	}
+
+	&::-webkit-input-placeholder {
+		color: $gray;
+	}
+
+	&:-moz-placeholder {
+		color: $gray;
+		opacity: 1;
+	}
+
+	&::-moz-placeholder {
+		color: $gray;
+		opacity: 1;
+	}
+
+	&:-ms-input-placeholder {
+		color: $gray;
+	}
+}
+
+a.button,
+input[type=button],
+input[type=submit],
+input[type=reset],
+button {
+	display: inline-block;
+	@include rem-units(padding, 8 12);
+	@include border-box();
+	background-color: $white;
+	border: 1px solid $gray;
+	color: $blackish;
+	cursor: pointer;
+	line-height: 1em;
+	font-family: Helvetica, Arial;
+	@include rem-units(font-size, 16);
+	@include rem-units(height, 36);
+	@include rem-units(min-height, 36);
+	@include rem-units(min-width, 70);
+	overflow: visible;
+	text-align: center;
+	vertical-align: top;
+		
+	@each $colorName in $colorArray {
+		&.#{nth($colorName, 1)} {
+			background-color: nth($colorName, 2);
+			color: $white;
+			border-color: nth($colorName, 2);
+
+			&:hover {
+				background-color: darken(nth($colorName, 2), $hoverPercent);
+			}
+
+            &.disabled,
+	        &:disabled {
+		        background-color: $darkGray;
+		        border-color: $darkGray;
+		        color: $lightGray;
+		        cursor: not-allowed;
+
+				&:hover {
+					background-color: $darkGray;
+					color: $lightGray;
+				}
+	        }
+		}
+	}
+
+	&.link {
+		background-color: transparent;
+		border-color: transparent;
+		color: $blue;
+
+		&.disabled,
+		&:disabled {
+			background-color: transparent;
+			border-color: transparent;
+			color: $darkGray;
+			cursor: not-allowed;
+
+			&:hover {
+				background-color: transparent;
+				border-color: transparent;
+				color: $darkGray;
+			}
+		}
+	}
+
+	&.disabled,
+	&:disabled {
+		background-color: $darkGray;
+		border-color: $darkGray;
+		color: $lightGray;
+		cursor: not-allowed;
+
+		&:hover {
+			background-color: $darkGray;
+			color: $lightGray;
+		}
+	}
+
+	&:hover {
+		background-color: darken($white, $hoverPercent);
+	}
+}
+
+select {
+	@include rem-units(padding, 6 8);
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance:textfield;
+}
+
+label {
+	&.input {
+		@include border-box();
+		@include rem-units(font-size, 18);
+		@include rem-units(height, 36);
+		color: $blackish;
+		display: inline-block;
+		padding: 6px 10px 0;
+	}
+}
+
+pre {
+	background-color: $lightGray;
+	border: 1px solid $lightishGray;
+	@include rem-units(padding, 10);
+
+	code {
+		white-space: pre-wrap;
+	}
+}
+
+table {
+	@include border-box();
+	border-spacing: 0;
+	border-collapse: collapse;
+	vertical-align: top;
+	padding: 0;
+	@include rem-units(margin, 0 0 10 0);
+
+	tr {
+		td  {
+			@include border-box();
+			@include rem-units(padding, 6);
+			vertical-align: top;
+
+			&.snug {
+				width: 1px;
+				white-space: nowrap;
+			}
+		}
+	}
+
+    &.hover tbody tr:hover {
+        background-color: $blue;
+        color: $white;
+
+		a {
+			color: $white;
+		}
+    }
+
+	thead tr td,
+	thead tr th {
+		color: $darkGray;
+		border-bottom: 1px solid $gray;
+		font-style: normal;
+		font-weight: normal;
+		text-align: left;
+		@include border-box();
+		@include rem-units(padding, 6 0);
+		vertical-align: top;
+	}
+
+	&.form {
+		input {
+			margin-bottom: 0;
+			width: 100%;
+		}
+		
+		input[type=checkbox] {
+			width: auto;
+		}
+	}
+
+	&.center {
+		margin: 0 auto;
+	}
+
+	&.expand {
+		width: 100%;
+	}
+
+	&.striped {
+		tr:nth-child(2n) td {
+			background-color: $lightGray;
+		}
+	}
+
+	&.bordered {
+		border: 1px solid $gray;
+	}
+
+	&.files {
+		position: relative;
+
+		tr th:first-child,
+		tr td:first-child {
+			width: auto;
+		}
+
+		tr th,
+		tr td {
+			width: 12%;
+		}
+
+		tr:hover img {
+			display: block;
+		}
+
+		img {
+			display: none;
+			position: absolute;
+			top: 0;
+			right: 0;
+			height: 200px;
+			width: 200px;
+		}
+	}
+}
+
+dl{
+	dt {
+		color: $blackish;
+		@include rem-units(margin, 0 0 10 0);
+	}
+	
+	dd {
+		@include rem-units(margin, 0 0 20 20);
+	}
+
+	textarea,
+	input[type=email],
+	input[type=number],
+	input[type=password],
+	input[type=text],
+	input[type=time],
+	datalist,
+	input[list],
+	select {
+		margin: 0 !important;
+	}
+	
+	&.form {
+		display: inline-block;
+		overflow: hidden;
+		@include clearfix();
+		@include border-box();
+		@include rem-units(font-size, 18);
+		padding: 0;
+		@include rem-units(margin, 0 0 10 0);
+		vertical-align: top;
+				
+		&.large {
+			dt {
+				@include rem-units(width, 256);
+			}
+		}
+
+		dt {
+			clear: both;
+			float: left;
+			padding: 3px 0;
+			text-align: right;
+			@include rem-units(margin, 0 20 18 0);
+			@include rem-units(width, 160);
+		}
+	
+		dd {
+			clear: right;
+			float: left;
+			margin: 0 0 6px 0;
+
+			> input,
+			> select {
+				margin: 0;
+			}
+		}
+	}
+}
+
+ul {
+	&.striped {
+		border-bottom: 1px solid $darkGray;
+		list-style: none;
+		padding: 0;
+		@include clearfix();
+		@include border-box();
+		margin: 0;
+
+		li {
+			border-top: 1px solid $darkGray;
+			padding: 4px 10px;
+		}
+
+		li:nth-child(2n+1) {
+			background-color: $lightGray;
+		}
+	}
+
+	&.tabs {
+		list-style: none;
+		padding: 0;
+		@include clearfix();
+		@include border-box();
+		margin: 0;
+	
+		li {
+			color: $blackish;
+			cursor: pointer;
+			float: left;
+			font-family: $font-family-light;
+			font-style: normal;
+			font-weight: 300;
+			@include rem-units(font-size, $font-size-base * exponent($font-scale, 3));
+			@include rem-units(margin, 0 20 0 0);
+
+			&.selected {
+				color: $blue;
+			}
+		}
+	}
+}
+
+p {
+	@include rem-units(margin, 0 0 10 0);
+}
+
+img {
+	max-width: 100%;
+}
+
+.text-left {
+	text-align: left;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.text-right,
+.text-right-then-center {
+	text-align: right;
+}
+
+.login {
+	width: 300px;
+}
+
+.pull-right {
+	float: right !important;
+}
+
+.pull-left {
+	float: left !important;
+}
+
+.pad {
+	padding: 20px 0 30px 0;
+}
+
+.clear {
+	@include clearfix();
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+@each $i in (0,4,8,10,12,20)  {
+	.margin-#{$i} {
+		@include rem-units(margin, $i, '!important');
+	}
+	
+	.margin-bottom-#{$i} {
+		@include rem-units(margin-bottom, $i, '!important');
+	}
+	
+	.margin-top-#{$i} {
+		@include rem-units(margin-top, $i, '!important');
+	}
+	
+	.margin-left-#{$i} {
+		@include rem-units(margin-left, $i, '!important');
+	}
+
+	.margin-right-#{$i} {
+		@include rem-units(margin-right, $i, '!important');
+	}
+
+	.padding-#{$i} {
+		@include rem-units(padding, $i, '!important');
+	}
+
+	.padding-bottom-#{$i} {
+		@include rem-units(padding-bottom, $i, '!important');
+	}
+	
+	.padding-top-#{$i} {
+		@include rem-units(padding-top, $i, '!important');
+	}
+	
+	.padding-left-#{$i} {
+		@include rem-units(padding-left, $i, '!important');
+	}
+	
+	.padding-right-#{$i} {
+		@include rem-units(padding-right, $i, '!important');
+	}
+}
+
+[ng\:cloak],
+[ng-cloak],
+.ng-cloak,
+.hide {
+	display: none !important;
+}
+
+.fa-lg {
+	vertical-align: 0;
+}
+
+.fa-nospin {
+	-moz-animation: none;
+	-o-animation: none;
+	-webkit-animation: none;
+	animation: none;
+}
+
+ul.tag {
+	border: 1px solid #e3e2e2;
+	line-height: 3em;
+	margin: 0;
+	padding: 10px;
+	
+	li {
+		display: inline;
+		white-space: nowrap;
+
+		a {
+			padding: 10px;
+			text-decoration: none;
+			
+			&:hover {
+				text-decoration: underline;
+			}
+			
+			&.tag1 {
+				font-size: 1em;
+			}
+
+			&.tag2 {
+				font-size: 1.2em;
+			}
+
+			&.tag3 {
+				font-size: 1.3em;
+			}
+
+			&.tag4 {
+				font-size: 1.5em;
+			}
+
+			&.tag5 {
+				font-size: 2em;
+			}
+		}
+	}
+}
+
+div.tag {
+	float: left;
+	background-color: $darkBlue;
+	color: $white;
+	cursor: pointer;
+	@include rem-units(padding, 8 12);
+	@include rem-units(margin, 0 10 10 0);
+	@include rem-units(font-size, 12);
+	border: 1px solid $gray;
+	@include rem-units(height, 18);
+
+	&:hover {
+		background-color: $burgundy;
+	}
+}
+
+.toolbar {
+	@include clearfix();
+	@include rem-units(margin, 0 0 10 0);
+	
+	> button {
+		display: inline-block;
+		padding: 0;
+		margin: 0;
+		float: left;
+		width: 38px;
+		min-width: 0;
+	}
+}
+
+textarea.editor {
+	height: 384px;
+}
+
+div.pages,
+div.files {
+	border: 1px solid $gray;
+	@include rem-units(margin, 0 0 10 0);
+	height: 362px;
+	@include rem-units(padding, 10);
+
+	> .rows {
+		height: 316px;
+		@include rem-units(margin, 0 0 10 0);
+		overflow-x: visible;
+		overflow-y: auto;
+	}
+}
+
+div.preview {
+	padding-left: 20px;
+
+	> div {
+		border: 1px solid $gray;
+		height: 500px;
+		overflow: scroll;
+		padding: 10px;
+	}
+}
+
+#page {
+	position: relative;
+}
+
+#pageHeader {
+	color: $darkBlue;
+
+	> div:first-of-type small {
+		color: $darkGray;
+		display: block;
+		@include rem-units(margin-top, -8);
+	}
+
+	> div:last-of-type {
+		@include rem-units(padding, 12);
+	}
+}
+
+#pageFooter {
+	color: $darkBlue;
+
+	a {
+		margin-left: 10px;
+	}
+}
+
+#pageUpdatedLink {
+    background: $lightGray;
+    border: 1px solid $gray;
+	position: fixed;
+    bottom: 0;
+    left: 0;
+	@include rem-units(padding, 10 20);
+	@include rem-units(margin, 10);
+}
+
+del.diffmod {
+    background-color: #FEC8C8;
+    color: #999;
+}
+
+ins.diffmod {
+    background-color: #cfc;
+    text-decoration: inherit;
+}
+
+.alert {
+	@include rem-units(padding, 10);
+	@include rem-units(margin, 20 0);
+}
+
+.alert-success {
+	background-color: #dff0d8;
+	border-color: #d6e9c6;
+	color: #468847;
+}
+
+.alert-info {
+	background-color: #d9edf7;
+	border-color: #bce8f1;
+	color: #3a87ad;
+}
+
+.alert-warning {
+	background-color: #fcf8e3;
+	border-color: #faebcc;
+	color: #c09853;
+}
+
+.alert-danger {
+	background-color: #f2dede;
+	border-color: #ebccd1;
+	color: #b94a48;
+}
+
+.parent {
+	position: relative;
+
+	.child-right {
+		position: absolute;
+		right: 0;
+	}
+}
+
+.input-inner-button {
+	color: $blackish !important;
+
+	&.disabled,
+	&:disabled {
+		color: $darkGray !important;
+	}
+}
+
+@media screen and (max-width: 960px) {
+
+}
+
+@media screen and (max-width: 640px) {	
+	
+	[class*="span"] {
+		width: 100%;
+	}
+
+	@for $i from 1 through 24 {
+		.span#{$i} {
+			width: 100%;
+		}
+	}
+
+	@for $i from 1 through 23 {
+		.offset#{$i} {
+			margin-left: 0;
+		}
+	}
+
+	.text-right-then-center {
+		text-align: center;
+	}
+}

@@ -1,0 +1,47 @@
+﻿@model SearchView
+
+@{
+	ViewBag.Title = "Search";
+}
+<div ng-controller="controller">
+	<h2>Search results for '{{ model.term }}'</h2>
+	@using (Html.BeginForm("Search", "Page", FormMethod.Get))
+	{
+		<input name="term" class="x-large" type="text" placeholder="Enter text to search" ng-value="model.term" />
+	}
+	<br />
+	<div class="margin-bottom-20" ng-repeat="$result in model.results">
+		<div class="row">
+			<div class="span12">
+				<h3 class="margin-0">
+					<a ng-href="/Page/{{ $result.id }}/{{ $result.titleForLink }}">{{ $result.title }}</a>
+				</h3>
+			</div>
+			<div class="darkGray text-right-then-center padding-top-4 span12">
+				<span ng-repeat="$tag in $result.tags">
+					<a ng-attr-id="{{ 'tag-' + $tag }}" ng-href="/PagesWithTag/{{ $tag }}">{{ $tag }}</a><span ng-show="$index < $result.tags.length - 1">,</span>
+				</span>
+			</div>
+		</div>
+		<p>
+			{{ $result.contentSummary }}
+		</p>
+	</div>
+	<br />
+	<h4 class="burgundy" ng-show="model.results.length <= 0">No results found...</h4>
+</div>
+@section scripts
+{
+	<script type="text/javascript">
+
+		scribe.controller('controller', [
+			'$scope', '$http', '$window',
+			function ($scope, $http, $window) {
+				'use strict';
+
+				$scope.model = @(Html.Raw(Model.ToJson()));
+				$scope.currentUser = '@(Request.RequestContext.HttpContext.User.Identity.GetDisplayName())';
+			}
+		]);
+	</script>
+}

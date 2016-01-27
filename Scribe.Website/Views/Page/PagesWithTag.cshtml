@@ -1,0 +1,16 @@
+﻿@model TagPagesView
+
+@{
+	ViewBag.Title = "Pages with Tag";
+}
+<h1>
+	All pages with tag "@Model.Tag"
+</h1>
+<ul class="striped">
+	@foreach (var item in Model.Pages)
+	{
+		<li>
+			@Html.ActionLink(item.Title, "Page", new { id = item.Id }, null)
+		</li>
+	}
+</ul>

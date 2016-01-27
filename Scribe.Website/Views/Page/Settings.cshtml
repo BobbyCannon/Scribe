@@ -1,0 +1,63 @@
+﻿@model SettingsView
+
+@{
+	ViewBag.Title = "Settings";
+}
+<div ng-controller="controller">
+	<form name="settings" class="span12">
+		<h1>Settings</h1>
+		<dl>
+			<dt>LDAP Connection String</dt>
+			<dd>
+				<input class="x-large" type="text" ng-model="model.ldapConnectionString" />
+			</dd>
+			<dt>
+				Overwrite Files
+			</dt>
+			<dd class="padding-top-4">
+				<input id="overwriteFilesOnUpload" type="checkbox" ng-model="model.overwriteFilesOnUpload" />
+				<label for="overwriteFilesOnUpload">Automatically overwrite existing files on upload </label>
+			</dd>
+		</dl>
+		<button class="blue" ng-disabled="!settings.$dirty" ng-click="save()">Save</button>
+	</form>
+	<div class="span12 hide">
+		<h1>Tools</h1>
+		<div class="padding-left-20">
+			<h4>
+				<a href="#" title="Forces a rebuild of the page search index, useful if the search begins to get out of sync for any reason.">Rebuild Search Indexes</a>
+			</h4>
+		</div>
+	</div>
+</div>
+@section scripts
+{
+	<script type="text/javascript">
+
+		scribe.controller('controller', [
+			'$scope', '$http', '$window',
+			function ($scope, $http, $window) {
+				'use strict';
+
+				$scope.model = @(Html.Raw(Model.ToJson()));
+
+				$scope.save = function () {
+					$http.post('/api/Settings/Save', $scope.model)
+						.success(function (data) {
+							$scope.model = data;
+							$scope.settings.$setPristine(true);
+							toastr.success('Successfully saved the settings.');
+						})
+						.error(function (error) {
+							if (error.message) {
+								toastr.error(error.message);
+							} else {
+								toastr.error('There was issue saving the settings.');
+							}
+						});
+				}
+			}
+		]);
+
+	</script>
+}

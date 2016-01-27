@@ -1,0 +1,70 @@
+﻿@{
+	ViewBag.Title = "Setup";
+}
+<div ng-controller="controller">
+	<form name="settings">
+		<div class="row">
+			<div class="span12">
+				<h1>Administrator</h1>
+				<dl>
+					<dt>UserName</dt>
+					<dd>
+						<input class="x-large" type="text" ng-model="model.userName" />
+					</dd>
+					<dt>
+						Password
+					</dt>
+					<dd class="padding-top-4">
+						<input class="x-large" type="password" ng-model="model.password" />
+					</dd>
+				</dl>
+			</div>
+			<div class="span12">
+				<h1>Settings</h1>
+				<dl>
+					<dt>LDAP Connection String</dt>
+					<dd>
+						<input class="x-large" type="text" ng-model="model.ldapConnectionString" />
+					</dd>
+					<dt>
+						Overwrite Files
+					</dt>
+					<dd class="padding-top-4">
+						<input id="overwriteFilesOnUpload" type="checkbox" ng-model="model.overwriteFilesOnUpload" />
+						<label for="overwriteFilesOnUpload">Automatically overwrite existing files on upload </label>
+					</dd>
+				</dl>
+			</div>
+		</div>
+		<button class="blue" ng-disabled="!settings.$dirty" ng-click="save()">Save</button>
+	</form>
+</div>
+@section scripts
+{
+	<script type="text/javascript">
+
+		scribe.controller('controller', [
+			'$scope', '$http', '$window',
+			function ($scope, $http, $window) {
+				'use strict';
+
+				$scope.model = {};
+
+				$scope.save = function () {
+					$http.post('/api/Settings/Setup', $scope.model)
+						.success(function () {
+							$window.location = '/';
+						})
+						.error(function (error) {
+							if (error.message) {
+								toastr.error(error.message);
+							} else {
+								toastr.error('There was issue saving the setup.');
+							}
+						});
+				}
+			}
+		]);
+
+	</script>
+}

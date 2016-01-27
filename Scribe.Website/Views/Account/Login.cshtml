@@ -1,0 +1,37 @@
+﻿@model LoginModel
+
+@{
+	ViewBag.Title = "Login";
+}
+
+@using (Html.BeginForm())
+{
+	<table id="loginForm" name="loginForm" class="form center login">
+		<tr>
+			<td colspan="2">
+				<div class="darkGray padding-4">user name</div>
+				@Html.TextBox("userName", Model.UserName, new { id = "userName" })
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<div class="darkGray padding-4">password</div>
+				@Html.Password("password", Model.Password, new { id = "password" })
+			</td>
+		</tr>
+		<tr>
+			<td class="padding-top-10">
+				@Html.CheckBox("rememberMe", Model.RememberMe, new { id = "rememberMe" })
+				@Html.LabelFor(m => m.RememberMe, "Remember Me", new { @for = "rememberMe" })
+			</td>
+			<td class="text-right">
+				<button id="submit" class="button blue" type="submit">Submit</button>
+				@Html.TextBox("phone", Model.PhoneNumber, new { id = "phoneNumber", @class = "hide" })
+				@Html.Hidden("returnUrl", (string) ViewBag.ReturnUrl)
+			</td>
+		</tr>
+	</table>
+	<div class="text-center darkBlue margin-top-20">
+		@Html.ValidationMessage("userName", new { id = "validationMessage" })
+	</div>
+}

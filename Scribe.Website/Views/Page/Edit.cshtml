@@ -1,0 +1,328 @@
+﻿@model PageView
+
+@{
+	ViewBag.Title = "Add / Edit Page";
+}
+<form id="editorForm" name="editorForm" ng-controller="controller" ng-disabled="!isCurrentEditor()">
+	<div class="row">
+		<div ng-class="{ 'span12': input.showPreview, 'span24': !input.showPreview }">
+			<input id="editorFormTitle" class="expand" type="text" ng-model="model.title" placeholder="title" ng-disabled="!isCurrentEditor()" required autofocus /><br />
+			<div id="toolbar" class="toolbar">
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('**', true)" title="Bold">B</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('_', true)" title="Italic">I</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('# ')" title="Header 1">H1</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('## ')" title="Header 2">H2</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('### ')" title="Header 3">H3</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('#### ')" title="Header 4">H4</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('##### ')" title="Header 5">H5</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('###### ')" title="Header 6">H6</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('\n* ')" title="List">
+					<span class="fa fa-th-list"></span>
+				</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="input.showFiles = !input.showFiles; input.showPages = false" title="Files">
+					<span class="fa fa-picture-o"></span>
+				</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="input.showPages = !input.showPages; input.showFiles = false" title="Links">
+					<span class="fa fa-link"></span>
+				</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="input.showPreview = !input.showPreview" title="Preview" class="pull-right">
+					<span class="fa fa-sticky-note" ng-show="input.showPreview"></span>
+					<span class="fa fa-sticky-note-o" ng-show="!input.showPreview"></span>
+				</button>
+			</div>
+			<textarea id="editorFormText" class="expand editor" ng-show="!input.showFiles && !input.showPages" ng-keydown="editorUpdated($event)" ng-model="model.text" ng-disabled="!isCurrentEditor()" placeholder="Content" required></textarea>
+			<div id="pageList" class="pages" ng-show="input.showPages">
+				<div class="rows">
+					<table class="expand striped pages">
+						<tbody>
+							<tr ng-repeat="$name in model.pages | filter: input.pageFilter" class="clickable" ng-click="selectPage($name)">
+								<td>
+									{{$name}}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<button ng-click="insert('[Link text](enter url or page name)'); input.showPages = false">Manual</button>
+					<button ng-click="input.showPages = false">Cancel</button>
+					<input id="pageFilter" ng-model="input.pageFilter" class="pull-right" type="text" title="filter" placeholder="filter" />
+				</div>
+			</div>
+			<div id="fileList" class="files" ng-show="input.showFiles">
+				<div class="rows">
+					<table class="expand striped files">
+						<tbody>
+							<tr ng-repeat="$file in model.files | filter: input.fileFilter" class="clickable" ng-click="selectImage($file)">
+								<td>
+									{{$file.name}}
+									<img ng-src="/File?name={{$file.name}}" ng-show="$file.type.indexOf('image') >= 0" />
+								</td>
+								<td>{{$file.size}}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<input id="file" type="file" class="hide" onchange="angular.element(this).scope().uploadImage(this)" />
+					<button class="blue" onclick="$('#file').trigger('click')" ng-disabled="progress.value !== 0">
+						<span ng-show="progress.value === 0">Upload</span>
+						<span ng-hide="progress.value === 0">Uploading {{progress.value}}%</span>
+					</button>
+					<button ng-click="input.showFiles = false">Cancel</button>
+					<input id="fileFilter" ng-model="input.fileFilter.name" class="pull-right" type="text" title="filter" placeholder="filter" />
+				</div>
+			</div>
+			<div class="parent">
+				<a id="addTagButton" href="#" class="button link pull-right child-right input-inner-button" ng-click="addTag()" ng-class="{ disabled: input.tag.length < 1 }">add</a>
+				<input id="editorFormTag" class="expand" type="text" ng-model="input.tag" placeholder="tags" pattern="^[a-zA-Z0-9- ]*$" ng-blur="addTag()" ng-keydown="tagUpdated($event)" ng-disabled="!isCurrentEditor()" />
+			</div>
+		</div>
+		<div class="preview" ng-class="{ 'span12': input.showPreview, 'hide': !input.showPreview }">
+			<div id="preview" ng-bind-html="model.html" ng-hide="!isCurrentEditor()"></div>
+			<div id="editorWaiting" ng-show="!isCurrentEditor()">
+				<div ng-hide="canBeEdited">
+					<h1>
+						Currently being edited by <span class="burgundy">{{ model.editingBy }}</span>
+					</h1>
+					<p>
+						Once the user is done editing the page you'll be able to edit it.
+					</p>
+				</div>
+				<div ng-show="canBeEdited">
+					<h1>The page can be edited</h1>
+					<a id="pageCanBeEditedLink" class="clickable" ng-click="reload()">
+						<h1> Click here to edit.</h1>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="editorFormControls" class="row" ng-hide="!isCurrentEditor()">
+		<div class="span24">
+			<div class="pull-right">
+				<button id="saveButton" class="blue" ng-disabled="editorForm.$invalid" ng-click="save()">Save</button>
+				<button id="cancelButton" ng-click="cancel()">Cancel</button>
+			</div>
+			<div class="tag" ng-repeat="$tag in model.tags" ng-click="model.tags.splice($index, 1);">
+				{{$tag}}
+			</div>
+		</div>
+	</div>
+</form>
+@section scripts
+{
+	<script type="text/javascript">
+
+		scribe.controller('controller', [
+			'$scope', '$http', '$window',
+			function ($scope, $http, $window) {
+				'use strict';
+
+				$scope.model = @(Html.Raw(Model.ToJson()));
+				$scope.currentUser = '@(Request.RequestContext.HttpContext.User.Identity.GetDisplayName())';
+
+				$scope.input = {
+					tag: '',
+					showFiles: false,
+					showPages: false,
+					showPreview: true
+				};
+
+				$scope.progress = {
+					value: 0,
+					visible: false
+				};
+
+				$scope.reload = function () {
+					$window.location.reload();
+				}
+
+				$scope.isCurrentEditor = function () {
+					return $scope.model.editingBy.length <= 0 || $scope.model.editingBy === $scope.currentUser;
+				}
+
+				function uploadProgress(event) {
+					$scope.$apply(function () {
+						if (event.lengthComputable) {
+							$scope.progress.visible = true;
+							$scope.progress.value = Math.round(event.loaded * 100 / event.total);
+						} else {
+							$scope.progress.visible = true;
+							$scope.progress.value = "-1";
+						}
+					});
+				}
+
+				function resetFileInput() {
+					var input = $('#file');
+					input.replaceWith(input.val('').attr('accepts', '*').clone(true));
+					$scope.progress.value = 0;
+				}
+
+				function parseMessage(responseText) {
+					var start = responseText.indexOf("<title>");
+					var end = responseText.indexOf("</title>", start);
+
+					if (start > 0 && end > 0 && end > start) {
+						var message = responseText.substring(start + 7, end);
+						return message;
+					}
+
+					return "Failed to upload the file.";
+				};
+
+				function uploadComplete() {
+					var that = this;
+					$scope.$apply(function () {
+						if (that.status !== 200) {
+							var message = parseMessage(that.responseText);
+							toastr.error(message);
+							resetFileInput();
+							return;
+						}
+
+						var input = $('#file');
+						var filename = input.val().split('\\').pop();
+						$scope.insert('![' + filename + '](' + filename + ')');
+						$scope.progress.visible = false;
+						$scope.input.showFiles = false;
+						var view = JSON.parse(that.responseText);
+						$scope.model.files = view.files;
+						resetFileInput();
+					});
+				}
+
+				$scope.addTag = function () {
+					if ($scope.input.tag && $scope.input.tag.length > 0) {
+						if ($scope.model.tags.indexOf($scope.input.tag) < 0) {
+							$scope.model.tags.push($scope.input.tag);
+						}
+
+						$scope.input.tag = '';
+					}
+				}
+
+				$scope.tagUpdated = function (keyEvent) {
+					if (keyEvent.which === 44) {
+						keyEvent.preventDefault();
+					}
+
+					if (keyEvent.which === 13) {
+						$scope.addTag();
+						keyEvent.preventDefault();
+					}
+				}
+
+				$scope.getPreview = function () {
+					$http.post('/api/Page/Preview', $scope.model)
+						.success(function (data) {
+							$scope.model.html = data;
+						})
+						.error(function () {
+							toastr.error('There was issue getting the page preview.');
+						});
+				}
+
+				$scope.editorUpdated = _.debounce($scope.getPreview, 250);
+
+				$("#editorFormText").blur(function () {
+					$scope.input.editorSelection = $("#editorFormText").getSelection();
+				});
+
+				$scope.insert = function (value, wrap) {
+					var $editor = $("#editorFormText");
+					var selection = $scope.input.editorSelection || $("#editorFormText").getSelection();
+					$("#editorFormText").setSelection(selection.start, selection.end);
+
+					if (wrap) {
+						$editor.replaceSelection(value + selection.text + value);
+					} else {
+						$editor.replaceSelection(value + selection.text);
+					}
+
+					$editor.setSelection(selection.end + value.length, selection.end + value.length);
+					$editor.focus();
+					angular.element($editor[0]).triggerHandler('change');
+					$scope.editorUpdated();
+				}
+
+				$scope.selectImage = function (file) {
+					$scope.input.showFiles = false;
+					$scope.insert('![' + file.name + '](' + file.name + ')');
+				}
+
+				$scope.selectPage = function (name) {
+					$scope.input.showPages = false;
+					$scope.insert('[' + name + '](' + name + ')');
+				}
+
+				$scope.uploadImage = function (element) {
+					if (element.files.length <= 0) {
+						return;
+					}
+
+					var formData = new FormData();
+					formData.append("file", element.files[0]);
+
+					var httpRequest = new XMLHttpRequest();
+					httpRequest.upload.addEventListener("progress", uploadProgress, false);
+					httpRequest.addEventListener("load", uploadComplete, false);
+					httpRequest.open("POST", "/File/Upload");
+					httpRequest.send(formData);
+				}
+
+				$scope.save = function () {
+					$http.post('/api/Page/Save', $scope.model)
+						.success(function (data) {
+							$scope.model = data;
+							$window.location = '/Page/' + data.id + "/" + data.titleForLink;
+						})
+						.error(function (error) {
+							if (error.message) {
+								toastr.error(error.message);
+							} else {
+								toastr.error('There was issue saving the page.');
+							}
+						});
+				}
+
+				$scope.cancel = function () {
+					if ($scope.model.id !== 0) {
+						$window.location = '/CancelEdit/' + $scope.model.id;
+					} else {
+						$window.location = '/';
+					}
+				}
+
+				$window.onbeforeunload = function () {
+					$http.get('/CancelEdit/' + $scope.model.id);
+				}
+
+				var service = $.connection.notificationHub;
+
+				service.client.pageAvailableForEdit = function (id) {
+					if (id !== 0 && $scope.model.id === id && $scope.model.editingBy !== $scope.currentUser) {
+						$scope.$apply(function () {
+							$scope.canBeEdited = true;
+						});
+					}
+				};
+
+				service.client.PageLockedForEdit = function (id, editorName) {
+					if ($scope.model.id !== id || editorName === $scope.currentUser) {
+						return;
+					}
+
+					$scope.$apply(function () {
+						$scope.model.editingBy = editorName;
+						$scope.canBeEdited = false;
+					});
+				}
+
+				$.connection.hub.start();
+			}
+		]);
+
+	</script>
+}

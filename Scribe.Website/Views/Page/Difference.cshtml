@@ -1,0 +1,12 @@
+﻿@model PageDifferenceView
+
+@{
+	ViewBag.Title = "Page Difference";
+}
+<h1>@Model.Title</h1>
+@Html.Raw(Model.Html)
+<div id="pageFooter">
+	This page was last updated @Model.LastModified ago by @Model.ModifiedBy.
+
+	@Html.ActionLink("Back", "History", new { id = Model.Id, title = Model.TitleForLink }, null)
+</div>

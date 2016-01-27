@@ -1,0 +1,24 @@
+﻿@model IEnumerable<TagView>
+
+@{
+	ViewBag.Title = "Tags";
+}
+<h1>Tags</h1>
+<ul class="tag">
+	@foreach (var item in Model)
+	{
+		<li>
+			@Html.ActionLink(item.Tag, "PagesWithTag", new { tag = item.Tag }, new { @class = item.Class })
+		</li>
+	}
+</ul>
+@if (Request.IsAuthenticated)
+{
+	<br />
+	using (Html.BeginForm("RenameTag", "Page", FormMethod.Post))
+	{
+		<input id="RenameTagOldName" name="oldName" class="medium" type="text" placeholder="old name" required autofocus="" />
+		<input id="RenameTagNewName" name="newName" class="medium" type="text" placeholder="new name" required />
+		<input id="RenameTagSubmitButton" type="submit" value="Rename" />
+	}
+}

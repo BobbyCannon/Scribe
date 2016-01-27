@@ -1,0 +1,27 @@
+﻿@model PageHistoryView
+
+@{
+	ViewBag.Title = "Page History";
+}
+<h1>History for @Html.ActionLink(Model.Title, "Page", new { id = Model.Id, title = Model.TitleForLink })</h1>
+<p>Click on a version number to compare the changes with version before it.</p>
+<br />
+<table class="expand striped">
+	<thead>
+		<tr>
+			<th>Version</th>
+			<th>Modified On</th>
+			<th>Modified By</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var version in Model.Versions)
+		{
+			<tr>
+				<td>@Html.ActionLink(version.Number.ToString(), "Difference", new { id = version.Id, title = Model.TitleForLink })</td>
+				<td>@version.LastModified ago</td>
+				<td>@version.ModifiedBy</td>
+			</tr>
+		}
+	</tbody>
+</table>

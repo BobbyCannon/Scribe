@@ -1,0 +1,127 @@
+﻿@model FilesView
+
+@{
+	ViewBag.Title = "Files";
+}
+<div ng-controller="controller" ng-cloak>
+	<table class="expand striped files">
+		<thead>
+			<tr>
+				<th>name</th>
+				<th>type</th>
+				<th>size</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="$file in model.files">
+				<td>
+					<a href='/file?name={{$file.name}}' target="blank">{{$file.name}}</a>
+				</td>
+				<td>{{$file.type}}</td>
+				<td>{{$file.size}}</td>
+				<td>
+					<a href='#' ng-validation-message="Are you sure you want to remove the file ({{$file.name}})?" ng-validated-click="delete($index, $file)">delete</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div>
+		<input id="file" type="file" class="hide" onchange="angular.element(this).scope().fileInputChanged(this)" />
+		<button onclick="$('#file').trigger('click')" ng-disabled="progress.value !== 0">
+			<span ng-show="progress.value === 0">Upload</span>
+			<span ng-hide="progress.value === 0">Uploading {{progress.value}}%</span>
+		</button>
+	</div>
+</div>
+@section scripts
+{
+	<script type="text/javascript">
+
+		scribe.controller('controller', [
+			'$scope', '$http',
+			function ($scope, $http) {
+				'use strict';
+
+				$scope.model = @(Html.Raw(Model.ToJson()));
+				$scope.progress = {
+					value: 0,
+					visible: false
+				};
+
+				function uploadProgress(event) {
+					$scope.$apply(function () {
+						if (event.lengthComputable) {
+							$scope.progress.visible = true;
+							$scope.progress.value = Math.round(event.loaded * 100 / event.total);
+						} else {
+							$scope.progress.visible = true;
+							$scope.progress.value = "-1";
+						}
+					});
+				}
+
+				function resetFileInput() {
+					var input = $('#file');
+					input.replaceWith(input.val('').attr('accepts', '*').clone(true));
+					$scope.progress.value = 0;
+				}
+
+				function parseMessage(responseText) {
+					var start = responseText.indexOf("<title>");
+					var end = responseText.indexOf("</title>", start);
+
+					if (start > 0 && end > 0 && end > start) {
+						var message = responseText.substring(start + 7, end);
+						return message;
+					}
+
+					return "Failed to upload the file.";
+				};
+
+				function uploadComplete() {
+					var that = this;
+					$scope.$apply(function () {
+						if (that.status !== 200) {
+							var message = parseMessage(that.responseText);
+							toastr.error(message);
+							resetFileInput();
+							return;
+						}
+
+						$scope.model = JSON.parse(that.responseText);
+						$scope.progress.visible = false;
+						resetFileInput();
+					});
+				}
+
+				$scope.fileInputChanged = function (element) {
+					if (element.files.length <= 0) {
+						return;
+					}
+
+					var formData = new FormData();
+					formData.append("file", element.files[0]);
+
+					var httpRequest = new XMLHttpRequest();
+					httpRequest.upload.addEventListener("progress", uploadProgress, false);
+					httpRequest.addEventListener("load", uploadComplete, false);
+					httpRequest.open("POST", "/File/Upload");
+					httpRequest.send(formData);
+				}
+
+				$scope.delete = function (index, file) {
+					console.log(index);
+					$http.post('/File/Delete', file)
+						.success(function () {
+							$scope.model.files.splice(index, 1);
+						})
+						.error(function () {
+							toastr.error('There was issue getting the deleting the file.');
+						});
+				}
+			}
+		]);
+
+	</script>
+}

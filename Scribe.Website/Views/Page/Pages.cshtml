@@ -1,0 +1,62 @@
+﻿@model IEnumerable<PageSummaryView>
+
+@{
+	ViewBag.Title = "All Pages";
+}
+<div ng-controller="controller" ng-cloak>
+	<h1>All Pages</h1>
+	<table class="expand striped">
+		<thead>
+			<tr>
+				<th>
+					<a href="#" ng-click="predicate='title'; reverse=!reverse">name</a>
+					<i ng-show="predicate === 'title' && reverse === false" class="fa fa-sort-asc"></i>
+					<i ng-show="predicate === 'title' && reverse === true" class="fa fa-sort-desc"></i>
+					<i ng-show="predicate !== 'title'" class="fa fa-sort"></i>
+				</th>
+				<th>
+					<a href="#" ng-click="predicate='modifiedBy'; reverse=!reverse">modified by</a>
+					<i ng-show="predicate === 'modifiedBy' && reverse === false" class="fa fa-sort-asc"></i>
+					<i ng-show="predicate === 'modifiedBy' && reverse === true" class="fa fa-sort-desc"></i>
+					<i ng-show="predicate !== 'modifiedBy'" class="fa fa-sort"></i>
+				</th>
+				<th>
+					<a href="#" ng-click="predicate='modifiedOn'; reverse=!reverse">last modified</a>
+					<i ng-show="predicate === 'modifiedOn' && reverse === false" class="fa fa-sort-asc"></i>
+					<i ng-show="predicate === 'modifiedOn' && reverse === true" class="fa fa-sort-desc"></i>
+					<i ng-show="predicate !== 'modifiedOn'" class="fa fa-sort"></i>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="$item in model | orderBy:predicate:reverse">
+				<td>
+					<a ng-href="/Page/{{$item.id}}/{{$item.titleForLink}}">{{$item.title}}</a>
+				</td>
+				<td>
+					{{$item.modifiedBy}}
+				</td>
+				<td>
+					{{$item.lastModified}} ago
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+@section scripts
+{
+	<script type="text/javascript">
+
+		scribe.controller('controller', [
+			'$scope', '$http', '$window',
+			function ($scope, $http, $window) {
+				'use strict';
+
+				$scope.model = @(Html.Raw(Model.ToJson()));
+				$scope.predicate = 'title';
+				$scope.reverse = false;
+			}
+		]);
+
+	</script>
+}

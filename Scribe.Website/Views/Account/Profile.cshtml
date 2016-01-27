@@ -1,0 +1,51 @@
+﻿@model ProfileView
+
+@{
+	ViewBag.Title = "Profile";
+}
+<div ng-controller="controller" ng-cloak>
+	<h1>Profile</h1>
+	<dl class="form">
+		<dt>Display Name</dt>
+		<dd>
+			<input class="x-large" type="text" ng-model="model.displayName" ng-disabled="model.disabled" />
+		</dd>
+		<dt>Email Address</dt>
+		<dd>
+			<input class="x-large" type="text" ng-model="model.emailAddress" ng-disabled="model.disabled" />
+		</dd>
+		<dt>User Name</dt>
+		<dd>
+			<input class="x-large" type="text" ng-model="model.userName" ng-disabled="model.disabled" />
+		</dd>
+		<dt></dt>
+		<dd>
+			<button class="blue" ng-click="Save()" ng-hide="model.disabled">Save</button>
+		</dd>
+	</dl>
+</div>
+@section scripts
+{
+	<script type="text/javascript">
+
+		scribe.controller('controller', [
+			'$scope', '$http',
+			function ($scope, $http) {
+				'use strict';
+
+				$scope.model = @(Html.Raw(Model.ToJson()));
+
+				$scope.Save = function () {
+					$http.post('/Account/Profile', $scope.model)
+						.success(function () {
+							toastr.success('Profile updated...');
+						})
+						.error(function () {
+							toastr.error('There was an issue updating your profile.');
+						});
+				}
+			}
+		]);
+
+	</script>
+}

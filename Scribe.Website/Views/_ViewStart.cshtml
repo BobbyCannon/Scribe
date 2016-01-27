@@ -1,0 +1,9 @@
+﻿@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using controller = Scribe.Website.Controllers.BaseController
+@{
+	var controller = (controller) ViewContext.Controller;
+	controller.ViewBag.IsAdministrator = controller.GetCurrentUser(false)?.InRole("Administrator") ?? false;
+}
