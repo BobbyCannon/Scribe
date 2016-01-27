@@ -198,6 +198,7 @@
     <None Include="compilerconfig.json.defaults">
       <DependentUpon>compilerconfig.json</DependentUpon>
     </None>
+    <None Include="Properties\PublishProfiles\deployment.pubxml" />
     <None Include="Properties\PublishProfiles\localhost.pubxml" />
     <None Include="Scripts\jquery-2.2.0.intellisense.js" />
     <Content Include="Scripts\jquery-2.2.0.js" />
@@ -234,7 +235,7 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
+    <None Include="packages.config" />
     <Content Include="Content\scribe.scss" />
     <Content Include="Fonts\fontawesome-webfont.eot" />
     <Content Include="Fonts\fontawesome-webfont.ttf" />
