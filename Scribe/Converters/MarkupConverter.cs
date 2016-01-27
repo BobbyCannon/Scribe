@@ -92,7 +92,6 @@ namespace Scribe.Converters
 				return;
 			}
 
-
 			// Parse internal links
 			var href = e.OriginalHref;
 			var title = href;

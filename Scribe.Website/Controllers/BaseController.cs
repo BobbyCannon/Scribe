@@ -30,7 +30,7 @@ namespace Scribe.Website.Controllers
 		public IAuthenticationService AuthenticationService { get; }
 
 		public IScribeContext DataContext { get; }
-		
+
 		#endregion
 
 		#region Methods

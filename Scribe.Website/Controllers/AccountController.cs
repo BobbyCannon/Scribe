@@ -24,13 +24,6 @@ namespace Scribe.Website.Controllers
 		#region Methods
 
 		[AllowAnonymous]
-		public ActionResult Unauthorized()
-		{
-			return View();
-		}
-
-
-		[AllowAnonymous]
 		public ActionResult Login(string returnUrl)
 		{
 			ViewBag.ReturnUrl = returnUrl;
@@ -69,6 +62,12 @@ namespace Scribe.Website.Controllers
 		{
 			AuthenticationService.LogOut();
 			return RedirectToAction("Home", "Page");
+		}
+
+		[AllowAnonymous]
+		public ActionResult Unauthorized()
+		{
+			return View();
 		}
 
 		[ActionName("Profile")]
