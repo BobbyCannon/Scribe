@@ -32,18 +32,28 @@ namespace Scribe.Services
 		private readonly string _indexPath;
 		private readonly MarkupConverter _markupConverter;
 		private static readonly Regex _removeTagsRegex = new Regex("<(.|\n)*?>");
+		private readonly User _user;
 		private static readonly LuceneVersion LUCENEVERSION = LuceneVersion.LUCENE_29;
+		private readonly SettingsService _settings;
 
 		#endregion
 
 		#region Constructors
 
-		public SearchService(IScribeContext context, string path)
+		public SearchService(IScribeContext context, string path, User user)
 		{
 			_context = context;
 			_markupConverter = new MarkupConverter(context);
+			_settings = new SettingsService(context, user);
 			_indexPath = path;
+			_user = user;
 		}
+
+		#endregion
+
+		#region Properties
+
+		public static string SearchPath { get; set; }
 
 		#endregion
 
@@ -160,7 +170,14 @@ namespace Scribe.Services
 						foreach (var scoreDoc in topDocs.ScoreDocs)
 						{
 							var document = searcher.Doc(scoreDoc.Doc);
-							response.Results.Add(new SearchResultView(document, scoreDoc));
+							var result = new SearchResultView(document, scoreDoc);
+
+							if (_user == null && _settings.EnablePublicTag && !result.Tags.Contains("public"))
+							{
+								continue;
+							}
+
+							response.Results.Add(result);
 						}
 					}
 				}

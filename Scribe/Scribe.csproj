@@ -153,6 +153,7 @@
     <Compile Include="Services\AuthenticationService.cs" />
     <Compile Include="Services\FileService.cs" />
     <Compile Include="Services\IAuthenticationService.cs" />
+    <Compile Include="Services\IScribeService.cs" />
     <Compile Include="Services\PageService.cs" />
     <Compile Include="Services\SearchService.cs" />
     <Compile Include="Services\SettingsService.cs" />

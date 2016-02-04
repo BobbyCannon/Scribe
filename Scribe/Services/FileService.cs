@@ -23,7 +23,7 @@ namespace Scribe.Services
 
 		#region Constructors
 
-		public FileService(IScribeContext context, User user = null)
+		public FileService(IScribeContext context, User user)
 		{
 			_context = context;
 			_user = user;

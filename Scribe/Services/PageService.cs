@@ -27,16 +27,18 @@ namespace Scribe.Services
 
 		private readonly IScribeContext _context;
 		private readonly MarkupConverter _converter;
+		private readonly SettingsService _settings;
 		private readonly User _user;
 
 		#endregion
 
 		#region Constructors
 
-		public PageService(IScribeContext context, User user = null)
+		public PageService(IScribeContext context, User user)
 		{
 			_context = context;
 			_converter = new MarkupConverter(_context);
+			_settings = new SettingsService(context, user);
 			_user = user;
 		}
 
@@ -49,7 +51,7 @@ namespace Scribe.Services
 
 		#region Properties
 
-		public static TimeSpan EditingTimeout { get; private set; }
+		public static TimeSpan EditingTimeout { get; }
 
 		#endregion
 
@@ -57,7 +59,7 @@ namespace Scribe.Services
 
 		public PageView BeginEditingPage(int id)
 		{
-			var page = _context.Pages
+			var page = GetPageQuery()
 				.Include(x => x.CreatedBy)
 				.Include(x => x.ModifiedBy)
 				.FirstOrDefault(x => x.Id == id);
@@ -79,7 +81,7 @@ namespace Scribe.Services
 
 		public void CancelEditingPage(int id)
 		{
-			var page = _context.Pages.FirstOrDefault(x => x.Id == id);
+			var page = GetPageQuery().FirstOrDefault(x => x.Id == id);
 			if (page == null)
 			{
 				throw new ArgumentException("The page could not be found.", nameof(id));
@@ -91,8 +93,8 @@ namespace Scribe.Services
 
 		public PageView GetFrontPage()
 		{
-			var page = _context.Pages
-				.Where(x => x.Tags.Contains("homepage"))
+			var page = GetPageQuery()
+				.Where(x => x.Tags.Contains(",homepage,"))
 				.OrderBy(x => x.Id)
 				.ThenBy(x => x.IsLocked)
 				.FirstOrDefault();
@@ -109,7 +111,7 @@ namespace Scribe.Services
 
 		public PageView GetPage(int id)
 		{
-			var page = _context.Pages
+			var page = GetPageQuery()
 				.Include(x => x.CreatedBy)
 				.Include(x => x.ModifiedBy)
 				.FirstOrDefault(x => x.Id == id);
@@ -159,7 +161,7 @@ namespace Scribe.Services
 
 		public PageHistoryView GetPageHistory(int id)
 		{
-			var page = _context.Pages.FirstOrDefault(x => x.Id == id);
+			var page = GetPageQuery().FirstOrDefault(x => x.Id == id);
 			if (page == null)
 			{
 				throw new PageNotFoundException("Failed to find the page with that ID.");
@@ -170,7 +172,7 @@ namespace Scribe.Services
 
 		public IEnumerable<PageSummaryView> GetPages()
 		{
-			return _context.Pages
+			return GetPageQuery()
 				.Include(x => x.ModifiedBy)
 				.ToList()
 				.Select(x => new PageSummaryView
@@ -192,7 +194,7 @@ namespace Scribe.Services
 			return new TagPagesView
 			{
 				Tag = tag,
-				Pages = _context.Pages
+				Pages = GetPageQuery()
 					.Where(x => x.Tags.Contains(formattedTag))
 					.Select(x => new { x.Id, x.Title, x.Tags })
 					.ToList()
@@ -209,7 +211,7 @@ namespace Scribe.Services
 
 		public IEnumerable<TagView> GetTags()
 		{
-			var pagesWithTags = _context.Pages
+			var pagesWithTags = GetPageQuery()
 				.Select(x => new { x.Title, x.Tags })
 				.ToList();
 
@@ -222,6 +224,16 @@ namespace Scribe.Services
 
 		public IEnumerable<Page> RenameTag(string oldName, string newName)
 		{
+			if (oldName.Equals("public", StringComparison.OrdinalIgnoreCase))
+			{
+				throw new ArgumentException("Cannot rename the public tag.");
+			}
+
+			if (newName.Equals("public", StringComparison.OrdinalIgnoreCase))
+			{
+				throw new ArgumentException("Cannot rename the tag to public.");
+			}
+
 			if (string.IsNullOrWhiteSpace(oldName))
 			{
 				throw new ArgumentException("The old name must be provided.", nameof(oldName));
@@ -234,7 +246,7 @@ namespace Scribe.Services
 
 			var name1 = "," + oldName + ",";
 			var name2 = "," + newName + ",";
-			var pagesToUpdate = _context.Pages.Where(x => x.Tags.Contains(name1)).ToList();
+			var pagesToUpdate = GetPageQuery().Where(x => x.Tags.Contains(name1)).ToList();
 			foreach (var page in pagesToUpdate.Where(x => x.Tags.Contains(name1)))
 			{
 				page.Tags = page.Tags.Replace(name1, name2);
@@ -245,10 +257,10 @@ namespace Scribe.Services
 
 		public Page Save(PageView view)
 		{
-			var page = _context.Pages.FirstOrDefault(x => x.Id == view.Id)
+			var page = GetPageQuery().FirstOrDefault(x => x.Id == view.Id)
 				?? new Page { CreatedOn = DateTime.UtcNow, CreatedBy = _user, IsLocked = false };
 
-			if (page.EditingById != null && page.EditingById != _user.Id)
+			if (page.EditingById != null && page.EditingById != _user?.Id)
 			{
 				throw new HttpException(403, "This page is currently being edited by another user.");
 			}
@@ -285,13 +297,24 @@ namespace Scribe.Services
 
 		public void UpdateEditingPage(PageView model)
 		{
-			var page = _context.Pages.FirstOrDefault(x => x.Id == model.Id);
+			var page = GetPageQuery().FirstOrDefault(x => x.Id == model.Id);
 			if (page == null)
 			{
 				throw new ArgumentException("The page could not be found.", nameof(model));
 			}
 
 			page.EditingOn = DateTime.UtcNow;
+		}
+
+		private IQueryable<Page> GetPageQuery()
+		{
+			var query = _context.Pages.AsQueryable();
+			if (_user == null && _settings.EnablePublicTag)
+			{
+				query = query.Where(x => x.Tags.Contains(",public,"));
+			}
+
+			return query;
 		}
 
 		#endregion

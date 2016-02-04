@@ -31,6 +31,12 @@ namespace Scribe.Services
 
 		#region Properties
 
+		public bool EnablePublicTag
+		{
+			get { return GetSetting("Enable Public Tag", false); }
+			set { AddOrUpdateSetting("Enable Public Tag", value.ToString()); }
+		}
+
 		public string LdapConnectionString
 		{
 			get { return GetSetting("LDAP Connection String", string.Empty); }
@@ -56,6 +62,7 @@ namespace Scribe.Services
 
 			return new SettingsView
 			{
+				EnablePublicTag = EnablePublicTag,
 				LdapConnectionString = LdapConnectionString,
 				OverwriteFilesOnUpload = OverwriteFilesOnUpload
 			};
@@ -68,6 +75,7 @@ namespace Scribe.Services
 				throw new UnauthorizedAccessException("You do not have the permission to be able to save settings.");
 			}
 
+			EnablePublicTag = settings.EnablePublicTag;
 			LdapConnectionString = settings.LdapConnectionString ?? string.Empty;
 			OverwriteFilesOnUpload = settings.OverwriteFilesOnUpload;
 		}

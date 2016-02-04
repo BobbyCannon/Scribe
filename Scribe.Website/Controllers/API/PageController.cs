@@ -17,8 +17,7 @@ namespace Scribe.Website.Controllers.API
 		#region Fields
 
 		private readonly INotificationHub _notificationHub;
-		private readonly SearchService _searchService;
-
+		
 		#endregion
 
 		#region Constructors
@@ -27,7 +26,6 @@ namespace Scribe.Website.Controllers.API
 			: base(dataContext, authenticationService)
 		{
 			_notificationHub = notificationHub;
-			_searchService = new SearchService(dataContext, HostingEnvironment.MapPath("~/App_Data/Indexes"));
 		}
 
 		#endregion
@@ -59,9 +57,13 @@ namespace Scribe.Website.Controllers.API
 			}
 
 			DataContext.SaveChanges();
-			_searchService.Update(response);
+
+			var searchService = new SearchService(DataContext, SearchService.SearchPath, GetCurrentUser(false));
+			searchService.Update(response);
+
 			_notificationHub.PageAvailableForEdit(response.Id);
 			_notificationHub.PageUpdated(response.Id);
+
 			return new PageView(response, new MarkupConverter(DataContext));
 		}
 

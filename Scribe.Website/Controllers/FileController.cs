@@ -30,7 +30,7 @@ namespace Scribe.Website.Controllers
 
 		public void Delete(FileView file)
 		{
-			var service = new FileService(DataContext);
+			var service = new FileService(DataContext, GetCurrentUser());
 			service.Delete(file.Name);
 			DataContext.SaveChanges();
 		}
@@ -38,7 +38,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public FileResult File(string name)
 		{
-			var service = new FileService(DataContext);
+			var service = new FileService(DataContext, GetCurrentUser(false));
 			var file = service.GetFile(name);
 			if (file != null)
 			{
@@ -57,7 +57,7 @@ namespace Scribe.Website.Controllers
 
 		public ActionResult Files()
 		{
-			var service = new FileService(DataContext);
+			var service = new FileService(DataContext, GetCurrentUser());
 			return View(service.GetFiles());
 		}
 

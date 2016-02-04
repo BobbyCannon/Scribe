@@ -45,7 +45,7 @@ namespace Scribe.Website.Controllers
 		public User GetCurrentUser(bool throwException = true)
 		{
 			// Make sure we are authenticated.
-			if (!User.Identity.IsAuthenticated)
+			if (User?.Identity.IsAuthenticated != true)
 			{
 				if (throwException)
 				{
@@ -55,7 +55,7 @@ namespace Scribe.Website.Controllers
 				return null;
 			}
 
-			var userId = User.Identity.GetId();
+			var userId = User?.Identity.GetId();
 			var user = DataContext.Users.FirstOrDefault(u => u.Id == userId);
 			if (user == null)
 			{

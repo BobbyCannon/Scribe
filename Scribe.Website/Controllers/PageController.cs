@@ -19,7 +19,6 @@ namespace Scribe.Website.Controllers
 		#region Fields
 
 		private readonly INotificationHub _notificationHub;
-		private readonly SearchService _searchService;
 
 		#endregion
 
@@ -29,7 +28,7 @@ namespace Scribe.Website.Controllers
 			: base(dataContext, authenticationService)
 		{
 			_notificationHub = notificationHub;
-			_searchService = new SearchService(dataContext, HostingEnvironment.MapPath("~/App_Data/Indexes"));
+			SearchService.SearchPath = HostingEnvironment.MapPath("~/App_Data/Indexes");
 		}
 
 		#endregion
@@ -55,7 +54,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult Difference(int id)
 		{
-			var service = new PageService(DataContext);
+			var service = new PageService(DataContext, GetCurrentUser(false));
 			return View(service.GetPageDifference(id));
 		}
 
@@ -65,15 +64,15 @@ namespace Scribe.Website.Controllers
 			var view = service.BeginEditingPage(id);
 			DataContext.SaveChanges();
 			_notificationHub.PageLockedForEdit(id, view.EditingBy);
-			view.Files = new FileService(DataContext).GetFiles().Files;
-			view.Pages = new PageService(DataContext).GetPages().Select(x => x.Title).ToList();
+			view.Files = new FileService(DataContext, GetCurrentUser()).GetFiles().Files;
+			view.Pages = service.GetPages().Select(x => x.Title).ToList();
 			return View(view);
 		}
 
 		[AllowAnonymous]
 		public ActionResult History(int id)
 		{
-			var service = new PageService(DataContext);
+			var service = new PageService(DataContext, GetCurrentUser(false));
 			return View(service.GetPageHistory(id));
 		}
 
@@ -85,51 +84,53 @@ namespace Scribe.Website.Controllers
 				return RedirectToAction("Setup");
 			}
 
-			var service = new PageService(DataContext);
+			var service = new PageService(DataContext, GetCurrentUser(false));
 			return View("Page", service.GetFrontPage());
 		}
 
 		public ActionResult New(string suggestedTitle)
 		{
-			var view = new FileService(DataContext).GetFiles();
-			var pages = new PageService(DataContext).GetPages().Select(x => x.Title).ToList();
+			var view = new FileService(DataContext, GetCurrentUser()).GetFiles();
+			var pages = new PageService(DataContext, GetCurrentUser()).GetPages().Select(x => x.Title).ToList();
 			return View("Edit", new PageView { Title = suggestedTitle, Files = view.Files, Pages = pages });
 		}
 
 		[AllowAnonymous]
 		public ActionResult Page(int id)
 		{
-			var service = new PageService(DataContext);
+			var service = new PageService(DataContext, GetCurrentUser(false));
 			return View(service.GetPage(id));
 		}
 
 		[AllowAnonymous]
 		public ActionResult Pages()
 		{
-			var service = new PageService(DataContext);
+			var service = new PageService(DataContext, GetCurrentUser(false));
 			return View(service.GetPages());
 		}
 
 		[AllowAnonymous]
 		public ActionResult PagesWithTag(string tag)
 		{
-			var service = new PageService(DataContext);
+			var service = new PageService(DataContext, GetCurrentUser(false));
 			return View(service.GetPagesWithTag(tag));
 		}
 
 		public ActionResult RenameTag(string oldName, string newName)
 		{
-			var service = new PageService(DataContext);
+			var searchService = new SearchService(DataContext, SearchService.SearchPath, GetCurrentUser(false));
+			var service = new PageService(DataContext, GetCurrentUser(false));
 			var pagesUpdated = service.RenameTag(oldName, newName);
 			DataContext.SaveChanges();
-			pagesUpdated.ForEach(x => _searchService.Update(x));
+			pagesUpdated.ForEach(x => searchService.Update(x));
 			return RedirectToAction("Tags");
 		}
 
 		[AllowAnonymous]
 		public ActionResult Search(string term)
 		{
-			return View(_searchService.Search(term));
+			var searchService = new SearchService(DataContext, SearchService.SearchPath, GetCurrentUser(false));
+			return View(searchService.Search(term));
 		}
 
 		public ActionResult Settings()
@@ -147,7 +148,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult Tags()
 		{
-			var service = new PageService(DataContext);
+			var service = new PageService(DataContext, GetCurrentUser(false));
 			return View(service.GetTags());
 		}
 
