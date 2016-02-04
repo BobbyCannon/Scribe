@@ -12,18 +12,11 @@ namespace Scribe.Website.Controllers.API
 {
 	public class SettingsController : BaseApiController
 	{
-		#region Fields
-
-		private readonly INotificationHub _notificationHub;
-
-		#endregion
-
 		#region Constructors
 
 		public SettingsController(IScribeContext dataContext, IAuthenticationService authenticationService, INotificationHub notificationHub)
 			: base(dataContext, authenticationService)
 		{
-			_notificationHub = notificationHub;
 		}
 
 		#endregion

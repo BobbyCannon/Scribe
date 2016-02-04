@@ -3,6 +3,7 @@
 @{
 	ViewBag.Title = Model.Title;
 }
+
 <div id="page" ng-controller="controller">
 	<div id="pageHeader" class="row">
 		<div class="span12">
@@ -18,7 +19,9 @@
 			}
 		</div>
 	</div>
-	<div id="preview" ng-bind-html="model.html"></div>
+
+	@Html.Raw(Model.Html)
+
 	<div id="pageFooter" ng-show="model.id > 0">
 		<div class="darkGray pull-right">
 			<span ng-repeat="$tag in model.tags">
