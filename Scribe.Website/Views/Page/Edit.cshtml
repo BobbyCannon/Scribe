@@ -8,24 +8,24 @@
 		<div ng-class="{ 'span12': input.showPreview, 'span24': !input.showPreview }">
 			<input id="pageTitle" class="expand" type="text" ng-model="model.title" placeholder="title" ng-disabled="!isCurrentEditor()" required autofocus /><br />
 			<div id="toolbar" class="toolbar">
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('**', 'wrap')" title="Bold">B</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('_', 'wrap')" title="Italic">I</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('# ')" title="Header 1">H1</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('## ')" title="Header 2">H2</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('### ')" title="Header 3">H3</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('#### ')" title="Header 4">H4</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('##### ')" title="Header 5">H5</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('###### ')" title="Header 6">H6</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('\n* ')" title="List">
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('**', 'wrap')" title="Bold" type="button">B</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('_', 'wrap')" title="Italic" type="button">I</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('# ')" title="Header 1" type="button">H1</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('## ')" title="Header 2" type="button">H2</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('### ')" title="Header 3" type="button">H3</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('#### ')" title="Header 4" type="button">H4</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('##### ')" title="Header 5" type="button">H5</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('###### ')" title="Header 6" type="button">H6</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('\n* ')" title="List" type="button">
 					<span class="fa fa-th-list"></span>
 				</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="input.showFiles = !input.showFiles; input.showPages = false" title="Files">
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="input.showFiles = !input.showFiles; input.showPages = false" title="Files" type="button">
 					<span class="fa fa-picture-o"></span>
 				</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="input.showPages = !input.showPages; input.showFiles = false" title="Links">
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="input.showPages = !input.showPages; input.showFiles = false" title="Links" type="button">
 					<span class="fa fa-link"></span>
 				</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="input.showPreview = !input.showPreview" title="Preview" class="pull-right">
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="input.showPreview = !input.showPreview" title="Preview" class="pull-right" type="button">
 					<span class="fa fa-sticky-note" ng-show="input.showPreview"></span>
 					<span class="fa fa-sticky-note-o" ng-show="!input.showPreview"></span>
 				</button>
@@ -249,6 +249,7 @@
 					$editor.focus();
 					angular.element($editor[0]).triggerHandler('change');
 					$scope.editorUpdated();
+					return false;
 				}
 
 				$scope.selectImage = function (file) {
