@@ -18,15 +18,15 @@ namespace Scribe.Services
 		void DeleteTag(string name);
 		FileView GetFile(int id, bool includeData = false);
 		FileView GetFile(string name, bool includeData = false);
-		IEnumerable<FileView> GetFiles(string filter = null, bool includeData = false);
+		PagedResults<FileView> GetFiles(PagedRequest request = null);
 		PageView GetPage(int id, bool includeHistory = false);
-		IEnumerable<PageView> GetPages(string filter = null);
-		IEnumerable<TagView> GetTags(string filter = null);
+		PagedResults<PageView> GetPages(PagedRequest request = null);
+		PagedResults<TagView> GetTags(PagedRequest request = null);
 		void LogIn(Credentials login);
 		void LogOut();
 		string Preview(PageView model);
 		void RenameTag(RenameValues values);
-		void SaveFile(FileData data);
+		int SaveFile(FileView view);
 		PageView SavePage(PageView view);
 
 		#endregion

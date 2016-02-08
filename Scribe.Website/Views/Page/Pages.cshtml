@@ -1,4 +1,4 @@
-﻿@model IEnumerable<PageView>
+﻿@model PagedResults<PageView>
 
 @{
 	ViewBag.Title = "All Pages";
@@ -29,7 +29,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="$item in model | orderBy:predicate:reverse">
+			<tr ng-repeat="$item in model.results | orderBy:predicate:reverse">
 				<td>
 					<a ng-href="/Page/{{$item.id}}/{{$item.titleForLink}}">{{$item.title}}</a>
 				</td>

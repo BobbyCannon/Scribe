@@ -57,7 +57,7 @@ namespace Scribe.Services
 
 		public void DeleteTag(string name)
 		{
-			using (var response = Post($"{_service}DeletePage/{name}"))
+			using (var response = Post($"{_service}DeleteTag/{name}"))
 			{
 				ValidateResponse(response);
 			}
@@ -68,7 +68,7 @@ namespace Scribe.Services
 			using (var response = Get($"{_service}GetFile?id={id}&includeData={includeData}"))
 			{
 				ValidateResponse(response);
-				return Get<FileView>(response);
+				return Read<FileView>(response);
 			}
 		}
 
@@ -78,28 +78,16 @@ namespace Scribe.Services
 			using (var response = Get($"{_service}GetFile?name={encoded}&includeData={includeData}"))
 			{
 				ValidateResponse(response);
-				return Get<FileView>(response);
+				return Read<FileView>(response);
 			}
 		}
 
-		public IEnumerable<FileView> GetFiles(string filter = null, bool includeData = false)
+		public PagedResults<FileView> GetFiles(PagedRequest request = null)
 		{
-			var url = $"{_service}GetFiles";
-
-			if (!string.IsNullOrWhiteSpace(filter))
-			{
-				var encoded = HttpUtility.UrlEncode(filter);
-				url += $"?{nameof(filter)}={encoded}&{nameof(includeData)}={includeData}";
-			}
-			else
-			{
-				url += $"?{nameof(includeData)}={includeData}";
-			}
-
-			using (var response = Get(url))
+			using (var response = Post($"{_service}GetFiles", request))
 			{
 				ValidateResponse(response);
-				return Get<IEnumerable<FileView>>(response);
+				return Read<PagedResults<FileView>>(response);
 			}
 		}
 
@@ -108,41 +96,25 @@ namespace Scribe.Services
 			using (var response = Get($"{_service}GetPage?{nameof(id)}={id}&{nameof(includeHistory)}={includeHistory}"))
 			{
 				ValidateResponse(response);
-				return Get<PageView>(response);
+				return Read<PageView>(response);
 			}
 		}
 
-		public IEnumerable<PageView> GetPages(string filter = null)
+		public PagedResults<PageView> GetPages(PagedRequest request = null)
 		{
-			var url = $"{_service}GetPages";
-
-			if (!string.IsNullOrWhiteSpace(filter))
-			{
-				var encoded = HttpUtility.UrlEncode(filter);
-				url += $"?{nameof(filter)}={encoded}";
-			}
-
-			using (var response = Get(url))
+			using (var response = Post($"{_service}GetPages", request))
 			{
 				ValidateResponse(response);
-				return Get<IEnumerable<PageView>>(response);
+				return Read<PagedResults<PageView>>(response);
 			}
 		}
 
-		public IEnumerable<TagView> GetTags(string filter = null)
+		public PagedResults<TagView> GetTags(PagedRequest request = null)
 		{
-			var url = $"{_service}GetTags";
-
-			if (!string.IsNullOrWhiteSpace(filter))
-			{
-				var encoded = HttpUtility.UrlEncode(filter);
-				url += $"?{nameof(filter)}={encoded}";
-			}
-
-			using (var response = Get(url))
+			using (var response = Post($"{_service}GetTags", request))
 			{
 				ValidateResponse(response);
-				return Get<IEnumerable<TagView>>(response);
+				return Read<PagedResults<TagView>>(response);
 			}
 		}
 
@@ -179,11 +151,12 @@ namespace Scribe.Services
 			}
 		}
 
-		public void SaveFile(FileData data)
+		public int SaveFile(FileView view)
 		{
-			using (var response = Post($"{_service}SaveFile", data))
+			using (var response = Post($"{_service}SaveFile", view))
 			{
 				ValidateResponse(response);
+				return Read<int>(response);
 			}
 		}
 
@@ -192,7 +165,7 @@ namespace Scribe.Services
 			using (var response = Post($"{_service}SavePage", view))
 			{
 				ValidateResponse(response);
-				return Get<PageView>(response);
+				return Read<PageView>(response);
 			}
 		}
 

@@ -148,7 +148,8 @@
     <Compile Include="Migrations\BaseDbMigration.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Data\Credentials.cs" />
-    <Compile Include="Models\Data\FileData.cs" />
+    <Compile Include="Models\Data\PagedRequest.cs" />
+    <Compile Include="Models\Data\PagedResults.cs" />
     <Compile Include="Models\Data\RenameValues.cs" />
     <Compile Include="Models\Entities\File.cs" />
     <Compile Include="Models\Entities\Mapping\FileMap.cs" />
@@ -160,7 +161,6 @@
     <Compile Include="Models\Entities\PageHistory.cs" />
     <Compile Include="Models\Entities\Setting.cs" />
     <Compile Include="Models\Entities\User.cs" />
-    <Compile Include="Models\Views\FilesView.cs" />
     <Compile Include="Models\Views\FileView.cs" />
     <Compile Include="Models\Views\PageDifferenceView.cs" />
     <Compile Include="Models\Views\PageHistorySummaryView.cs" />
@@ -172,7 +172,6 @@
     <Compile Include="Models\Views\SearchView.cs" />
     <Compile Include="Models\Views\SettingsView.cs" />
     <Compile Include="Models\Views\SetupView.cs" />
-    <Compile Include="Models\Views\TagPagesView.cs" />
     <Compile Include="Models\Views\TagView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AccountService.cs" />

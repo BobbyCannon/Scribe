@@ -1,4 +1,4 @@
-﻿@model IEnumerable<FileView>
+﻿@model PagedResults<FileView>
 
 @{
 	ViewBag.Title = "Files";
@@ -14,7 +14,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="$file in model">
+			<tr ng-repeat="$file in model.results">
 				<td>
 					<a href="/file?name={{$file.name}}" target="blank">{{$file.name}}</a>
 				</td>
@@ -114,7 +114,7 @@
 					console.log(index);
 					$http.post('/api/Service/DeleteFile/' + file.id, null)
 						.success(function () {
-							$scope.model.splice(index, 1);
+							$scope.model.results.splice(index, 1);
 						})
 						.error(function () {
 							toastr.error('There was issue getting the deleting the file.');

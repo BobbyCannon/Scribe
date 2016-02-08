@@ -61,7 +61,7 @@ namespace Scribe.Web
 
 		#region Methods
 
-		public virtual T Get<T>(HttpResponseMessage message)
+		public virtual T Read<T>(HttpResponseMessage message)
 		{
 			return message.Content.ReadAsStringAsync().Result.FromJson<T>();
 		}

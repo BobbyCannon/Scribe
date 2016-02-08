@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using Scribe.Data;
 using Scribe.Extensions;
 using Scribe.Models.Data;
+using Scribe.Models.Views;
 using Scribe.Services;
 using Scribe.Web;
 
@@ -51,7 +52,7 @@ namespace Scribe.Website.Controllers
 		public ActionResult Files()
 		{
 			var service = new ScribeService(DataContext, null, null, GetCurrentUser());
-			return View(service.GetFiles());
+			return View(service.GetFiles(new PagedRequest(perPage: int.MaxValue)));
 		}
 
 		[HttpPost]
@@ -72,7 +73,7 @@ namespace Scribe.Website.Controllers
 			}
 
 			var service = new ScribeService(DataContext, null, null, GetCurrentUser());
-			var fileData = new FileData
+			var fileData = new FileView
 			{
 				Name = Path.GetFileName(file.FileName),
 				Type = contentType,
@@ -82,7 +83,7 @@ namespace Scribe.Website.Controllers
 			service.SaveFile(fileData);
 			DataContext.SaveChanges();
 
-			return new JsonNetResult(service.GetFiles());
+			return new JsonNetResult(service.GetFiles(new PagedRequest(perPage: int.MaxValue)));
 		}
 
 		#endregion

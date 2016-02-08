@@ -406,7 +406,7 @@ button {
 	border: 1px solid $gray;
 	color: $blackish;
 	cursor: pointer;
-	line-height: 1em;
+	line-height: 1.2em;
 	font-family: Helvetica, Arial;
 	@include rem-units(font-size, 16);
 	@include rem-units(height, 36);
@@ -586,8 +586,6 @@ table {
 	}
 
 	&.files {
-		position: relative;
-
 		tr th:first-child,
 		tr td:first-child {
 			width: auto;
@@ -595,6 +593,7 @@ table {
 
 		tr th,
 		tr td {
+			position: relative;
 			width: 12%;
 		}
 
@@ -606,9 +605,10 @@ table {
 			display: none;
 			position: absolute;
 			top: 0;
-			right: 0;
-			height: 200px;
-			width: 200px;
+			right: -12%;
+			max-height: 300px;
+			max-width: 300px;
+			z-index: 1000;
 		}
 	}
 }

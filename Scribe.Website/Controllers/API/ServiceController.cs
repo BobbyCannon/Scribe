@@ -1,6 +1,5 @@
 ﻿#region References
 
-using System.Collections.Generic;
 using System.Web.Hosting;
 using System.Web.Http;
 using Scribe.Data;
@@ -69,9 +68,10 @@ namespace Scribe.Website.Controllers.API
 			return _service.GetFile(name, includeData);
 		}
 
-		public IEnumerable<FileView> GetFiles(string filter = null, bool includeData = false)
+		[HttpPost]
+		public PagedResults<FileView> GetFiles(PagedRequest request = null)
 		{
-			return _service.GetFiles(filter, includeData);
+			return _service.GetFiles(request);
 		}
 
 		public PageView GetPage(int id, bool includeHistory = false)
@@ -79,14 +79,16 @@ namespace Scribe.Website.Controllers.API
 			return _service.GetPage(id, includeHistory);
 		}
 
-		public IEnumerable<PageView> GetPages(string filter = null)
+		[HttpPost]
+		public PagedResults<PageView> GetPages(PagedRequest request = null)
 		{
-			return _service.GetPages(filter);
+			return _service.GetPages(request);
 		}
 
-		public IEnumerable<TagView> GetTags(string filter = null)
+		[HttpPost]
+		public PagedResults<TagView> GetTags(PagedRequest request = null)
 		{
-			return _service.GetTags(filter);
+			return _service.GetTags(request);
 		}
 
 		[HttpPost]
@@ -115,9 +117,9 @@ namespace Scribe.Website.Controllers.API
 		}
 
 		[HttpPost]
-		public void SaveFile(FileData data)
+		public int SaveFile(FileView view)
 		{
-			_service.SaveFile(data);
+			return _service.SaveFile(view);
 		}
 
 		[HttpPost]

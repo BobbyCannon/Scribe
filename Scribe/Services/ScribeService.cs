@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.SqlTypes;
 using System.Linq;
@@ -79,8 +78,8 @@ namespace Scribe.Services
 
 			var response = new PageView(page, _converter);
 
-			response.Files = GetFiles();
-			response.Pages = GetPages().Select(x => x.Title).ToList();
+			response.Files = GetFiles(new PagedRequest { PerPage = int.MaxValue, IncludeDetails = false }).Results;
+			response.Pages = GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => x.Title).ToList();
 
 			return response;
 		}
@@ -181,19 +180,23 @@ namespace Scribe.Services
 			return FileView.Create(file, includeData);
 		}
 
-		public IEnumerable<FileView> GetFiles(string filter = null, bool includeData = false)
+		public PagedResults<FileView> GetFiles(PagedRequest request = null)
 		{
-			return _context.Files
-				.Where(x => !x.IsDeleted)
-				.OrderBy(x => x.Name)
-				.Select(x => new FileView
-				{
-					Id = x.Id,
-					Name = x.Name,
-					Size = x.Size / 1024 + " kb",
-					Type = x.Type
-				})
-				.ToList();
+			var query = _context.Files.Where(x => !x.IsDeleted);
+			request = request ?? new PagedRequest();
+
+			if (!string.IsNullOrWhiteSpace(request.Filter))
+			{
+				query = query.Where(x => x.Name.Contains(request.Filter));
+			}
+
+			return GetPagedResults(query, request, x => x.Id, x => new FileView
+			{
+				Id = x.Id,
+				Name = x.Name,
+				Size = x.Size / 1024 + " kb",
+				Type = x.Type
+			});
 		}
 
 		public PageView GetFrontPage()
@@ -275,56 +278,52 @@ namespace Scribe.Services
 			return new PageHistoryView(page);
 		}
 
-		public IEnumerable<PageView> GetPages(string filter = null)
+		public PagedResults<PageView> GetPages(PagedRequest request = null)
 		{
-			return GetPageQuery()
-				.Include(x => x.ModifiedBy)
-				.ToList()
-				.Select(x => new PageView
-				{
-					Id = x.Id,
-					LastModified = DateTime.UtcNow.Subtract(x.ModifiedOn).ToTimeAgo(),
-					ModifiedBy = x.ModifiedBy.DisplayName,
-					ModifiedOn = x.ModifiedOn,
-					Title = x.Title,
-					TitleForLink = PageView.ConvertTitleForLink(x.Title)
-				})
-				.OrderBy(x => x.Title);
-		}
+			var query = GetPageQuery().Include(x => x.ModifiedBy);
+			request = request ?? new PagedRequest();
 
-		public TagPagesView GetPagesWithTag(string tag)
-		{
-			var formattedTag = "," + tag + ",";
-
-			return new TagPagesView
+			if (!string.IsNullOrWhiteSpace(request.Filter))
 			{
-				Tag = tag,
-				Pages = GetPageQuery()
-					.Where(x => x.Tags.Contains(formattedTag))
-					.Select(x => new { x.Id, x.Title, x.Tags })
-					.ToList()
-					.Where(x => x.Tags.Contains(formattedTag))
-					.Select(x => new PageSummaryView
-					{
-						Id = x.Id,
-						Title = x.Title
-					})
-					.OrderBy(x => x.Title)
-					.ToList()
-			};
+				query = query.Where(x => x.Title.Contains(request.Filter));
+			}
+
+			return GetPagedResults(query, request, x => x.Title, x => new PageView
+			{
+				Id = x.Id,
+				LastModified = DateTime.UtcNow.Subtract(x.ModifiedOn).ToTimeAgo(),
+				ModifiedBy = x.ModifiedBy.DisplayName,
+				ModifiedOn = x.ModifiedOn,
+				Title = x.Title,
+				TitleForLink = PageView.ConvertTitleForLink(x.Title)
+			});
 		}
 
-		public IEnumerable<TagView> GetTags(string filter = null)
+		public PagedResults<PageSummaryView> GetPagesWithTag(PagedRequest request = null)
 		{
-			var pagesWithTags = GetPageQuery()
-				.Select(x => new { x.Title, x.Tags })
-				.ToList();
+			request = request ?? new PagedRequest();
 
-			return pagesWithTags
+			var formattedTag = "," + request.Filter + ",";
+			var query = GetPageQuery()
+				.Where(x => x.Tags.Contains(formattedTag))
+				.Select(x => new { x.Id, x.Title, x.Tags })
+				.Where(x => x.Tags.Contains(formattedTag));
+
+			return GetPagedResults(query, request, x => x.Title, x => new PageSummaryView { Id = x.Id, Title = x.Title });
+		}
+
+		public PagedResults<TagView> GetTags(PagedRequest request = null)
+		{
+			request = request ?? new PagedRequest();
+
+			var query = GetPageQuery()
+				.Select(x => new { x.Title, x.Tags })
+				.ToList()
 				.SelectMany(x => x.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
 				.GroupBy(x => x)
-				.Select(x => TagView.Create(x.Key, x.Count()))
-				.OrderBy(x => x.Tag);
+				.AsQueryable();
+
+			return GetPagedResults(query, request, x => x.Key, x => TagView.Create(x.Key, x.Count()));
 		}
 
 		public void LogIn(Credentials credentials)
@@ -381,24 +380,26 @@ namespace Scribe.Services
 			pagesToUpdate.ForEach(page => _searchService.Update(new PageView(page, _converter)));
 		}
 
-		public void SaveFile(FileData data)
+		public int SaveFile(FileView view)
 		{
-			var file = _context.Files.FirstOrDefault(x => x.Name == data.Name)
-				?? new File { Name = data.Name, CreatedBy = _user, CreatedOn = DateTime.UtcNow };
+			var file = _context.Files.FirstOrDefault(x => x.Name == view.Name)
+				?? new File { Name = view.Name, CreatedBy = _user, CreatedOn = DateTime.UtcNow };
 
 			if (!_settings.OverwriteFilesOnUpload && file.Id != 0)
 			{
 				throw new InvalidOperationException("The file already exists and cannot be overwritten.");
 			}
 
-			file.Data = data.Data;
-			file.Size = data.Data.Length;
-			file.Type = data.Type;
+			file.Data = view.Data;
+			file.Size = view.Data.Length;
+			file.Type = view.Type;
 			file.ModifiedOn = file.Id == 0 ? file.CreatedOn : DateTime.UtcNow;
 			file.ModifiedBy = _user;
 
 			_context.Files.AddOrUpdate(file);
 			_context.SaveChanges();
+
+			return file.Id;
 		}
 
 		public PageView SavePage(PageView view)
@@ -451,6 +452,25 @@ namespace Scribe.Services
 			}
 
 			page.EditingOn = DateTime.UtcNow;
+		}
+
+		private PagedResults<T2> GetPagedResults<T1, T2>(IQueryable<T1> query, PagedRequest request, Func<T1, object> orderBy, Func<T1, T2> transform)
+		{
+			var response = new PagedResults<T2>();
+			response.Filter = request.Filter;
+			response.TotalCount = query.Count();
+			response.PerPage = request.PerPage;
+			response.TotalPages = response.TotalCount / response.PerPage + (response.TotalCount % response.PerPage > 0 ? 1 : 0);
+			response.Page = response.TotalPages < request.Page ? response.TotalPages : request.Page;
+			response.Results = query
+				.OrderBy(orderBy)
+				.Skip((response.Page - 1) * response.PerPage)
+				.Take(response.PerPage)
+				.ToList()
+				.Select(transform)
+				.ToList();
+
+			return response;
 		}
 
 		private IQueryable<Page> GetPageQuery()

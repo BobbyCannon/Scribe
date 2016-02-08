@@ -23,7 +23,32 @@ namespace Scribe.IntegrationTests
 		#region Methods
 
 		[TestMethod]
-		public void DeletePageAsUser()
+		public void DeleteFile()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var file = TestHelper.AddFile(context, john, "File.png", "image/png", new byte[0]);
+				context.SaveChanges();
+
+				var client = new ScribeClient(TestSite, TestService);
+				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
+				client.DeleteFile(file.Id);
+
+				TestHelper.ExpectedException<Exception>(() =>
+				{
+					var result = client.GetPage(file.Id);
+					Assert.AreEqual("Hello Page", result.Title);
+				}, "Bad Request");
+
+				Assert.AreEqual(0, context.Pages.Count());
+			}
+		}
+
+		[TestMethod]
+		public void DeletePage()
 		{
 			using (var context = TestHelper.GetContext())
 			{
@@ -68,7 +93,7 @@ namespace Scribe.IntegrationTests
 		[TestMethod]
 		public void GetPages()
 		{
-			using (var context = TestHelper.GetContext(true))
+			using (var context = TestHelper.GetContext())
 			{
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
@@ -79,7 +104,7 @@ namespace Scribe.IntegrationTests
 
 			var client = new ScribeClient(TestSite, TestService);
 			client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
-			var pages = client.GetPages().ToList();
+			var pages = client.GetPages().Results.ToList();
 			Assert.AreEqual(1, pages.Count);
 			Assert.AreEqual("Hello Page", pages[0].Title);
 		}

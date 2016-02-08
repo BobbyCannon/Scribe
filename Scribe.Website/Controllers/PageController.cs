@@ -80,7 +80,12 @@ namespace Scribe.Website.Controllers
 
 		public ActionResult New(string suggestedTitle)
 		{
-			return View("Edit", new PageView { Title = suggestedTitle, Files = _service.GetFiles(), Pages = _service.GetPages().Select(x => x.Title).ToList() });
+			return View("Edit", new PageView
+			{
+				Title = suggestedTitle,
+				Files = _service.GetFiles(new PagedRequest(perPage: int.MaxValue)).Results,
+				Pages = _service.GetPages(new PagedRequest(perPage: int.MaxValue)).Results.Select(x => x.Title).ToList()
+			});
 		}
 
 		[AllowAnonymous]
@@ -92,13 +97,13 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult Pages()
 		{
-			return View(_service.GetPages());
+			return View(_service.GetPages(new PagedRequest(perPage: int.MaxValue)));
 		}
 
 		[AllowAnonymous]
 		public ActionResult PagesWithTag(string tag)
 		{
-			return View(_service.GetPagesWithTag(tag));
+			return View(_service.GetPagesWithTag(new PagedRequest(tag, 1, int.MaxValue)));
 		}
 
 		public ActionResult RenameTag(string oldName, string newName)
@@ -128,7 +133,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult Tags()
 		{
-			return View(_service.GetTags());
+			return View(_service.GetTags(new PagedRequest(perPage: int.MaxValue)));
 		}
 
 		#endregion
