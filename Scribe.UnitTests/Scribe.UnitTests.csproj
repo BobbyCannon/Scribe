@@ -111,6 +111,10 @@
     <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Scribe.Data\Scribe.Data.csproj">
+      <Project>{E6C85046-F696-4798-BB97-E8E308FB95D0}</Project>
+      <Name>Scribe.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Scribe.Website\Scribe.Website.csproj">
       <Project>{AB5989AE-0D89-43DD-B7C5-3381615EBF48}</Project>
       <Name>Scribe.Website</Name>

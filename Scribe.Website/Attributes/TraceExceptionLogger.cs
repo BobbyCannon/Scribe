@@ -6,7 +6,7 @@ using System.Web.Http.ExceptionHandling;
 
 #endregion
 
-namespace Scribe.Web
+namespace Scribe.Website
 {
 	[ExcludeFromCodeCoverage]
 	public class TraceExceptionLogger : ExceptionLogger

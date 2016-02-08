@@ -33,18 +33,10 @@ namespace Scribe.Converters
 		{
 			_context = context;
 			_externalLinkPrefixes = new List<string> { "http://", "https://", "www.", "mailto:", "#" };
-
 			_parser = new Markdown();
 			_parser.LinkParsed += LinkParsed;
 			_parser.ImageParsed += ImageParsed;
-
-			HttpContextBase httpContext = null;
-			if (HttpContext.Current != null)
-			{
-				httpContext = new HttpContextWrapper(HttpContext.Current);
-			}
-
-			_urlResolver = new UrlResolver(httpContext);
+			_urlResolver = new UrlResolver();
 		}
 
 		#endregion

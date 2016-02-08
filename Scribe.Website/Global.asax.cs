@@ -8,8 +8,8 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using Scribe.Data;
+using Scribe.Data.Migrations;
 using Scribe.Extensions;
-using Scribe.Migrations;
 
 #endregion
 

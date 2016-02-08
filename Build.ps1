@@ -5,14 +5,20 @@
 
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = Split-Path (Get-Variable MyInvocation).Value.MyCommand.Path 
-Set-Location $scriptPath
+Push-Location $scriptPath
 $destination = "C:\Binaries\Scribe"
+$nugetDestination = "C:\Workspaces\Nuget\Developer"
 
 if (Test-Path $destination -PathType Container){
     Remove-Item $destination -Recurse -Force
 }
 
 New-Item $destination -ItemType Directory | Out-Null
+New-Item $destination\bin -ItemType Directory | Out-Null
+
+if (!(Test-Path $nugetDestination -PathType Container)){
+    New-Item $nugetDestination -ItemType Directory | Out-Null
+}
 
 $build = [Math]::Floor([DateTime]::UtcNow.Subtract([DateTime]::Parse("01/01/2000").Date).TotalDays)
 $revision = [Math]::Floor([DateTime]::UtcNow.TimeOfDay.TotalSeconds / 2)
@@ -27,11 +33,15 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-Set-Location $scriptPath
-
-$versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\Scribe.dll")
+$versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptPath\Scribe\bin\$Configuration\Scribe.dll")
 $version = $versionInfo.FileVersion.ToString()
 
+Copy-Item Scribe\bin\$Configuration\Scribe.dll $destination\bin\
+
+& "nuget.exe" pack Scribe.nuspec -Prop Configuration="$Configuration" -Version $version
+Move-Item "Scribe.Wiki.$version.nupkg" "$destination" -force
+Copy-Item "$destination\Scribe.Wiki.$version.nupkg" "$nugetDestination" -force
+
 Write-Host
-Set-Location $scriptPath
 Write-Host "Build: " $watch.Elapsed -ForegroundColor Yellow
+Pop-Location

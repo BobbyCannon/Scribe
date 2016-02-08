@@ -241,7 +241,6 @@
 						$editor.replaceSelection(value + selection.text);
 					}
 
-					$editor.setSelection(selection.end + value.length, selection.end + value.length);
 					$editor.focus();
 					angular.element($editor[0]).triggerHandler('change');
 					$scope.editorUpdated();
@@ -249,12 +248,14 @@
 
 				$scope.selectImage = function (file) {
 					$scope.input.showFiles = false;
-					$scope.insert('![' + file.name + '](' + file.name + ')');
+					var text = '![' + file.name + '](' + file.name + ')';
+					$scope.insert(text);
 				}
 
 				$scope.selectPage = function (name) {
 					$scope.input.showPages = false;
-					$scope.insert('[' + name + '](' + name + ')');
+					var text = '[' + name + '](' + name + ')';
+					$scope.insert(text);
 				}
 
 				$scope.uploadImage = function (element) {

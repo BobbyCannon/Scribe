@@ -1,5 +1,7 @@
 ﻿#region References
 
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,17 +15,18 @@ using Scribe.Converters;
 using Scribe.Data;
 using Scribe.Models.Entities;
 using Scribe.Models.Views;
+using Scribe.Services;
 using Directory = System.IO.Directory;
 using LuceneVersion = Lucene.Net.Util.Version;
 
 #endregion
 
-namespace Scribe.Services
+namespace Scribe.Website.Services
 {
 	/// <summary>
 	/// Provides searching tasks using a Lucene.net search index.
 	/// </summary>
-	public class SearchService
+	public class SearchService : ISearchService
 	{
 		#region Fields
 
@@ -33,7 +36,7 @@ namespace Scribe.Services
 		private static readonly Regex _removeTagsRegex = new Regex("<(.|\n)*?>");
 		private readonly SettingsService _settings;
 		private readonly User _user;
-		private static readonly LuceneVersion LUCENEVERSION = LuceneVersion.LUCENE_29;
+		private static readonly LuceneVersion _luceneversion = LuceneVersion.LUCENE_30;
 
 		#endregion
 
@@ -68,7 +71,7 @@ namespace Scribe.Services
 			{
 				EnsureDirectoryExists();
 
-				var analyzer = new StandardAnalyzer(LUCENEVERSION);
+				var analyzer = new StandardAnalyzer(_luceneversion);
 				using (var writer = new IndexWriter(FSDirectory.Open(new DirectoryInfo(_indexPath)), analyzer, false, IndexWriter.MaxFieldLength.UNLIMITED))
 				{
 					AddIndex(page, writer);
@@ -81,6 +84,61 @@ namespace Scribe.Services
 			}
 		}
 
+		public SearchResultView Create(Document document, ScoreDoc scoreDoc)
+		{
+			if (document == null)
+			{
+				throw new ArgumentNullException(nameof(document));
+			}
+
+			if (scoreDoc == null)
+			{
+				throw new ArgumentNullException(nameof(scoreDoc));
+			}
+
+			EnsureFieldsExist(document);
+			var createdOn = DateTime.UtcNow;
+			if (!DateTime.TryParse(document.GetField("createdon").StringValue, out createdOn))
+			{
+				createdOn = DateTime.UtcNow;
+			}
+
+			var title = document.GetField("title").StringValue;
+
+			return new SearchResultView
+			{
+				Id = int.Parse(document.GetField("id").StringValue),
+				Title = title,
+				TitleForLink = PageView.ConvertTitleForLink(title),
+				ContentSummary = document.GetField("contentsummary").StringValue,
+				Tags = document.GetField("tags").StringValue.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).Distinct(),
+				CreatedBy = document.GetField("createdby").StringValue,
+				ContentLength = int.Parse(document.GetField("contentlength").StringValue),
+				Score = scoreDoc.Score,
+				CreatedOn = createdOn
+			};
+		}
+
+		private void EnsureFieldExists(IList<IFieldable> fields, string fieldname)
+		{
+			if (fields.Any(x => x.Name == fieldname) == false)
+			{
+				throw new Exception("The LuceneDocument did not contain the expected field " + fieldname + ".");
+			}
+		}
+
+		private void EnsureFieldsExist(Document document)
+		{
+			var fields = document.GetFields();
+			EnsureFieldExists(fields, "id");
+			EnsureFieldExists(fields, "title");
+			EnsureFieldExists(fields, "contentsummary");
+			EnsureFieldExists(fields, "tags");
+			EnsureFieldExists(fields, "createdby");
+			EnsureFieldExists(fields, "contentlength");
+			EnsureFieldExists(fields, "createdon");
+		}
+
 		/// <summary>
 		/// Creates the initial search index based on all pages in the system.
 		/// </summary>
@@ -88,7 +146,7 @@ namespace Scribe.Services
 		{
 			EnsureDirectoryExists();
 
-			var analyzer = new StandardAnalyzer(LUCENEVERSION);
+			var analyzer = new StandardAnalyzer(_luceneversion);
 			using (var writer = new IndexWriter(FSDirectory.Open(new DirectoryInfo(_indexPath)), analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED))
 			{
 				foreach (var page in _context.Pages.ToList())
@@ -141,8 +199,8 @@ namespace Scribe.Services
 				return response;
 			}
 
-			var analyzer = new StandardAnalyzer(LUCENEVERSION);
-			var parser = new MultiFieldQueryParser(LuceneVersion.LUCENE_29, new[] { "content", "title", "tag" }, analyzer);
+			var analyzer = new StandardAnalyzer(_luceneversion);
+			var parser = new MultiFieldQueryParser(_luceneversion, new[] { "content", "title", "tag" }, analyzer);
 
 			Query query;
 			try
@@ -169,7 +227,7 @@ namespace Scribe.Services
 						foreach (var scoreDoc in topDocs.ScoreDocs)
 						{
 							var document = searcher.Doc(scoreDoc.Doc);
-							var result = new SearchResultView(document, scoreDoc);
+							var result = Create(document, scoreDoc);
 
 							if (_user == null && _settings.EnablePublicTag && !result.Tags.Contains("public"))
 							{

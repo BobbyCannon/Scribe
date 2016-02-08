@@ -1,4 +1,4 @@
-namespace Scribe.Migrations
+namespace Scribe.Data.Migrations
 {
 	public partial class AddedDeleteFlag : BaseDbMigration
 	{

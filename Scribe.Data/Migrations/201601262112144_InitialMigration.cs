@@ -4,7 +4,7 @@ using System.Data.Entity.Migrations;
 
 #endregion
 
-namespace Scribe.Migrations
+namespace Scribe.Data.Migrations
 {
 	public partial class InitialMigration : DbMigration
 	{

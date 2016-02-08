@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 #endregion
 
-namespace Scribe.Migrations
+namespace Scribe.Data.Migrations
 {
 	[ExcludeFromCodeCoverage]
 	public abstract class BaseDbMigration : DbMigration

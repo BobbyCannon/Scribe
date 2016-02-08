@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>Scribe.Wiki</id>
+		<version>1.0</version>
+		<authors>Bobby Cannon</authors>
+		<title>Scribe (wiki)</title>
+		<description>Simple and easy to use WIKI.</description>
+		<iconUrl>https://raw.githubusercontent.com/BobbyCannon/Scribe/master/Scribe.png</iconUrl>
+		<projectUrl>https://github.com/BobbyCannon/Scribe</projectUrl>
+		<licenseUrl>https://raw.githubusercontent.com/BobbyCannon/Scribe/master/LICENSE.md</licenseUrl>
+		<tags>Wiki WIKI Documentation Web InternetExplorer FireFox Chrome</tags>
+		<dependencies>
+			<dependency id="Newtonsoft.Json" version="8.0.1" />
+			<dependency id="MarkR" version="1.15.5833.24723" />
+			<dependency id="EasyDataFramework" version="1.2.5879.4063" />
+		</dependencies>
+		<references>
+			<reference file="Scribe.dll" />
+		</references>
+	</metadata>
+	<files>
+		<file src="C:\Binaries\Scribe\bin\Scribe.dll" target="lib\net452" />
+	</files>
+</package>

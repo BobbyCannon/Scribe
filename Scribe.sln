@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		LICENSE.md = LICENSE.md
 		README.md = README.md
+		Scribe.nuspec = Scribe.nuspec
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scribe", "Scribe\Scribe.csproj", "{09412E66-5135-4BE9-B674-D0A6F97FAD0C}"
@@ -16,6 +17,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scribe.IntegrationTests", "Scribe.IntegrationTests\Scribe.IntegrationTests.csproj", "{484A12D3-F69A-443B-A03E-D31DB5323EA2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scribe.UnitTests", "Scribe.UnitTests\Scribe.UnitTests.csproj", "{834EF183-00BE-4C9C-A26D-E8025365B050}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scribe.Data", "Scribe.Data\Scribe.Data.csproj", "{E6C85046-F696-4798-BB97-E8E308FB95D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +42,10 @@ Global
 		{834EF183-00BE-4C9C-A26D-E8025365B050}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{834EF183-00BE-4C9C-A26D-E8025365B050}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{834EF183-00BE-4C9C-A26D-E8025365B050}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6C85046-F696-4798-BB97-E8E308FB95D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6C85046-F696-4798-BB97-E8E308FB95D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6C85046-F696-4798-BB97-E8E308FB95D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6C85046-F696-4798-BB97-E8E308FB95D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

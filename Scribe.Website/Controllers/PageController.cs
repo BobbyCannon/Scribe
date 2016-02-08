@@ -9,6 +9,7 @@ using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Services;
 using Scribe.Website.Hubs;
+using Scribe.Website.Services;
 
 #endregion
 

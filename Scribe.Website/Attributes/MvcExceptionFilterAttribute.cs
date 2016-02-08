@@ -8,7 +8,7 @@ using Scribe.Exceptions;
 
 #endregion
 
-namespace Scribe.Web
+namespace Scribe.Website
 {
 	public class MvcExceptionFilterAttribute : FilterAttribute, IExceptionFilter
 	{

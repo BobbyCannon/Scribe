@@ -3,8 +3,8 @@
 using System.Data.Entity;
 using EasyDataFramework;
 using EasyDataFramework.EntityFramework;
+using Scribe.Data.Mapping;
 using Scribe.Models.Entities;
-using Scribe.Models.Entities.Mapping;
 
 #endregion
 

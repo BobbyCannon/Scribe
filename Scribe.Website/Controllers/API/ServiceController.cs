@@ -6,6 +6,7 @@ using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Services;
+using Scribe.Website.Services;
 
 #endregion
 

@@ -1,11 +1,10 @@
 #region References
 
 using System.Data.Entity.Migrations;
-using Scribe.Data;
 
 #endregion
 
-namespace Scribe.Migrations
+namespace Scribe.Data.Migrations
 {
 	public sealed class Configuration : DbMigrationsConfiguration<ScribeContext>
 	{

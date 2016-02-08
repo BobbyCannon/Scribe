@@ -1,9 +1,9 @@
 ﻿#region References
 
 using System;
-using System.Data.Entity;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Linq.Expressions;
 using Scribe.Converters;
 using Scribe.Data;
 using Scribe.Exceptions;
@@ -23,7 +23,7 @@ namespace Scribe.Services
 		private readonly AccountService _accountService;
 		private readonly IScribeContext _context;
 		private readonly MarkupConverter _converter;
-		private readonly SearchService _searchService;
+		private readonly ISearchService _searchService;
 		private readonly SettingsService _settings;
 		private readonly User _user;
 
@@ -31,7 +31,7 @@ namespace Scribe.Services
 
 		#region Constructors
 
-		public ScribeService(IScribeContext context, AccountService accountService, SearchService searchService, User user)
+		public ScribeService(IScribeContext context, AccountService accountService, ISearchService searchService, User user)
 		{
 			_context = context;
 			_accountService = accountService;
@@ -58,9 +58,7 @@ namespace Scribe.Services
 
 		public PageView BeginEditingPage(int id)
 		{
-			var page = GetPageQuery()
-				.Include(x => x.CreatedBy)
-				.Include(x => x.ModifiedBy)
+			var page = GetPageQuery(x => x.CreatedBy, x => x.ModifiedBy)
 				.FirstOrDefault(x => x.Id == id);
 
 			if (page == null)
@@ -219,9 +217,7 @@ namespace Scribe.Services
 
 		public PageView GetPage(int id, bool includeHistory = false)
 		{
-			var page = GetPageQuery()
-				.Include(x => x.CreatedBy)
-				.Include(x => x.ModifiedBy)
+			var page = GetPageQuery(x => x.CreatedBy, x => x.ModifiedBy)
 				.FirstOrDefault(x => x.Id == id);
 
 			if (page == null)
@@ -235,8 +231,7 @@ namespace Scribe.Services
 		public PageDifferenceView GetPageDifference(int id)
 		{
 			var version = _context.PageVersions
-				.Include(x => x.Page)
-				.Include(x => x.EditedBy)
+				.Including(x => x.Page, x => x.EditedBy)
 				.First(x => x.Id == id);
 
 			if (version == null)
@@ -280,7 +275,7 @@ namespace Scribe.Services
 
 		public PagedResults<PageView> GetPages(PagedRequest request = null)
 		{
-			var query = GetPageQuery().Include(x => x.ModifiedBy);
+			var query = GetPageQuery(x => x.ModifiedBy);
 			request = request ?? new PagedRequest();
 
 			if (!string.IsNullOrWhiteSpace(request.Filter))
@@ -473,9 +468,10 @@ namespace Scribe.Services
 			return response;
 		}
 
-		private IQueryable<Page> GetPageQuery()
+		private IQueryable<Page> GetPageQuery(params Expression<Func<Page, object>>[] includes)
 		{
-			var query = _context.Pages.Where(x => !x.IsDeleted);
+			var query = includes != null ? _context.Pages.Including(includes) : _context.Pages;
+			query = query.Where(x => !x.IsDeleted);
 
 			if (_user == null && _settings.EnablePublicTag)
 			{

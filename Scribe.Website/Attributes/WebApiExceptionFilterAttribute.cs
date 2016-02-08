@@ -10,7 +10,7 @@ using Scribe.Extensions;
 
 #endregion
 
-namespace Scribe.Web
+namespace Scribe.Website
 {
 	public class WebApiExceptionFilterAttribute : ExceptionFilterAttribute
 	{
