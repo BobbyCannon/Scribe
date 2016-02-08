@@ -23,13 +23,13 @@
 					else
 					{
 						<li>
-							@Html.ActionLink(Request.RequestContext.HttpContext.User.Identity.GetDisplayName(), "Profile", "Account") -
+							@Html.ActionLink(Request.RequestContext.HttpContext.User.Identity.GetDisplayName(), "Profile", "Account", null, new { id = "profileLink" }) -
 						</li>
 						<li>
 							@using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { name = "logOutForm" }))
 							{
 								@Html.AntiForgeryToken()
-								<a href="#" onclick="document.logOutForm.submit(); return false;">Log Out</a>
+								<a id="logOutLink" href="#" onclick="document.logOutForm.submit(); return false;">Log Out</a>
 							}
 						</li>
 					}

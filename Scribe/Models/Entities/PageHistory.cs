@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using EasyDataFramework;
 
 #endregion
 
@@ -9,7 +10,7 @@ namespace Scribe.Models.Entities
 	/// <summary>
 	/// Represents a version of a page.
 	/// </summary>
-	public class PageHistory
+	public class PageHistory : Entity
 	{
 		#region Properties
 
@@ -27,11 +28,6 @@ namespace Scribe.Models.Entities
 		/// Gets or sets the date the version was edited on.
 		/// </summary>
 		public DateTime EditedOn { get; set; }
-
-		/// <summary>
-		/// Gets or sets the ID for the page version.
-		/// </summary>
-		public int Id { get; set; }
 
 		/// <summary>
 		/// Gets or sets the page the content belongs to.

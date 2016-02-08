@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System.Data;
-using System.Data.Entity.Migrations;
 using System.DirectoryServices;
 using System.Linq;
 using Scribe.Data;
@@ -48,17 +47,22 @@ namespace Scribe.Services
 			return user;
 		}
 
-		public bool LogIn(LoginModel model)
+		public bool LogIn(Credentials credentials)
 		{
-			var searchResult = GetUserAccount(model.UserName, model.Password);
+			var searchResult = GetUserAccount(credentials.UserName, credentials.Password);
 			if (searchResult == null)
 			{
-				return Authenticate(model);
+				return Authenticate(credentials);
 			}
 
-			var user = AddOrUpdateUser(model.UserName, model.Password, searchResult);
-			_authenticationService.LogIn(user, model.RememberMe);
+			var user = AddOrUpdateUser(credentials.UserName, credentials.Password, searchResult);
+			_authenticationService.LogIn(user, credentials.RememberMe);
 			return true;
+		}
+
+		public void LogOut()
+		{
+			_authenticationService.LogOut();
 		}
 
 		public void Update(ProfileView profile)
@@ -115,7 +119,7 @@ namespace Scribe.Services
 			return user;
 		}
 
-		private bool Authenticate(LoginModel model)
+		private bool Authenticate(Credentials model)
 		{
 			var user = _context.Users.FirstOrDefault(x => x.UserName == model.UserName);
 			if (user == null)

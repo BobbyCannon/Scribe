@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Security.Authentication;
+using System.Threading;
 using System.Web.Http;
 using Scribe.Data;
 using Scribe.Extensions;
@@ -62,7 +63,8 @@ namespace Scribe.Website.Controllers.API
 		protected User GetCurrentUser(bool throwException = true)
 		{
 			// Make sure we are authenticated.
-			if (!User.Identity.IsAuthenticated)
+			var identity = Thread.CurrentPrincipal?.Identity;
+			if (identity?.IsAuthenticated != true)
 			{
 				if (throwException)
 				{
@@ -72,7 +74,7 @@ namespace Scribe.Website.Controllers.API
 				return null;
 			}
 
-			var userId = User.Identity.GetId();
+			var userId = identity.GetId();
 			var user = DataContext.Users.FirstOrDefault(u => u.Id == userId);
 			if (user == null)
 			{

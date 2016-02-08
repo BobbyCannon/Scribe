@@ -20,9 +20,10 @@ namespace Scribe.Models.Entities.Mapping
 			// Table & Column Mappings
 			ToTable("Files");
 			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired().HasColumnType("datetime2").HasPrecision(7);
+			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.Data).IsRequired();
-			Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired().HasColumnType("datetime2").HasPrecision(7);
+			Property(x => x.IsDeleted).IsRequired();
+			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.Name).IsRequired().HasMaxLength(450).HasColumnAnnotation("Index", new IndexAnnotation(new IndexAttribute("IX_Files_Name") { IsUnique = true }));
 			Property(x => x.Size).IsRequired();
 			Property(x => x.Type).IsRequired().HasMaxLength(450);

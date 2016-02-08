@@ -6,7 +6,7 @@
 <form id="editorForm" name="editorForm" ng-controller="controller" ng-disabled="!isCurrentEditor()">
 	<div class="row">
 		<div ng-class="{ 'span12': input.showPreview, 'span24': !input.showPreview }">
-			<input id="editorFormTitle" class="expand" type="text" ng-model="model.title" placeholder="title" ng-disabled="!isCurrentEditor()" required autofocus /><br />
+			<input id="pageTitle" class="expand" type="text" ng-model="model.title" placeholder="title" ng-disabled="!isCurrentEditor()" required autofocus /><br />
 			<div id="toolbar" class="toolbar">
 				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('**', true)" title="Bold">B</button>
 				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('_', true)" title="Italic">I</button>
@@ -30,7 +30,7 @@
 					<span class="fa fa-sticky-note-o" ng-show="!input.showPreview"></span>
 				</button>
 			</div>
-			<textarea id="editorFormText" class="expand editor" ng-show="!input.showFiles && !input.showPages" ng-keydown="editorUpdated($event)" ng-model="model.text" ng-disabled="!isCurrentEditor()" placeholder="Content" required></textarea>
+			<textarea id="pageText" class="expand editor" ng-show="!input.showFiles && !input.showPages" ng-keydown="editorUpdated($event)" ng-model="model.text" ng-disabled="!isCurrentEditor()" placeholder="Content" required></textarea>
 			<div id="pageList" class="pages" ng-show="input.showPages">
 				<div class="rows">
 					<table class="expand striped pages">
@@ -74,8 +74,8 @@
 				</div>
 			</div>
 			<div class="parent">
-				<a id="addTagButton" href="#" class="button link pull-right child-right input-inner-button" ng-click="addTag()" ng-class="{ disabled: input.tag.length < 1 }">add</a>
-				<input id="editorFormTag" class="expand" type="text" ng-model="input.tag" placeholder="tags" pattern="^[a-zA-Z0-9- ]*$" ng-blur="addTag()" ng-keydown="tagUpdated($event)" ng-disabled="!isCurrentEditor()" />
+				<a id="addTagButton" class="button link pull-right child-right input-inner-button" ng-click="addTag()" ng-class="{ disabled: input.tag.length < 1 }">add</a>
+				<input id="addTag" class="expand" type="text" ng-model="input.tag" placeholder="tags" pattern="^[a-zA-Z0-9- ]*$" ng-blur="addTag()" ng-keydown="tagUpdated($event)" ng-disabled="!isCurrentEditor()" />
 			</div>
 		</div>
 		<div class="preview" ng-class="{ 'span12': input.showPreview, 'hide': !input.showPreview }">
@@ -104,7 +104,7 @@
 				<button id="saveButton" class="blue" ng-disabled="editorForm.$invalid" ng-click="save()">Save</button>
 				<button id="cancelButton" ng-click="cancel()">Cancel</button>
 			</div>
-			<div class="tag" ng-repeat="$tag in model.tags" ng-click="model.tags.splice($index, 1);">
+			<div id="pageTags" class="tag" ng-repeat="$tag in model.tags" ng-click="model.tags.splice($index, 1);">
 				{{$tag}}
 			</div>
 		</div>
@@ -215,7 +215,7 @@
 				}
 
 				$scope.getPreview = function () {
-					$http.post('/api/Page/Preview', $scope.model)
+					$http.post('/api/Service/Preview', $scope.model)
 						.success(function (data) {
 							$scope.model.html = data;
 						})
@@ -226,14 +226,14 @@
 
 				$scope.editorUpdated = _.debounce($scope.getPreview, 250);
 
-				$("#editorFormText").blur(function () {
-					$scope.input.editorSelection = $("#editorFormText").getSelection();
+				$("#pageText").blur(function () {
+					$scope.input.editorSelection = $("#pageText").getSelection();
 				});
 
 				$scope.insert = function (value, wrap) {
-					var $editor = $("#editorFormText");
-					var selection = $scope.input.editorSelection || $("#editorFormText").getSelection();
-					$("#editorFormText").setSelection(selection.start, selection.end);
+					var $editor = $("#pageText");
+					var selection = $scope.input.editorSelection || $("#pageText").getSelection();
+					$("#pageText").setSelection(selection.start, selection.end);
 
 					if (wrap) {
 						$editor.replaceSelection(value + selection.text + value);
@@ -273,10 +273,10 @@
 				}
 
 				$scope.save = function () {
-					$http.post('/api/Page/Save', $scope.model)
+					$http.post('/api/Service/SavePage', $scope.model)
 						.success(function (data) {
 							$scope.model = data;
-							$window.location = '/Page/' + data.id + "/" + data.titleForLink;
+							$window.location = '/Page/' + data.id + '/' + data.titleForLink;
 						})
 						.error(function (error) {
 							if (error.message) {
@@ -289,14 +289,20 @@
 
 				$scope.cancel = function () {
 					if ($scope.model.id !== 0) {
-						$window.location = '/CancelEdit/' + $scope.model.id;
+						$http.post('/api/Service/CancelPage/' + $scope.model.id)
+							.success(function () {
+								$window.location = '/Page/' + $scope.model.id;
+							})
+							.error(function () {
+								toastr.error('There was issue canceling the page.');
+							});
 					} else {
 						$window.location = '/';
 					}
 				}
 
 				$window.onbeforeunload = function () {
-					$http.get('/CancelEdit/' + $scope.model.id);
+					$http.post('/api/Service/CancelPage/' + $scope.model.id);
 				}
 
 				var service = $.connection.notificationHub;

@@ -19,7 +19,9 @@ namespace Scribe.Models.Entities.Mapping
 			// Table & Column Mappings
 			ToTable("PageHistory");
 			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.EditedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
+			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.Text).IsRequired();
 
 			// Relationships

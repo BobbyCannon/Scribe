@@ -26,13 +26,14 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult Login(string returnUrl)
 		{
+			GetCurrentUser(false);
 			ViewBag.ReturnUrl = returnUrl;
-			return View(new LoginModel());
+			return View(new Credentials());
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
-		public ActionResult Login(LoginModel model, string returnUrl)
+		public ActionResult Login(Credentials model, string returnUrl)
 		{
 			if (!ModelState.IsValid)
 			{

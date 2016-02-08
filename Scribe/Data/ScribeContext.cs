@@ -1,6 +1,8 @@
 #region References
 
 using System.Data.Entity;
+using EasyDataFramework;
+using EasyDataFramework.EntityFramework;
 using Scribe.Models.Entities;
 using Scribe.Models.Entities.Mapping;
 
@@ -8,7 +10,7 @@ using Scribe.Models.Entities.Mapping;
 
 namespace Scribe.Data
 {
-	public class ScribeContext : DbContext, IScribeContext
+	public class ScribeContext : EntityFrameworkDataContext, IScribeContext
 	{
 		#region Constructors
 
@@ -21,11 +23,11 @@ namespace Scribe.Data
 
 		#region Properties
 
-		public DbSet<File> Files { get; set; }
-		public DbSet<Page> Pages { get; set; }
-		public DbSet<PageHistory> PageVersions { get; set; }
-		public DbSet<Setting> Settings { get; set; }
-		public DbSet<User> Users { get; set; }
+		public IRepository<File> Files => GetRepository<File>();
+		public IRepository<Page> Pages => GetRepository<Page>();
+		public IRepository<PageHistory> PageVersions => GetRepository<PageHistory>();
+		public IRepository<Setting> Settings => GetRepository<Setting>();
+		public IRepository<User> Users => GetRepository<User>();
 
 		#endregion
 

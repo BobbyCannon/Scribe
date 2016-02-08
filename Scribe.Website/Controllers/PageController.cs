@@ -5,10 +5,10 @@ using System.Reflection;
 using System.Web.Hosting;
 using System.Web.Mvc;
 using Scribe.Data;
+using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Services;
 using Scribe.Website.Hubs;
-using WebGrease.Css.Extensions;
 
 #endregion
 
@@ -19,6 +19,8 @@ namespace Scribe.Website.Controllers
 		#region Fields
 
 		private readonly INotificationHub _notificationHub;
+		private readonly SearchService _searchService;
+		private readonly ScribeService _service;
 
 		#endregion
 
@@ -29,6 +31,9 @@ namespace Scribe.Website.Controllers
 		{
 			_notificationHub = notificationHub;
 			SearchService.SearchPath = HostingEnvironment.MapPath("~/App_Data/Indexes");
+			_searchService = new SearchService(DataContext, SearchService.SearchPath, GetCurrentUser(false));
+			var accountService = new AccountService(dataContext, authenticationService);
+			_service = new ScribeService(DataContext, accountService, _searchService, GetCurrentUser(false));
 		}
 
 		#endregion
@@ -42,38 +47,24 @@ namespace Scribe.Website.Controllers
 			return View();
 		}
 
-		public ActionResult CancelEdit(int id)
-		{
-			var service = new PageService(DataContext, GetCurrentUser());
-			service.CancelEditingPage(id);
-			DataContext.SaveChanges();
-			_notificationHub.PageAvailableForEdit(id);
-			return RedirectToAction("Page", new { id });
-		}
-
 		[AllowAnonymous]
 		public ActionResult Difference(int id)
 		{
-			var service = new PageService(DataContext, GetCurrentUser(false));
-			return View(service.GetPageDifference(id));
+			return View(_service.GetPageDifference(id));
 		}
 
 		public ActionResult Edit(int id)
 		{
-			var service = new PageService(DataContext, GetCurrentUser());
-			var view = service.BeginEditingPage(id);
+			var view = _service.BeginEditingPage(id);
 			DataContext.SaveChanges();
 			_notificationHub.PageLockedForEdit(id, view.EditingBy);
-			view.Files = new FileService(DataContext, GetCurrentUser()).GetFiles().Files;
-			view.Pages = service.GetPages().Select(x => x.Title).ToList();
 			return View(view);
 		}
 
 		[AllowAnonymous]
 		public ActionResult History(int id)
 		{
-			var service = new PageService(DataContext, GetCurrentUser(false));
-			return View(service.GetPageHistory(id));
+			return View(_service.GetPageHistory(id));
 		}
 
 		[AllowAnonymous]
@@ -84,53 +75,42 @@ namespace Scribe.Website.Controllers
 				return RedirectToAction("Setup");
 			}
 
-			var service = new PageService(DataContext, GetCurrentUser(false));
-			return View("Page", service.GetFrontPage());
+			return View("Page", _service.GetFrontPage());
 		}
 
 		public ActionResult New(string suggestedTitle)
 		{
-			var view = new FileService(DataContext, GetCurrentUser()).GetFiles();
-			var pages = new PageService(DataContext, GetCurrentUser()).GetPages().Select(x => x.Title).ToList();
-			return View("Edit", new PageView { Title = suggestedTitle, Files = view.Files, Pages = pages });
+			return View("Edit", new PageView { Title = suggestedTitle, Files = _service.GetFiles(), Pages = _service.GetPages().Select(x => x.Title).ToList() });
 		}
 
 		[AllowAnonymous]
 		public ActionResult Page(int id)
 		{
-			var service = new PageService(DataContext, GetCurrentUser(false));
-			return View(service.GetPage(id));
+			return View(_service.GetPage(id));
 		}
 
 		[AllowAnonymous]
 		public ActionResult Pages()
 		{
-			var service = new PageService(DataContext, GetCurrentUser(false));
-			return View(service.GetPages());
+			return View(_service.GetPages());
 		}
 
 		[AllowAnonymous]
 		public ActionResult PagesWithTag(string tag)
 		{
-			var service = new PageService(DataContext, GetCurrentUser(false));
-			return View(service.GetPagesWithTag(tag));
+			return View(_service.GetPagesWithTag(tag));
 		}
 
 		public ActionResult RenameTag(string oldName, string newName)
 		{
-			var searchService = new SearchService(DataContext, SearchService.SearchPath, GetCurrentUser(false));
-			var service = new PageService(DataContext, GetCurrentUser(false));
-			var pagesUpdated = service.RenameTag(oldName, newName);
-			DataContext.SaveChanges();
-			pagesUpdated.ForEach(x => searchService.Update(x));
+			_service.RenameTag(new RenameValues { NewName = newName, OldName = oldName });
 			return RedirectToAction("Tags");
 		}
 
 		[AllowAnonymous]
 		public ActionResult Search(string term)
 		{
-			var searchService = new SearchService(DataContext, SearchService.SearchPath, GetCurrentUser(false));
-			return View(searchService.Search(term));
+			return View(_searchService.Search(term));
 		}
 
 		public ActionResult Settings()
@@ -148,8 +128,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult Tags()
 		{
-			var service = new PageService(DataContext, GetCurrentUser(false));
-			return View(service.GetTags());
+			return View(_service.GetTags());
 		}
 
 		#endregion

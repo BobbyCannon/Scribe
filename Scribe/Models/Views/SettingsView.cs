@@ -10,6 +10,8 @@
 
 		public bool OverwriteFilesOnUpload { get; set; }
 
+		public bool SoftDelete { get; set; }
+
 		#endregion
 	}
 }

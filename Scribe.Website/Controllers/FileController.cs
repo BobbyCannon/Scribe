@@ -7,7 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using Scribe.Data;
 using Scribe.Extensions;
-using Scribe.Models.Views;
+using Scribe.Models.Data;
 using Scribe.Services;
 using Scribe.Web;
 
@@ -28,18 +28,11 @@ namespace Scribe.Website.Controllers
 
 		#region Methods
 
-		public void Delete(FileView file)
-		{
-			var service = new FileService(DataContext, GetCurrentUser());
-			service.Delete(file.Name);
-			DataContext.SaveChanges();
-		}
-
 		[AllowAnonymous]
 		public FileResult File(string name)
 		{
-			var service = new FileService(DataContext, GetCurrentUser(false));
-			var file = service.GetFile(name);
+			var service = new ScribeService(DataContext, null, null, GetCurrentUser(false));
+			var file = service.GetFile(name, true);
 			if (file != null)
 			{
 				return new FileContentResult(file.Data, file.Type);
@@ -57,7 +50,7 @@ namespace Scribe.Website.Controllers
 
 		public ActionResult Files()
 		{
-			var service = new FileService(DataContext, GetCurrentUser());
+			var service = new ScribeService(DataContext, null, null, GetCurrentUser());
 			return View(service.GetFiles());
 		}
 
@@ -78,8 +71,15 @@ namespace Scribe.Website.Controllers
 				contentType = MimeMapping.GetMimeMapping(file.FileName);
 			}
 
-			var service = new FileService(DataContext, GetCurrentUser());
-			service.Add(Path.GetFileName(file.FileName), contentType, data);
+			var service = new ScribeService(DataContext, null, null, GetCurrentUser());
+			var fileData = new FileData
+			{
+				Name = Path.GetFileName(file.FileName),
+				Type = contentType,
+				Data = data
+			};
+
+			service.SaveFile(fileData);
 			DataContext.SaveChanges();
 
 			return new JsonNetResult(service.GetFiles());

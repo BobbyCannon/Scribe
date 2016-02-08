@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using EasyDataFramework;
 
 #endregion
 
@@ -12,7 +13,7 @@ namespace Scribe.Models.Entities
 	/// <summary>
 	/// Represents a page. Content store in the page version.
 	/// </summary>
-	public class Page
+	public class Page : Entity
 	{
 		#region Constructors
 
@@ -37,11 +38,6 @@ namespace Scribe.Models.Entities
 		public int CreatedById { get; set; }
 
 		/// <summary>
-		/// Gets or sets the date the page was created on.
-		/// </summary>
-		public DateTime CreatedOn { get; set; }
-
-		/// <summary>
 		/// Gets or sets the user who current editing the page.
 		/// </summary>
 		public virtual User EditingBy { get; set; }
@@ -62,9 +58,9 @@ namespace Scribe.Models.Entities
 		public virtual ICollection<PageHistory> History { get; set; }
 
 		/// <summary>
-		/// Gets or sets the page's unique ID.
+		/// Flag to indicated this pages has been "soft" deleted.
 		/// </summary>
-		public int Id { get; set; }
+		public bool IsDeleted { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether the page is locked for administrator only editing.
@@ -82,11 +78,6 @@ namespace Scribe.Models.Entities
 		public int ModifiedById { get; set; }
 
 		/// <summary>
-		/// Gets or sets the date the page was last modified on.
-		/// </summary>
-		public DateTime ModifiedOn { get; set; }
-
-		/// <summary>
 		/// Gets or sets the tags for the page, in the format ",tag1,tag2,tag3," (no spaces between tags).
 		/// </summary>
 		public string Tags { get; set; }
@@ -99,9 +90,6 @@ namespace Scribe.Models.Entities
 		/// <summary>
 		/// Gets or sets the title.
 		/// </summary>
-		/// <value>
-		/// The title.
-		/// </value>
 		public string Title { get; set; }
 
 		#endregion

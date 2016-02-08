@@ -29,7 +29,21 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EasyDataFramework, Version=1.2.5879.4063, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyDataFramework.1.2.5879.4063\lib\net40\EasyDataFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EasyDataFramework.EntityFramework, Version=1.2.5879.4063, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyDataFramework.EntityFramework.1.2.5879.4063\lib\net40\EasyDataFramework.EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -110,6 +124,7 @@
     <Compile Include="Converters\TextToken.cs" />
     <Compile Include="Converters\UrlResolver.cs" />
     <Compile Include="Data\IScribeContext.cs" />
+    <Compile Include="Data\ScribeMemoryContext.cs" />
     <Compile Include="Data\ScribeContext.cs" />
     <Compile Include="Exceptions\PageNotFoundException.cs" />
     <Compile Include="Extensions\AssemblyExtensions.cs" />
@@ -122,8 +137,19 @@
     <Compile Include="Migrations\201601262112144_InitialMigration.Designer.cs">
       <DependentUpon>201601262112144_InitialMigration.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201602050152470_UpdatedToEasyDataFramework.cs" />
+    <Compile Include="Migrations\201602050152470_UpdatedToEasyDataFramework.Designer.cs">
+      <DependentUpon>201602050152470_UpdatedToEasyDataFramework.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201602071603250_AddedDeleteFlag.cs" />
+    <Compile Include="Migrations\201602071603250_AddedDeleteFlag.Designer.cs">
+      <DependentUpon>201602071603250_AddedDeleteFlag.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\BaseDbMigration.cs" />
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Data\LoginModel.cs" />
+    <Compile Include="Models\Data\Credentials.cs" />
+    <Compile Include="Models\Data\FileData.cs" />
+    <Compile Include="Models\Data\RenameValues.cs" />
     <Compile Include="Models\Entities\File.cs" />
     <Compile Include="Models\Entities\Mapping\FileMap.cs" />
     <Compile Include="Models\Entities\Mapping\PageHistoryMap.cs" />
@@ -151,12 +177,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\AuthenticationService.cs" />
-    <Compile Include="Services\FileService.cs" />
     <Compile Include="Services\IAuthenticationService.cs" />
     <Compile Include="Services\IScribeService.cs" />
-    <Compile Include="Services\PageService.cs" />
+    <Compile Include="Services\ScribeClient.cs" />
+    <Compile Include="Services\ScribeService.cs" />
     <Compile Include="Services\SearchService.cs" />
     <Compile Include="Services\SettingsService.cs" />
+    <Compile Include="Web\HttpClient.cs" />
     <Compile Include="Web\JsonNetResult.cs" />
     <Compile Include="Web\MvcExceptionFilterAttribute.cs" />
     <Compile Include="Web\TraceExceptionLogger.cs" />
@@ -164,10 +191,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Key.snk" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Converters\CustomTokens.xml" />
+    <EmbeddedResource Include="Migrations\201602050152470_UpdatedToEasyDataFramework.resx">
+      <DependentUpon>201602050152470_UpdatedToEasyDataFramework.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201602071603250_AddedDeleteFlag.resx">
+      <DependentUpon>201602071603250_AddedDeleteFlag.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201601262112144_InitialMigration.resx">

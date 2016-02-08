@@ -92,7 +92,7 @@ namespace Scribe.Extensions
 			if (builder.Length <= 0)
 			{
 				var firstUnit = format.Last().ToString();
-				return "less than a" + ConvertShortUnitToLongUnit(firstUnit, false);
+				return "less than a " + ConvertShortUnitToLongUnit(firstUnit, false);
 			}
 
 			var response = builder.Remove(0, 2).ToString();

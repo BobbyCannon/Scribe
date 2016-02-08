@@ -1,4 +1,4 @@
-﻿@model FilesView
+﻿@model IEnumerable<FileView>
 
 @{
 	ViewBag.Title = "Files";
@@ -14,14 +14,14 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="$file in model.files">
+			<tr ng-repeat="$file in model">
 				<td>
-					<a href='/file?name={{$file.name}}' target="blank">{{$file.name}}</a>
+					<a href="/file?name={{$file.name}}" target="blank">{{$file.name}}</a>
 				</td>
 				<td>{{$file.type}}</td>
 				<td>{{$file.size}}</td>
 				<td>
-					<a href='#' ng-validation-message="Are you sure you want to remove the file ({{$file.name}})?" ng-validated-click="delete($index, $file)">delete</a>
+					<a href="#" ng-validation-message="Are you sure you want to remove the file ({{$file.name}})?" ng-validated-click="delete($index, $file)">delete</a>
 				</td>
 			</tr>
 		</tbody>
@@ -112,9 +112,9 @@
 
 				$scope.delete = function (index, file) {
 					console.log(index);
-					$http.post('/File/Delete', file)
+					$http.post('/api/Service/DeleteFile/' + file.id, null)
 						.success(function () {
-							$scope.model.files.splice(index, 1);
+							$scope.model.splice(index, 1);
 						})
 						.error(function () {
 							toastr.error('There was issue getting the deleting the file.');

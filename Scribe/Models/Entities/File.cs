@@ -1,12 +1,12 @@
 ﻿#region References
 
-using System;
+using EasyDataFramework;
 
 #endregion
 
 namespace Scribe.Models.Entities
 {
-	public class File
+	public class File : Entity
 	{
 		#region Properties
 
@@ -21,19 +21,14 @@ namespace Scribe.Models.Entities
 		public int CreatedById { get; set; }
 
 		/// <summary>
-		/// Gets or sets the date the file was created on.
-		/// </summary>
-		public DateTime CreatedOn { get; set; }
-
-		/// <summary>
 		/// Gets the binary data for the file.
 		/// </summary>
 		public byte[] Data { get; set; }
 
 		/// <summary>
-		/// Get the ID of the file.
+		/// Flag to indicated this pages has been "soft" deleted.
 		/// </summary>
-		public int Id { get; set; }
+		public bool IsDeleted { get; set; }
 
 		/// <summary>
 		/// Gets or sets the user who last modified the file.
@@ -44,11 +39,6 @@ namespace Scribe.Models.Entities
 		/// Gets or sets the user ID of who last modified the file.
 		/// </summary>
 		public int ModifiedById { get; set; }
-
-		/// <summary>
-		/// Gets or sets the date the page was last modified on.
-		/// </summary>
-		public DateTime ModifiedOn { get; set; }
 
 		/// <summary>
 		/// Gets the name of the file.

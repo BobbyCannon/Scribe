@@ -1,28 +1,21 @@
 ﻿#region References
 
-using System;
-using System.Data.Entity;
+using EasyDataFramework;
 using Scribe.Models.Entities;
 
 #endregion
 
 namespace Scribe.Data
 {
-	public interface IScribeContext : IDisposable
+	public interface IScribeContext : IDataContext
 	{
 		#region Properties
 
-		DbSet<File> Files { get; }
-		DbSet<Page> Pages { get; }
-		DbSet<PageHistory> PageVersions { get; }
-		DbSet<Setting> Settings { get; }
-		DbSet<User> Users { get; }
-
-		#endregion
-
-		#region Methods
-
-		int SaveChanges();
+		IRepository<File> Files { get; }
+		IRepository<Page> Pages { get; }
+		IRepository<PageHistory> PageVersions { get; }
+		IRepository<Setting> Settings { get; }
+		IRepository<User> Users { get; }
 
 		#endregion
 	}

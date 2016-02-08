@@ -1,6 +1,5 @@
 ﻿#region References
 
-using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -29,12 +28,12 @@ namespace Scribe.Services
 		#region Fields
 
 		private readonly IScribeContext _context;
+		private readonly MarkupConverter _converter;
 		private readonly string _indexPath;
-		private readonly MarkupConverter _markupConverter;
 		private static readonly Regex _removeTagsRegex = new Regex("<(.|\n)*?>");
+		private readonly SettingsService _settings;
 		private readonly User _user;
 		private static readonly LuceneVersion LUCENEVERSION = LuceneVersion.LUCENE_29;
-		private readonly SettingsService _settings;
 
 		#endregion
 
@@ -43,7 +42,7 @@ namespace Scribe.Services
 		public SearchService(IScribeContext context, string path, User user)
 		{
 			_context = context;
-			_markupConverter = new MarkupConverter(context);
+			_converter = new MarkupConverter(context);
 			_settings = new SettingsService(context, user);
 			_indexPath = path;
 			_user = user;
@@ -63,7 +62,7 @@ namespace Scribe.Services
 		/// Adds the specified page to the search index.
 		/// </summary>
 		/// <param name="page"> The page to add. </param>
-		public virtual void Add(Page page)
+		public virtual void Add(PageView page)
 		{
 			try
 			{
@@ -94,7 +93,7 @@ namespace Scribe.Services
 			{
 				foreach (var page in _context.Pages.ToList())
 				{
-					AddIndex(page, writer);
+					AddIndex(new PageView(page, _converter), writer);
 				}
 			}
 		}
@@ -103,7 +102,7 @@ namespace Scribe.Services
 		/// Deletes the specified page from the search indexes.
 		/// </summary>
 		/// <param name="page"> The page to remove. </param>
-		public virtual int Delete(Page page)
+		public virtual int Delete(PageView page)
 		{
 			try
 			{
@@ -195,17 +194,17 @@ namespace Scribe.Services
 		/// Updates the <see cref="Page" /> in the search index, by removing it and re-adding it.
 		/// </summary>
 		/// <param name="model"> The page to update </param>
-		public virtual void Update(Page model)
+		public virtual void Update(PageView model)
 		{
 			EnsureDirectoryExists();
 			Delete(model);
 			Add(model);
 		}
 
-		private void AddIndex(Page model, IndexWriter writer)
+		private void AddIndex(PageView model, IndexWriter writer)
 		{
-			var content = _markupConverter.ToHtml(model.History.OrderByDescending(x => x.Id).First().Text);
-			var tags = string.Join(", ", model.Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+			var content = model.Html;
+			var tags = string.Join(", ", model.Tags);
 
 			var document = new Document();
 			document.Add(new Field("id", model.Id.ToString(), Field.Store.YES, Field.Index.ANALYZED));
@@ -213,8 +212,8 @@ namespace Scribe.Services
 			document.Add(new Field("contentsummary", GetContentSummary(content), Field.Store.YES, Field.Index.NO));
 			document.Add(new Field("title", model.Title, Field.Store.YES, Field.Index.ANALYZED));
 			document.Add(new Field("tags", tags, Field.Store.YES, Field.Index.ANALYZED));
-			document.Add(new Field("createdby", model.CreatedBy.DisplayName, Field.Store.YES, Field.Index.NOT_ANALYZED));
-			document.Add(new Field("createdon", model.CreatedOn.ToShortDateString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+			document.Add(new Field("createdby", model.CreatedBy, Field.Store.YES, Field.Index.NOT_ANALYZED));
+			document.Add(new Field("createdon", model.CreatedOn, Field.Store.YES, Field.Index.NOT_ANALYZED));
 			document.Add(new Field("contentlength", content.Length.ToString(), Field.Store.YES, Field.Index.NO));
 
 			writer.AddDocument(document);

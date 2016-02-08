@@ -20,10 +20,12 @@ namespace Scribe.Models.Entities.Mapping
 			// Table & Column Mappings
 			ToTable("Users");
 			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.DisplayName).IsRequired().HasMaxLength(450).HasColumnAnnotation("Index", new IndexAnnotation(new IndexAttribute("IX_Users_DisplayName") { IsUnique = true }));
 			Property(x => x.EmailAddress).IsRequired().HasMaxLength(450).HasColumnAnnotation("Index", new IndexAnnotation(new IndexAttribute("IX_Users_EmailAddress") { IsUnique = true }));
 			Property(x => x.IsActiveDirectory).IsRequired();
 			Property(x => x.IsEnabled).IsRequired();
+			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.PasswordHash).IsRequired().HasMaxLength(450);
 			Property(x => x.Roles).IsRequired().HasMaxLength(450);
 			Property(x => x.Salt).IsRequired().HasMaxLength(128);

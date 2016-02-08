@@ -49,6 +49,12 @@ namespace Scribe.Services
 			set { AddOrUpdateSetting("Overwrite Files On Upload", value.ToString()); }
 		}
 
+		public bool SoftDelete
+		{
+			get { return GetSetting("Soft Delete", false); }
+			set { AddOrUpdateSetting("Soft Delete", value.ToString()); }
+		}
+
 		#endregion
 
 		#region Methods
@@ -64,7 +70,8 @@ namespace Scribe.Services
 			{
 				EnablePublicTag = EnablePublicTag,
 				LdapConnectionString = LdapConnectionString,
-				OverwriteFilesOnUpload = OverwriteFilesOnUpload
+				OverwriteFilesOnUpload = OverwriteFilesOnUpload,
+				SoftDelete = SoftDelete
 			};
 		}
 
@@ -78,6 +85,7 @@ namespace Scribe.Services
 			EnablePublicTag = settings.EnablePublicTag;
 			LdapConnectionString = settings.LdapConnectionString ?? string.Empty;
 			OverwriteFilesOnUpload = settings.OverwriteFilesOnUpload;
+			SoftDelete = settings.SoftDelete;
 		}
 
 		private void AddOrUpdateSetting(string name, string value)

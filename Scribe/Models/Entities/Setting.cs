@@ -1,10 +1,14 @@
-﻿namespace Scribe.Models.Entities
+﻿#region References
+
+using EasyDataFramework;
+
+#endregion
+
+namespace Scribe.Models.Entities
 {
-	public class Setting
+	public class Setting : Entity
 	{
 		#region Properties
-
-		public int Id { get; set; }
 
 		public string Name { get; set; }
 

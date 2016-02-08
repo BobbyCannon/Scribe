@@ -28,6 +28,18 @@ namespace Scribe.Extensions
 			}
 		}
 
+		/// <summary>
+		/// Deserialize an object from JSON.
+		/// </summary>
+		/// <typeparam name="T"> The type to be deserialized. </typeparam>
+		/// <param name="item"> The JSON data. </param>
+		/// <param name="camelCase"> The flag to determine if we should use camel case or not. </param>
+		/// <returns> The deserialized object from the provided JSON. </returns>
+		public static T FromJson<T>(this string item, bool camelCase = false)
+		{
+			return JsonConvert.DeserializeObject<T>(item, GetSerializerSettings(camelCase));
+		}
+
 		public static JsonSerializerSettings GetSerializerSettings(bool camelCase = true)
 		{
 			var response = new JsonSerializerSettings();

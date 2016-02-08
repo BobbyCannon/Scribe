@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System.Collections.Generic;
+using Scribe.Models.Data;
 using Scribe.Models.Views;
 
 #endregion
@@ -11,16 +12,22 @@ namespace Scribe.Services
 	{
 		#region Methods
 
-		void AddFile();
-		PageView AddOrUpdatePage(PageView view);
+		void CancelPage(int id);
 		void DeleteFile(int id);
 		void DeletePage(int id);
-		void DeleteTag(string tag);
-		IEnumerable<FileView> GetFiles(string filter);
-		PageView GetPage(int id, bool includeHistory);
-		IEnumerable<PageView> GetPages(string filter);
-		IEnumerable<TagView> GetTags(string filter);
-		void RenameTag(string oldTag, string newTag);
+		void DeleteTag(string name);
+		FileView GetFile(int id, bool includeData = false);
+		FileView GetFile(string name, bool includeData = false);
+		IEnumerable<FileView> GetFiles(string filter = null, bool includeData = false);
+		PageView GetPage(int id, bool includeHistory = false);
+		IEnumerable<PageView> GetPages(string filter = null);
+		IEnumerable<TagView> GetTags(string filter = null);
+		void LogIn(Credentials login);
+		void LogOut();
+		string Preview(PageView model);
+		void RenameTag(RenameValues values);
+		void SaveFile(FileData data);
+		PageView SavePage(PageView view);
 
 		#endregion
 	}

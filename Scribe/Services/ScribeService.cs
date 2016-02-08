@@ -3,14 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.Migrations;
 using System.Data.SqlTypes;
 using System.Linq;
-using System.Web;
 using Scribe.Converters;
 using Scribe.Data;
 using Scribe.Exceptions;
 using Scribe.Extensions;
+using Scribe.Models.Data;
 using Scribe.Models.Entities;
 using Scribe.Models.Views;
 
@@ -18,15 +17,14 @@ using Scribe.Models.Views;
 
 namespace Scribe.Services
 {
-	/// <summary>
-	/// Represents the service to handle all the page tasks.
-	/// </summary>
-	public class PageService
+	public class ScribeService : IScribeService
 	{
 		#region Fields
 
+		private readonly AccountService _accountService;
 		private readonly IScribeContext _context;
 		private readonly MarkupConverter _converter;
+		private readonly SearchService _searchService;
 		private readonly SettingsService _settings;
 		private readonly User _user;
 
@@ -34,15 +32,17 @@ namespace Scribe.Services
 
 		#region Constructors
 
-		public PageService(IScribeContext context, User user)
+		public ScribeService(IScribeContext context, AccountService accountService, SearchService searchService, User user)
 		{
 			_context = context;
+			_accountService = accountService;
 			_converter = new MarkupConverter(_context);
+			_searchService = searchService;
 			_settings = new SettingsService(context, user);
 			_user = user;
 		}
 
-		static PageService()
+		static ScribeService()
 		{
 			EditingTimeout = new TimeSpan(0, 15, 0);
 		}
@@ -74,12 +74,18 @@ namespace Scribe.Services
 			{
 				page.EditingBy = _user;
 				page.EditingOn = DateTime.UtcNow;
+				_context.SaveChanges();
 			}
 
-			return new PageView(page, _converter);
+			var response = new PageView(page, _converter);
+
+			response.Files = GetFiles();
+			response.Pages = GetPages().Select(x => x.Title).ToList();
+
+			return response;
 		}
 
-		public void CancelEditingPage(int id)
+		public void CancelPage(int id)
 		{
 			var page = GetPageQuery().FirstOrDefault(x => x.Id == id);
 			if (page == null)
@@ -89,6 +95,105 @@ namespace Scribe.Services
 
 			page.EditingById = null;
 			page.EditingOn = SqlDateTime.MinValue.Value;
+			_context.SaveChanges();
+		}
+
+		public void DeleteFile(int id)
+		{
+			var file = _context.Files.FirstOrDefault(x => x.Id == id);
+			if (file == null)
+			{
+				throw new ArgumentException("Failed to find the file with the provided ID.", nameof(id));
+			}
+
+			if (_settings.SoftDelete)
+			{
+				file.IsDeleted = true;
+			}
+			else
+			{
+				_context.Files.Remove(file);
+			}
+
+			_context.SaveChanges();
+		}
+
+		public void DeletePage(int id)
+		{
+			var page = _context.Pages.FirstOrDefault(x => x.Id == id);
+			if (page == null)
+			{
+				throw new ArgumentException("Failed to find the page with the provided ID.", nameof(id));
+			}
+
+			if (_settings.SoftDelete)
+			{
+				page.IsDeleted = true;
+			}
+			else
+			{
+				_context.Pages.Remove(page);
+			}
+
+			_context.SaveChanges();
+		}
+
+		public void DeleteTag(string tag)
+		{
+			if (tag.Equals("public", StringComparison.OrdinalIgnoreCase))
+			{
+				throw new ArgumentException("Cannot rename the tag to public.");
+			}
+
+			if (string.IsNullOrWhiteSpace(tag))
+			{
+				throw new ArgumentException("The tag name must be provided.", nameof(tag));
+			}
+
+			var name1 = "," + tag + ",";
+			var pagesToUpdate = GetPageQuery().Where(x => x.Tags.Contains(name1)).ToList();
+			pagesToUpdate.ForEach(page => page.Tags = page.Tags.Replace(name1, ","));
+
+			_context.SaveChanges();
+
+			pagesToUpdate.ForEach(page => _searchService.Update(new PageView(page, _converter)));
+		}
+
+		public FileView GetFile(int id, bool includeData = false)
+		{
+			var file = _context.Files.FirstOrDefault(x => x.Id == id && !x.IsDeleted);
+			if (file == null)
+			{
+				throw new ArgumentException("The file could not be found.", nameof(id));
+			}
+
+			return FileView.Create(file, includeData);
+		}
+
+		public FileView GetFile(string name, bool includeData = false)
+		{
+			var file = _context.Files.FirstOrDefault(x => x.Name == name && !x.IsDeleted);
+			if (file == null)
+			{
+				throw new ArgumentException("The file could not be found.", nameof(name));
+			}
+
+			return FileView.Create(file, includeData);
+		}
+
+		public IEnumerable<FileView> GetFiles(string filter = null, bool includeData = false)
+		{
+			return _context.Files
+				.Where(x => !x.IsDeleted)
+				.OrderBy(x => x.Name)
+				.Select(x => new FileView
+				{
+					Id = x.Id,
+					Name = x.Name,
+					Size = x.Size / 1024 + " kb",
+					Type = x.Type
+				})
+				.ToList();
 		}
 
 		public PageView GetFrontPage()
@@ -109,7 +214,7 @@ namespace Scribe.Services
 				};
 		}
 
-		public PageView GetPage(int id)
+		public PageView GetPage(int id, bool includeHistory = false)
 		{
 			var page = GetPageQuery()
 				.Include(x => x.CreatedBy)
@@ -170,12 +275,12 @@ namespace Scribe.Services
 			return new PageHistoryView(page);
 		}
 
-		public IEnumerable<PageSummaryView> GetPages()
+		public IEnumerable<PageView> GetPages(string filter = null)
 		{
 			return GetPageQuery()
 				.Include(x => x.ModifiedBy)
 				.ToList()
-				.Select(x => new PageSummaryView
+				.Select(x => new PageView
 				{
 					Id = x.Id,
 					LastModified = DateTime.UtcNow.Subtract(x.ModifiedOn).ToTimeAgo(),
@@ -209,7 +314,7 @@ namespace Scribe.Services
 			};
 		}
 
-		public IEnumerable<TagView> GetTags()
+		public IEnumerable<TagView> GetTags(string filter = null)
 		{
 			var pagesWithTags = GetPageQuery()
 				.Select(x => new { x.Title, x.Tags })
@@ -222,47 +327,88 @@ namespace Scribe.Services
 				.OrderBy(x => x.Tag);
 		}
 
-		public IEnumerable<Page> RenameTag(string oldName, string newName)
+		public void LogIn(Credentials credentials)
 		{
-			if (oldName.Equals("public", StringComparison.OrdinalIgnoreCase))
+			_accountService.LogIn(credentials);
+		}
+
+		public void LogOut()
+		{
+			_accountService.LogOut();
+		}
+
+		public string Preview(PageView model)
+		{
+			if (model.Id > 0)
+			{
+				UpdateEditingPage(model);
+				_context.SaveChanges();
+			}
+
+			return _converter.ToHtml(model.Text);
+		}
+
+		public void RenameTag(RenameValues values)
+		{
+			if (values.OldName.Equals("public", StringComparison.OrdinalIgnoreCase))
 			{
 				throw new ArgumentException("Cannot rename the public tag.");
 			}
 
-			if (newName.Equals("public", StringComparison.OrdinalIgnoreCase))
+			if (values.NewName.Equals("public", StringComparison.OrdinalIgnoreCase))
 			{
 				throw new ArgumentException("Cannot rename the tag to public.");
 			}
 
-			if (string.IsNullOrWhiteSpace(oldName))
+			if (string.IsNullOrWhiteSpace(values.OldName))
 			{
-				throw new ArgumentException("The old name must be provided.", nameof(oldName));
+				throw new ArgumentException("The old name must be provided.", nameof(values));
 			}
 
-			if (string.IsNullOrWhiteSpace(newName))
+			if (string.IsNullOrWhiteSpace(values.NewName))
 			{
-				throw new ArgumentException("The new name must be provided.", nameof(newName));
+				throw new ArgumentException("The new name must be provided.", nameof(values));
 			}
 
-			var name1 = "," + oldName + ",";
-			var name2 = "," + newName + ",";
+			var name1 = "," + values.OldName + ",";
+			var name2 = "," + values.NewName + ",";
 			var pagesToUpdate = GetPageQuery().Where(x => x.Tags.Contains(name1)).ToList();
-			foreach (var page in pagesToUpdate.Where(x => x.Tags.Contains(name1)))
-			{
-				page.Tags = page.Tags.Replace(name1, name2);
-			}
 
-			return pagesToUpdate;
+			pagesToUpdate.ForEach(page => page.Tags = page.Tags.Replace(name1, name2));
+
+			_context.SaveChanges();
+
+			pagesToUpdate.ForEach(page => _searchService.Update(new PageView(page, _converter)));
 		}
 
-		public Page Save(PageView view)
+		public void SaveFile(FileData data)
+		{
+			var file = _context.Files.FirstOrDefault(x => x.Name == data.Name)
+				?? new File { Name = data.Name, CreatedBy = _user, CreatedOn = DateTime.UtcNow };
+
+			if (!_settings.OverwriteFilesOnUpload && file.Id != 0)
+			{
+				throw new InvalidOperationException("The file already exists and cannot be overwritten.");
+			}
+
+			file.Data = data.Data;
+			file.Size = data.Data.Length;
+			file.Type = data.Type;
+			file.ModifiedOn = file.Id == 0 ? file.CreatedOn : DateTime.UtcNow;
+			file.ModifiedBy = _user;
+
+			_context.Files.AddOrUpdate(file);
+			_context.SaveChanges();
+		}
+
+		public PageView SavePage(PageView view)
 		{
 			var page = GetPageQuery().FirstOrDefault(x => x.Id == view.Id)
 				?? new Page { CreatedOn = DateTime.UtcNow, CreatedBy = _user, IsLocked = false };
 
 			if (page.EditingById != null && page.EditingById != _user?.Id)
 			{
-				throw new HttpException(403, "This page is currently being edited by another user.");
+				throw new InvalidOperationException("This page is currently being edited by another user.");
 			}
 
 			if (page.Id == view.Id && page.Title == view.Title && page.Text == view.Text && page.Tags == $",{string.Join(",", view.Tags)},")
@@ -291,8 +437,9 @@ namespace Scribe.Services
 			page.Title = view.Title;
 
 			_context.Pages.AddOrUpdate(page);
+			_context.SaveChanges();
 
-			return page;
+			return new PageView(page, _converter);
 		}
 
 		public void UpdateEditingPage(PageView model)
@@ -308,7 +455,8 @@ namespace Scribe.Services
 
 		private IQueryable<Page> GetPageQuery()
 		{
-			var query = _context.Pages.AsQueryable();
+			var query = _context.Pages.Where(x => !x.IsDeleted);
+
 			if (_user == null && _settings.EnablePublicTag)
 			{
 				query = query.Where(x => x.Tags.Contains(",public,"));

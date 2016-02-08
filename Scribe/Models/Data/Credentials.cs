@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Scribe.Models.Data
 {
-	public class LoginModel
+	public class Credentials
 	{
 		#region Properties
 

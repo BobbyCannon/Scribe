@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
+using EasyDataFramework;
 
 #endregion
 
@@ -14,7 +15,7 @@ namespace Scribe.Models.Entities
 	/// <summary>
 	/// Represents a user of the scribe wiki.
 	/// </summary>
-	public class User
+	public class User : Entity
 	{
 		#region Constructors
 
@@ -53,11 +54,6 @@ namespace Scribe.Models.Entities
 		public string EmailAddress { get; set; }
 
 		/// <summary>
-		/// Gets or sets the ID for the user.
-		/// </summary>
-		public int Id { get; set; }
-
-		/// <summary>
 		/// Gets or sets the flag indicating this account is an active directory account.
 		/// </summary>
 		public bool IsActiveDirectory { get; set; }
@@ -94,7 +90,7 @@ namespace Scribe.Models.Entities
 		/// Use <see cref="SetPassword" /> to set the user's password, and <see cref="User.HashPassword" /> to encrypt a plain text
 		/// password for authentication with the salt and password.
 		/// </remarks>
-		public string PasswordHash { get; internal set; }
+		public string PasswordHash { get; private set; }
 
 		/// <summary>
 		/// Gets or sets the roles for the user in the format ",role1,role2,role3," (no spaces between roles).
@@ -105,7 +101,7 @@ namespace Scribe.Models.Entities
 		/// Do not use this property to set the password - use <see cref="SetPassword" /> instead. Use
 		/// <see cref="HashPassword" /> for authentication with the salt and password.
 		/// </summary>
-		public string Salt { get; internal set; }
+		public string Salt { get; private set; }
 
 		/// <summary>
 		/// Gets the user name for the user.
@@ -115,22 +111,6 @@ namespace Scribe.Models.Entities
 		#endregion
 
 		#region Methods
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="Salt" /> class, generating a new salt value.
-		/// </summary>
-		public string GetSalt()
-		{
-			var builder = new StringBuilder(16);
-			var random = new Random();
-
-			for (var i = 0; i < 16; i++)
-			{
-				builder.Append((char) random.Next(33, 126));
-			}
-
-			return builder.ToString();
-		}
 
 		/// <summary>
 		/// Hashes a combination of the password and salt using SHA1 via FormsAuthentication, or SHA256 is FormsAuthentication is
@@ -168,6 +148,22 @@ namespace Scribe.Models.Entities
 		{
 			Salt = GetSalt();
 			PasswordHash = HashPassword(password, Salt);
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Salt" /> class, generating a new salt value.
+		/// </summary>
+		private string GetSalt()
+		{
+			var builder = new StringBuilder(16);
+			var random = new Random();
+
+			for (var i = 0; i < 16; i++)
+			{
+				builder.Append((char) random.Next(33, 126));
+			}
+
+			return builder.ToString();
 		}
 
 		#endregion

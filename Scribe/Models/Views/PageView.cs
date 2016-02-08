@@ -36,11 +36,14 @@ namespace Scribe.Models.Views
 		public PageView(Page page, MarkupConverter converter)
 		{
 			Id = page.Id;
-			EditingBy = page.EditingOn > DateTime.UtcNow.Subtract(PageService.EditingTimeout) ? (page.EditingBy?.DisplayName ?? string.Empty) : string.Empty;
+			CreatedBy = page.CreatedBy.DisplayName;
+			CreatedOn = page.CreatedOn.ToShortDateString();
+			EditingBy = page.EditingOn > DateTime.UtcNow.Subtract(ScribeService.EditingTimeout) ? (page.EditingBy?.DisplayName ?? string.Empty) : string.Empty;
 			Files = new List<FileView>();
 			Html = converter.ToHtml(page.Text);
 			LastModified = DateTime.UtcNow.Subtract(page.ModifiedOn).ToTimeAgo();
 			ModifiedBy = page.ModifiedBy.DisplayName;
+			ModifiedOn = page.ModifiedOn;
 			Pages = new List<string>();
 			Tags = page.Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct();
 			Text = page.Text;
@@ -51,6 +54,10 @@ namespace Scribe.Models.Views
 		#endregion
 
 		#region Properties
+
+		public string CreatedBy { get; set; }
+
+		public string CreatedOn { get; set; }
 
 		public string EditingBy { get; set; }
 
@@ -63,6 +70,8 @@ namespace Scribe.Models.Views
 		public string LastModified { get; set; }
 
 		public string ModifiedBy { get; set; }
+
+		public DateTime ModifiedOn { get; set; }
 
 		public List<string> Pages { get; set; }
 

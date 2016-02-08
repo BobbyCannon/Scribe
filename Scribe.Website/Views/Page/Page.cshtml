@@ -3,11 +3,10 @@
 @{
 	ViewBag.Title = Model.Title;
 }
-
 <div id="page" ng-controller="controller">
 	<div id="pageHeader" class="row">
 		<div class="span12">
-			<h1 id="pageHeaderTitle">{{model.title}}</h1>
+			<h1 id="pageTitle">{{model.title}}</h1>
 			<small ng-show="model.editingBy.length > 0">
 				This page is currently being edited by {{ model.editingBy }}.
 			</small>
@@ -19,9 +18,9 @@
 			}
 		</div>
 	</div>
-
-	@Html.Raw(Model.Html)
-
+	<div id="pageContent">
+		@Html.Raw(Model.Html)
+	</div>
 	<div id="pageFooter" ng-show="model.id > 0">
 		<div class="darkGray pull-right">
 			<span ng-repeat="$tag in model.tags">

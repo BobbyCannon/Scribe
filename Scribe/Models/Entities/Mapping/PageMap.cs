@@ -19,12 +19,13 @@ namespace Scribe.Models.Entities.Mapping
 
 			// Table & Column Mappings
 			ToTable("Pages");
-			Property(x => x.Id).HasColumnName("Id").HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(x => x.IsLocked).HasColumnName("IsLocked");
-			Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(x => x.Tags).HasColumnName("Tags").IsRequired().HasMaxLength(450);
-			Property(x => x.Title).HasColumnName("Title").IsRequired().HasMaxLength(450).HasColumnAnnotation("Index", new IndexAnnotation(new IndexAttribute("IX_Pages_Title") { IsUnique = true }));
+			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
+			Property(x => x.IsDeleted).IsRequired();
+			Property(x => x.IsLocked);
+			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
+			Property(x => x.Tags).IsRequired().HasMaxLength(450);
+			Property(x => x.Title).IsRequired().HasMaxLength(450).HasColumnAnnotation("Index", new IndexAnnotation(new IndexAttribute("IX_Pages_Title") { IsUnique = true }));
 
 			// Relationships
 			HasRequired(x => x.CreatedBy)

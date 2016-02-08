@@ -25,6 +25,13 @@
 				<input id="overwriteFilesOnUpload" type="checkbox" ng-model="model.overwriteFilesOnUpload" />
 				<label for="overwriteFilesOnUpload">Automatically overwrite existing files on upload </label>
 			</dd>
+			<dt>
+				Soft Delete
+			</dt>
+			<dd class="padding-top-4">
+				<input id="softDelete" type="checkbox" ng-model="model.softDelete" />
+				<label for="softDelete">Soft delete pages and files </label>
+			</dd>
 		</dl>
 		<button class="blue" ng-disabled="!settings.$dirty" ng-click="save()">Save</button>
 	</form>
