@@ -8,8 +8,8 @@
 		<div ng-class="{ 'span12': input.showPreview, 'span24': !input.showPreview }">
 			<input id="pageTitle" class="expand" type="text" ng-model="model.title" placeholder="title" ng-disabled="!isCurrentEditor()" required autofocus /><br />
 			<div id="toolbar" class="toolbar">
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('**', true)" title="Bold">B</button>
-				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('_', true)" title="Italic">I</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('**', 'wrap')" title="Bold">B</button>
+				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('_', 'wrap')" title="Italic">I</button>
 				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('# ')" title="Header 1">H1</button>
 				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('## ')" title="Header 2">H2</button>
 				<button tabindex="-1" ng-disabled="!isCurrentEditor()" ng-click="insert('### ')" title="Header 3">H3</button>
@@ -230,15 +230,20 @@
 					$scope.input.editorSelection = $("#pageText").getSelection();
 				});
 
-				$scope.insert = function (value, wrap) {
+				$scope.insert = function (value, option) {
 					var $editor = $("#pageText");
 					var selection = $scope.input.editorSelection || $("#pageText").getSelection();
 					$("#pageText").setSelection(selection.start, selection.end);
 
-					if (wrap) {
+					if (option === 'wrap') {
 						$editor.replaceSelection(value + selection.text + value);
+						$("#pageText").setSelection(selection.start - value.length, selection.end + (value.length * 2));
+					} else if (option === "replace") {
+						$editor.replaceSelection(value);
+						$("#pageText").setSelection(selection.start, selection.start + value.length);
 					} else {
 						$editor.replaceSelection(value + selection.text);
+						$("#pageText").setSelection(selection.start, selection.end + value.length);
 					}
 
 					$editor.focus();
@@ -248,14 +253,18 @@
 
 				$scope.selectImage = function (file) {
 					$scope.input.showFiles = false;
-					var text = '![' + file.name + '](' + file.name + ')';
-					$scope.insert(text);
+					
+					_.defer(function () {
+						$scope.insert('![' + file.name + '](' + file.name + ')', 'replace');
+					});
 				}
 
 				$scope.selectPage = function (name) {
 					$scope.input.showPages = false;
-					var text = '[' + name + '](' + name + ')';
-					$scope.insert(text);
+					
+					_.defer(function () {
+						$scope.insert('[' + name + '](' + name + ')', 'replace');
+					});
 				}
 
 				$scope.uploadImage = function (element) {

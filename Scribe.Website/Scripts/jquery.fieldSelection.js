@@ -59,23 +59,22 @@
 
 		setSelection: function (start, end) {
 			var e = this[0];
+			e.focus();
 
 			if (e.setSelectionRange) {
-				e.focus();
 				e.setSelectionRange(start, end);
-			} else if (e.createTextRange) {
+			} else if (this.createTextRange) {
 				var range = e.createTextRange();
 				range.collapse(true);
 				range.moveEnd('character', end);
 				range.moveStart('character', start);
 				range.select();
-			} else {
-				e.focus();
+			} else if ('selectionStart' in e) {
 				e.selectionStart = start;
 				e.selectionEnd = end;
 			}
 
-			return $(e);
+			return this;
 		},
 
 		replaceSelection: function () {
@@ -83,7 +82,9 @@
 			var text = arguments[0] || '';
 
 			if ('selectionStart' in e) {
-				e.value = e.value.substr(0, e.selectionStart) + text + e.value.substr(e.selectionEnd, e.value.length);
+				var start = e.value.substr(0, e.selectionStart);
+				var end = e.value.substr(e.selectionEnd, e.value.length);
+				e.value = start + text + end;
 				return this;
 			}
 
