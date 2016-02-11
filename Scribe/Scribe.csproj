@@ -36,8 +36,8 @@
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EasyDataFramework, Version=1.2.5879.4063, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
-      <HintPath>..\packages\EasyDataFramework.1.2.5879.4063\lib\net40\EasyDataFramework.dll</HintPath>
+    <Reference Include="EasyDataFramework, Version=1.2.5884.38968, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyDataFramework.1.2.5884.38968\lib\net40\EasyDataFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MarkR, Version=1.15.5833.24723, Culture=neutral, PublicKeyToken=030ab3e7881eeaab, processorArchitecture=MSIL">
