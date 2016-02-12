@@ -1,6 +1,5 @@
 ﻿#region References
 
-using System.Collections.Generic;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
 

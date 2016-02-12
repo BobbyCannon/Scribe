@@ -33,10 +33,10 @@ namespace Scribe.Website.Services
 		private readonly IScribeContext _context;
 		private readonly MarkupConverter _converter;
 		private readonly string _indexPath;
+		private static readonly LuceneVersion _luceneversion = LuceneVersion.LUCENE_30;
 		private static readonly Regex _removeTagsRegex = new Regex("<(.|\n)*?>");
 		private readonly SettingsService _settings;
 		private readonly User _user;
-		private static readonly LuceneVersion _luceneversion = LuceneVersion.LUCENE_30;
 
 		#endregion
 
@@ -120,26 +120,6 @@ namespace Scribe.Website.Services
 			};
 		}
 
-		private void EnsureFieldExists(IList<IFieldable> fields, string fieldname)
-		{
-			if (fields.Any(x => x.Name == fieldname) == false)
-			{
-				throw new Exception("The LuceneDocument did not contain the expected field " + fieldname + ".");
-			}
-		}
-
-		private void EnsureFieldsExist(Document document)
-		{
-			var fields = document.GetFields();
-			EnsureFieldExists(fields, "id");
-			EnsureFieldExists(fields, "title");
-			EnsureFieldExists(fields, "contentsummary");
-			EnsureFieldExists(fields, "tags");
-			EnsureFieldExists(fields, "createdby");
-			EnsureFieldExists(fields, "contentlength");
-			EnsureFieldExists(fields, "createdon");
-		}
-
 		/// <summary>
 		/// Creates the initial search index based on all pages in the system.
 		/// </summary>
@@ -152,7 +132,7 @@ namespace Scribe.Website.Services
 			{
 				foreach (var page in _context.Pages.ToList())
 				{
-					AddIndex(new PageView(page, _converter), writer);
+					AddIndex(page.ToView(_converter), writer);
 				}
 			}
 		}
@@ -285,6 +265,26 @@ namespace Scribe.Website.Services
 			{
 				Directory.CreateDirectory(_indexPath);
 			}
+		}
+
+		private void EnsureFieldExists(IList<IFieldable> fields, string fieldname)
+		{
+			if (fields.Any(x => x.Name == fieldname) == false)
+			{
+				throw new Exception("The LuceneDocument did not contain the expected field " + fieldname + ".");
+			}
+		}
+
+		private void EnsureFieldsExist(Document document)
+		{
+			var fields = document.GetFields();
+			EnsureFieldExists(fields, "id");
+			EnsureFieldExists(fields, "title");
+			EnsureFieldExists(fields, "contentsummary");
+			EnsureFieldExists(fields, "tags");
+			EnsureFieldExists(fields, "createdby");
+			EnsureFieldExists(fields, "contentlength");
+			EnsureFieldExists(fields, "createdon");
 		}
 
 		/// <summary>

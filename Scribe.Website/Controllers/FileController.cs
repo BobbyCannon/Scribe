@@ -10,7 +10,6 @@ using Scribe.Extensions;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Services;
-using Scribe.Web;
 
 #endregion
 

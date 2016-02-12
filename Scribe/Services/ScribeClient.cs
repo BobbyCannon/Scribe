@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Web;
 using Scribe.Models.Data;

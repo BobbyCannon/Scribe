@@ -254,7 +254,7 @@
 
 				$scope.selectImage = function (file) {
 					$scope.input.showFiles = false;
-					
+
 					_.defer(function () {
 						$scope.insert('![' + file.name + '](' + file.name + ')', 'replace');
 					});
@@ -262,7 +262,7 @@
 
 				$scope.selectPage = function (name) {
 					$scope.input.showPages = false;
-					
+
 					_.defer(function () {
 						$scope.insert('[' + name + '](' + name + ')', 'replace');
 					});

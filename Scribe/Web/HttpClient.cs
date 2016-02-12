@@ -61,11 +61,6 @@ namespace Scribe.Web
 
 		#region Methods
 
-		public virtual T Read<T>(HttpResponseMessage message)
-		{
-			return message.Content.ReadAsStringAsync().Result.FromJson<T>();
-		}
-
 		public virtual HttpResponseMessage Get(string uri)
 		{
 			using (var handler = new HttpClientHandler())
@@ -86,6 +81,11 @@ namespace Scribe.Web
 		public virtual HttpResponseMessage Post<TContent>(string uri, TContent content)
 		{
 			return InternalPost(uri, content);
+		}
+
+		public virtual T Read<T>(HttpResponseMessage message)
+		{
+			return message.Content.ReadAsStringAsync().Result.FromJson<T>();
 		}
 
 		private HttpClient CreateHttpClient(string uri, HttpClientHandler handler)

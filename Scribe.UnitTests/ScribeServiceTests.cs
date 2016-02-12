@@ -58,7 +58,7 @@ namespace Scribe.UnitTests
 				var actual = service.GetFiles().Results.ToList();
 
 				Assert.AreEqual(1, actual.Count);
-				TestHelper.AreEqual(FileView.Create(file2), actual[0]);
+				TestHelper.AreEqual(file2.ToView(), actual[0]);
 			}
 		}
 
@@ -94,7 +94,7 @@ namespace Scribe.UnitTests
 				var actual = service.GetFiles();
 
 				Assert.AreEqual(1, actual.Results.Count());
-				TestHelper.AreEqual(FileView.Create(file2), actual.Results.First());
+				TestHelper.AreEqual(file2.ToView(), actual.Results.First());
 				Assert.AreEqual(2, context.Files.Count());
 				Assert.AreEqual(1, context.Files.Count(x => x.IsDeleted));
 			}
@@ -244,7 +244,7 @@ namespace Scribe.UnitTests
 				var service = new ScribeService(context, null, null, null);
 				var actual = service.GetFile(file1.Id);
 
-				TestHelper.AreEqual(FileView.Create(file1), actual);
+				TestHelper.AreEqual(file1.ToView(), actual);
 			}
 		}
 
@@ -263,7 +263,7 @@ namespace Scribe.UnitTests
 				var service = new ScribeService(context, null, null, null);
 				var actual = service.GetFile(file1.Name);
 
-				TestHelper.AreEqual(FileView.Create(file1), actual);
+				TestHelper.AreEqual(file1.ToView(), actual);
 			}
 		}
 
@@ -283,8 +283,8 @@ namespace Scribe.UnitTests
 				var actual = service.GetFiles();
 
 				Assert.AreEqual(2, actual.Results.Count());
-				TestHelper.AreEqual(FileView.Create(file1), actual.Results.First());
-				TestHelper.AreEqual(FileView.Create(file2), actual.Results.Last());
+				TestHelper.AreEqual(file1.ToView(), actual.Results.First());
+				TestHelper.AreEqual(file2.ToView(), actual.Results.Last());
 			}
 		}
 
@@ -345,6 +345,16 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
+		public void GetPageInvalidId()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var service = new ScribeService(context, null, null, null);
+				TestHelper.ExpectedException<Exception>(() => service.GetPage(int.MaxValue), "Failed to find the page with that ID.");
+			}
+		}
+
+		[TestMethod]
 		public void GetPages()
 		{
 			using (var context = TestHelper.GetContext())
@@ -364,113 +374,45 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
-		public void GetPagesWithPagingFirstPage()
+		public void GetPagesShouldNotReturnDeletedPages()
 		{
 			using (var context = TestHelper.GetContext())
 			{
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				for (var i = 1; i <= 9; i++)
-				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
-				}
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				page.IsDeleted = true;
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest(page: 1, perPage: 4));
+				var actual = service.GetPages();
 
-				Assert.AreEqual("", actual.Filter);
-				Assert.AreEqual(1, actual.Page);
-				Assert.AreEqual(4, actual.PerPage);
-				Assert.AreEqual(9, actual.TotalCount);
-				Assert.AreEqual(3, actual.TotalPages);
-				Assert.AreEqual(4, actual.Results.Count());
-				Assert.AreEqual("Hello Page 1", actual.Results.First().Title);
-				Assert.AreEqual("Hello Page 4", actual.Results.Last().Title);
+				Assert.AreEqual(1, context.Pages.Count());
+				Assert.AreEqual(1, context.Pages.Count(x => x.IsDeleted));
+				Assert.AreEqual(0, actual.Results.Count());
 			}
 		}
 
 		[TestMethod]
-		public void GetPagesWithPagingSecondPage()
+		public void GetPagesShouldOnlyReturnPublicPages()
 		{
 			using (var context = TestHelper.GetContext())
 			{
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
+				var settings = new SettingsView { EnablePublicTag = true, LdapConnectionString = string.Empty };
+				TestHelper.AddSettings(context, user, settings);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				for (var i = 1; i <= 9; i++)
-				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
-				}
+				TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				TestHelper.AddPage(context, "Public Page", "Hello Real World", john, "myTag", "public");
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest(page: 2, perPage: 4));
+				var actual = service.GetPages();
 
-				Assert.AreEqual("", actual.Filter);
-				Assert.AreEqual(2, actual.Page);
-				Assert.AreEqual(4, actual.PerPage);
-				Assert.AreEqual(9, actual.TotalCount);
-				Assert.AreEqual(3, actual.TotalPages);
-				Assert.AreEqual(4, actual.Results.Count());
-				Assert.AreEqual("Hello Page 5", actual.Results.First().Title);
-				Assert.AreEqual("Hello Page 8", actual.Results.Last().Title);
-			}
-		}
-
-		[TestMethod]
-		public void GetPagesWithPagingLastPartialPage()
-		{
-			using (var context = TestHelper.GetContext())
-			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				for (var i = 1; i <= 9; i++)
-				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
-				}
-				context.SaveChanges();
-
-				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest(page: 3, perPage: 4));
-
-				Assert.AreEqual("", actual.Filter);
-				Assert.AreEqual(3, actual.Page);
-				Assert.AreEqual(4, actual.PerPage);
-				Assert.AreEqual(9, actual.TotalCount);
-				Assert.AreEqual(3, actual.TotalPages);
+				Assert.AreEqual(2, context.Pages.Count());
 				Assert.AreEqual(1, actual.Results.Count());
-				Assert.AreEqual("Hello Page 9", actual.Results.First().Title);
-			}
-		}
-
-		[TestMethod]
-		public void GetPagesWithPageRequestOutOfRange()
-		{
-			using (var context = TestHelper.GetContext())
-			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				for (var i = 1; i <= 9; i++)
-				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
-				}
-				context.SaveChanges();
-
-				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest(page: 30, perPage: 5));
-
-				Assert.AreEqual("", actual.Filter);
-				Assert.AreEqual(2, actual.Page);
-				Assert.AreEqual(5, actual.PerPage);
-				Assert.AreEqual(9, actual.TotalCount);
-				Assert.AreEqual(2, actual.TotalPages);
-				Assert.AreEqual(4, actual.Results.Count());
-				Assert.AreEqual("Hello Page 6", actual.Results.First().Title);
-				Assert.AreEqual("Hello Page 9", actual.Results.Last().Title);
+				Assert.AreEqual("Public Page", actual.Results.First().Title);
 			}
 		}
 
@@ -572,55 +514,113 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
-		public void GetPagesShouldNotReturnDeletedPages()
+		public void GetPagesWithPageRequestOutOfRange()
 		{
 			using (var context = TestHelper.GetContext())
 			{
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
-				page.IsDeleted = true;
+				for (var i = 1; i <= 9; i++)
+				{
+					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
+				}
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages();
+				var actual = service.GetPages(new PagedRequest(page: 30, perPage: 5));
 
-				Assert.AreEqual(1, context.Pages.Count());
-				Assert.AreEqual(1, context.Pages.Count(x => x.IsDeleted));
-				Assert.AreEqual(0, actual.Results.Count());
+				Assert.AreEqual("", actual.Filter);
+				Assert.AreEqual(2, actual.Page);
+				Assert.AreEqual(5, actual.PerPage);
+				Assert.AreEqual(9, actual.TotalCount);
+				Assert.AreEqual(2, actual.TotalPages);
+				Assert.AreEqual(4, actual.Results.Count());
+				Assert.AreEqual("Hello Page 6", actual.Results.First().Title);
+				Assert.AreEqual("Hello Page 9", actual.Results.Last().Title);
 			}
 		}
 
 		[TestMethod]
-		public void GetPagesShouldOnlyReturnPublicPages()
+		public void GetPagesWithPagingFirstPage()
 		{
 			using (var context = TestHelper.GetContext())
 			{
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				var settings = new SettingsView { EnablePublicTag = true, LdapConnectionString = string.Empty };
-				TestHelper.AddSettings(context, user, settings);
+				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
-				TestHelper.AddPage(context, "Public Page", "Hello Real World", john, "myTag", "public");
+				for (var i = 1; i <= 9; i++)
+				{
+					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
+				}
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages();
+				var actual = service.GetPages(new PagedRequest(page: 1, perPage: 4));
 
-				Assert.AreEqual(2, context.Pages.Count());
-				Assert.AreEqual(1, actual.Results.Count());
-				Assert.AreEqual("Public Page", actual.Results.First().Title);
+				Assert.AreEqual("", actual.Filter);
+				Assert.AreEqual(1, actual.Page);
+				Assert.AreEqual(4, actual.PerPage);
+				Assert.AreEqual(9, actual.TotalCount);
+				Assert.AreEqual(3, actual.TotalPages);
+				Assert.AreEqual(4, actual.Results.Count());
+				Assert.AreEqual("Hello Page 1", actual.Results.First().Title);
+				Assert.AreEqual("Hello Page 4", actual.Results.Last().Title);
 			}
 		}
 
 		[TestMethod]
-		public void GetPageInvalidId()
+		public void GetPagesWithPagingLastPartialPage()
 		{
 			using (var context = TestHelper.GetContext())
 			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				for (var i = 1; i <= 9; i++)
+				{
+					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
+				}
+				context.SaveChanges();
+
 				var service = new ScribeService(context, null, null, null);
-				TestHelper.ExpectedException<Exception>(() => service.GetPage(int.MaxValue), "Failed to find the page with that ID.");
+				var actual = service.GetPages(new PagedRequest(page: 3, perPage: 4));
+
+				Assert.AreEqual("", actual.Filter);
+				Assert.AreEqual(3, actual.Page);
+				Assert.AreEqual(4, actual.PerPage);
+				Assert.AreEqual(9, actual.TotalCount);
+				Assert.AreEqual(3, actual.TotalPages);
+				Assert.AreEqual(1, actual.Results.Count());
+				Assert.AreEqual("Hello Page 9", actual.Results.First().Title);
+			}
+		}
+
+		[TestMethod]
+		public void GetPagesWithPagingSecondPage()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				for (var i = 1; i <= 9; i++)
+				{
+					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
+				}
+				context.SaveChanges();
+
+				var service = new ScribeService(context, null, null, null);
+				var actual = service.GetPages(new PagedRequest(page: 2, perPage: 4));
+
+				Assert.AreEqual("", actual.Filter);
+				Assert.AreEqual(2, actual.Page);
+				Assert.AreEqual(4, actual.PerPage);
+				Assert.AreEqual(9, actual.TotalCount);
+				Assert.AreEqual(3, actual.TotalPages);
+				Assert.AreEqual(4, actual.Results.Count());
+				Assert.AreEqual("Hello Page 5", actual.Results.First().Title);
+				Assert.AreEqual("Hello Page 8", actual.Results.Last().Title);
 			}
 		}
 

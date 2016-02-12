@@ -1,6 +1,8 @@
 ﻿#region References
 
+using System;
 using EasyDataFramework;
+using Scribe.Models.Views;
 
 #endregion
 
@@ -54,6 +56,29 @@ namespace Scribe.Models.Entities
 		/// Gets the content type of the file. Example is "image/png".
 		/// </summary>
 		public string Type { get; set; }
+
+		#endregion
+
+		#region Methods
+
+		public FileView ToView(bool includeData = false)
+		{
+			var response = new FileView
+			{
+				Id = Id,
+				Name = Name,
+				Size = Size / 1024 + " kb",
+				Type = Type
+			};
+
+			if (includeData)
+			{
+				response.Data = new byte[Data.Length];
+				Array.Copy(Data, response.Data, Data.Length);
+			}
+
+			return response;
+		}
 
 		#endregion
 	}

@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System.Web.Mvc;
-using Scribe.Web;
 
 #endregion
 

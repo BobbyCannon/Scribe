@@ -24,7 +24,7 @@ namespace Scribe.Services
 		private readonly IScribeContext _context;
 		private readonly MarkupConverter _converter;
 		private readonly ISearchService _searchService;
-		private readonly SettingsService _settings;
+		private readonly SettingsService _settingsService;
 		private readonly User _user;
 
 		#endregion
@@ -38,7 +38,7 @@ namespace Scribe.Services
 			_converter = new MarkupConverter();
 			_converter.LinkParsed += (title, title2) => _context.Pages.OrderBy(x => x.Id).Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.Id, Title = x.Title }).FirstOrDefault();
 			_searchService = searchService;
-			_settings = new SettingsService(context, user);
+			_settingsService = new SettingsService(context, user);
 			_user = user;
 		}
 
@@ -75,7 +75,7 @@ namespace Scribe.Services
 				_context.SaveChanges();
 			}
 
-			var response = new PageView(page, _converter);
+			var response = page.ToView(_converter);
 
 			response.Files = GetFiles(new PagedRequest { PerPage = int.MaxValue, IncludeDetails = false }).Results;
 			response.Pages = GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => x.Title).ToList();
@@ -104,7 +104,7 @@ namespace Scribe.Services
 				throw new ArgumentException("Failed to find the file with the provided ID.", nameof(id));
 			}
 
-			if (_settings.SoftDelete)
+			if (_settingsService.SoftDelete)
 			{
 				file.IsDeleted = true;
 			}
@@ -124,7 +124,7 @@ namespace Scribe.Services
 				throw new ArgumentException("Failed to find the page with the provided ID.", nameof(id));
 			}
 
-			if (_settings.SoftDelete)
+			if (_settingsService.SoftDelete)
 			{
 				page.IsDeleted = true;
 			}
@@ -154,7 +154,7 @@ namespace Scribe.Services
 
 			_context.SaveChanges();
 
-			pagesToUpdate.ForEach(page => _searchService.Update(new PageView(page, _converter)));
+			pagesToUpdate.ForEach(page => _searchService.Update(page.ToView(_converter)));
 		}
 
 		public FileView GetFile(int id, bool includeData = false)
@@ -165,7 +165,7 @@ namespace Scribe.Services
 				throw new ArgumentException("The file could not be found.", nameof(id));
 			}
 
-			return FileView.Create(file, includeData);
+			return file.ToView(includeData);
 		}
 
 		public FileView GetFile(string name, bool includeData = false)
@@ -176,7 +176,7 @@ namespace Scribe.Services
 				throw new ArgumentException("The file could not be found.", nameof(name));
 			}
 
-			return FileView.Create(file, includeData);
+			return file.ToView(includeData);
 		}
 
 		public PagedResults<FileView> GetFiles(PagedRequest request = null)
@@ -207,7 +207,7 @@ namespace Scribe.Services
 				.FirstOrDefault();
 
 			return page != null
-				? new PageView(page, _converter)
+				? page.ToView(_converter)
 				: new PageView
 				{
 					Html = "Please set a home page. Just add a new page and give it the tag \"homepage\".",
@@ -226,7 +226,7 @@ namespace Scribe.Services
 				throw new PageNotFoundException("Failed to find the page with that ID.");
 			}
 
-			return new PageView(page, _converter);
+			return page.ToView(_converter);
 		}
 
 		public PageDifferenceView GetPageDifference(int id)
@@ -271,7 +271,7 @@ namespace Scribe.Services
 				throw new PageNotFoundException("Failed to find the page with that ID.");
 			}
 
-			return new PageHistoryView(page);
+			return page.ToHistoryView();
 		}
 
 		public PagedResults<PageView> GetPages(PagedRequest request = null)
@@ -284,28 +284,17 @@ namespace Scribe.Services
 				query = query.Where(x => x.Title.Contains(request.Filter));
 			}
 
-			return GetPagedResults(query, request, x => x.Title, x => new PageView
-			{
-				Id = x.Id,
-				LastModified = DateTime.UtcNow.Subtract(x.ModifiedOn).ToTimeAgo(),
-				ModifiedBy = x.ModifiedBy.DisplayName,
-				ModifiedOn = x.ModifiedOn,
-				Title = x.Title,
-				TitleForLink = PageView.ConvertTitleForLink(x.Title)
-			});
+			return GetPagedResults(query, request, x => x.Title, x => x.ToSummaryView());
 		}
 
-		public PagedResults<PageSummaryView> GetPagesWithTag(PagedRequest request = null)
+		public PagedResults<PageView> GetPagesWithTag(PagedRequest request = null)
 		{
 			request = request ?? new PagedRequest();
 
 			var formattedTag = "," + request.Filter + ",";
-			var query = GetPageQuery()
-				.Where(x => x.Tags.Contains(formattedTag))
-				.Select(x => new { x.Id, x.Title, x.Tags })
-				.Where(x => x.Tags.Contains(formattedTag));
+			var query = GetPageQuery().Where(x => x.Tags.Contains(formattedTag));
 
-			return GetPagedResults(query, request, x => x.Title, x => new PageSummaryView { Id = x.Id, Title = x.Title });
+			return GetPagedResults(query, request, x => x.Title, x => x.ToSummaryView());
 		}
 
 		public PagedResults<TagView> GetTags(PagedRequest request = null)
@@ -373,7 +362,7 @@ namespace Scribe.Services
 
 			_context.SaveChanges();
 
-			pagesToUpdate.ForEach(page => _searchService.Update(new PageView(page, _converter)));
+			pagesToUpdate.ForEach(page => _searchService.Update(page.ToView(_converter)));
 		}
 
 		public int SaveFile(FileView view)
@@ -381,7 +370,7 @@ namespace Scribe.Services
 			var file = _context.Files.FirstOrDefault(x => x.Name == view.Name)
 				?? new File { Name = view.Name, CreatedBy = _user, CreatedOn = DateTime.UtcNow };
 
-			if (!_settings.OverwriteFilesOnUpload && file.Id != 0)
+			if (!_settingsService.OverwriteFilesOnUpload && file.Id != 0)
 			{
 				throw new InvalidOperationException("The file already exists and cannot be overwritten.");
 			}
@@ -436,7 +425,7 @@ namespace Scribe.Services
 			_context.Pages.AddOrUpdate(page);
 			_context.SaveChanges();
 
-			return new PageView(page, _converter);
+			return page.ToView(_converter);
 		}
 
 		public void UpdateEditingPage(PageView model)
@@ -474,7 +463,7 @@ namespace Scribe.Services
 			var query = includes != null ? _context.Pages.Including(includes) : _context.Pages;
 			query = query.Where(x => !x.IsDeleted);
 
-			if (_user == null && _settings.EnablePublicTag)
+			if (_user == null && _settingsService.EnablePublicTag)
 			{
 				query = query.Where(x => x.Tags.Contains(",public,"));
 			}

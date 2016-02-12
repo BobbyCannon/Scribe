@@ -2,13 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
-using Scribe.Converters;
-using Scribe.Extensions;
-using Scribe.Models.Entities;
-using Scribe.Services;
 
 #endregion
 
@@ -33,24 +28,6 @@ namespace Scribe.Models.Views
 			TitleForLink = string.Empty;
 		}
 
-		public PageView(Page page, MarkupConverter converter)
-		{
-			Id = page.Id;
-			CreatedBy = page.CreatedBy.DisplayName;
-			CreatedOn = page.CreatedOn.ToShortDateString();
-			EditingBy = page.EditingOn > DateTime.UtcNow.Subtract(ScribeService.EditingTimeout) ? (page.EditingBy?.DisplayName ?? string.Empty) : string.Empty;
-			Files = new List<FileView>();
-			Html = converter.ToHtml(page.Text);
-			LastModified = DateTime.UtcNow.Subtract(page.ModifiedOn).ToTimeAgo();
-			ModifiedBy = page.ModifiedBy.DisplayName;
-			ModifiedOn = page.ModifiedOn;
-			Pages = new List<string>();
-			Tags = page.Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct();
-			Text = page.Text;
-			Title = page.Title;
-			TitleForLink = ConvertTitleForLink(page.Title);
-		}
-
 		#endregion
 
 		#region Properties
@@ -68,6 +45,8 @@ namespace Scribe.Models.Views
 		public int Id { get; set; }
 
 		public string LastModified { get; set; }
+
+		public string Link => $"/Page/{Id}/{TitleForLink}";
 
 		public string ModifiedBy { get; set; }
 

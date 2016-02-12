@@ -4,7 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using EasyDataFramework;
+using Scribe.Converters;
+using Scribe.Extensions;
+using Scribe.Models.Views;
+using Scribe.Services;
 
 #endregion
 
@@ -91,6 +96,60 @@ namespace Scribe.Models.Entities
 		/// Gets or sets the title.
 		/// </summary>
 		public string Title { get; set; }
+
+		#endregion
+
+		#region Methods
+
+		public PageHistoryView ToHistoryView()
+		{
+			var index = History.Count;
+
+			return new PageHistoryView
+			{
+				Id = Id,
+				Title = Title,
+				TitleForLink = PageView.ConvertTitleForLink(Title),
+				Versions = History
+					.OrderByDescending(x => x.Id)
+					.Select(x => new PageHistorySummaryView(index--, x))
+					.ToList()
+			};
+		}
+
+		public PageView ToSummaryView()
+		{
+			return new PageView
+			{
+				Id = Id,
+				LastModified = DateTime.UtcNow.Subtract(ModifiedOn).ToTimeAgo(),
+				ModifiedBy = ModifiedBy.DisplayName,
+				ModifiedOn = ModifiedOn,
+				Title = Title,
+				TitleForLink = PageView.ConvertTitleForLink(Title)
+			};
+		}
+
+		public PageView ToView(MarkupConverter converter)
+		{
+			return new PageView
+			{
+				Id = Id,
+				CreatedBy = CreatedBy.DisplayName,
+				CreatedOn = CreatedOn.ToShortDateString(),
+				EditingBy = EditingOn > DateTime.UtcNow.Subtract(ScribeService.EditingTimeout) ? (EditingBy?.DisplayName ?? string.Empty) : string.Empty,
+				Files = new List<FileView>(),
+				Html = converter.ToHtml(Text),
+				LastModified = DateTime.UtcNow.Subtract(ModifiedOn).ToTimeAgo(),
+				ModifiedBy = ModifiedBy.DisplayName,
+				ModifiedOn = ModifiedOn,
+				Pages = new List<string>(),
+				Tags = Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct(),
+				Text = Text,
+				Title = Title,
+				TitleForLink = PageView.ConvertTitleForLink(Title)
+			};
+		}
 
 		#endregion
 	}
