@@ -112,7 +112,7 @@ namespace Scribe.Models.Entities
 				TitleForLink = PageView.ConvertTitleForLink(Title),
 				Versions = History
 					.OrderByDescending(x => x.Id)
-					.Select(x => new PageHistorySummaryView(index--, x))
+					.Select(x => x.ToView(index--))
 					.ToList()
 			};
 		}

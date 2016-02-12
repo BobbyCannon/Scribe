@@ -2,6 +2,8 @@
 
 using System;
 using EasyDataFramework;
+using Scribe.Extensions;
+using Scribe.Models.Views;
 
 #endregion
 
@@ -43,6 +45,21 @@ namespace Scribe.Models.Entities
 		/// Gets or sets the markdown text for the page.
 		/// </summary>
 		public string Text { get; set; }
+
+		#endregion
+
+		#region Methods
+
+		public PageHistorySummaryView ToView(int number)
+		{
+			return new PageHistorySummaryView
+			{
+				Id = Id,
+				LastModified = DateTime.UtcNow.Subtract(EditedOn).ToTimeAgo(),
+				ModifiedBy = EditedBy.DisplayName,
+				Number = number
+			};
+		}
 
 		#endregion
 	}
