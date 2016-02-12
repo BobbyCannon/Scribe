@@ -35,7 +35,8 @@ namespace Scribe.Services
 		{
 			_context = context;
 			_accountService = accountService;
-			_converter = new MarkupConverter(_context);
+			_converter = new MarkupConverter();
+			_converter.LinkParsed += (title, title2) => _context.Pages.OrderBy(x => x.Id).Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.Id, Title = x.Title }).FirstOrDefault();
 			_searchService = searchService;
 			_settings = new SettingsService(context, user);
 			_user = user;

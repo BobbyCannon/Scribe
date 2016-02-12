@@ -1,10 +1,11 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using MarkR;
-using Scribe.Data;
+using Scribe.Models.Views;
 
 #endregion
 
@@ -17,7 +18,6 @@ namespace Scribe.Converters
 	{
 		#region Fields
 
-		private readonly IScribeContext _context;
 		private readonly List<string> _externalLinkPrefixes;
 		private readonly Markdown _parser;
 		private readonly UrlResolver _urlResolver;
@@ -29,13 +29,12 @@ namespace Scribe.Converters
 		/// <summary>
 		/// Creates a new markdown parser which handles the image and link parsing.
 		/// </summary>
-		public MarkupConverter(IScribeContext context)
+		public MarkupConverter()
 		{
-			_context = context;
 			_externalLinkPrefixes = new List<string> { "http://", "https://", "www.", "mailto:", "#" };
 			_parser = new Markdown();
-			_parser.LinkParsed += LinkParsed;
-			_parser.ImageParsed += ImageParsed;
+			_parser.LinkParsed += OnLinkParsed;
+			_parser.ImageParsed += OnImageParsed;
 			_urlResolver = new UrlResolver();
 		}
 
@@ -55,10 +54,15 @@ namespace Scribe.Converters
 			return tokenParser.ReplaceTokensAfterParse(html);
 		}
 
+		protected virtual PageView OnLinkParsed(string arg1, string arg2)
+		{
+			return LinkParsed?.Invoke(arg1, arg2);
+		}
+
 		/// <summary>
 		/// Adds the attachments folder as a prefix to all image URLs before the HTML <img /> tag is written.
 		/// </summary>
-		private void ImageParsed(object sender, ImageEventArgs e)
+		private void OnImageParsed(object sender, ImageEventArgs e)
 		{
 			if (!e.OriginalSrc.StartsWith("http://") && !e.OriginalSrc.StartsWith("https://"))
 			{
@@ -69,7 +73,7 @@ namespace Scribe.Converters
 		/// <summary>
 		/// Handles internal links.
 		/// </summary>
-		private void LinkParsed(object sender, LinkEventArgs e)
+		private void OnLinkParsed(object sender, LinkEventArgs e)
 		{
 			if (_externalLinkPrefixes.Any(x => e.OriginalHref.StartsWith(x)))
 			{
@@ -90,7 +94,7 @@ namespace Scribe.Converters
 			var modifiedTitle = title.Replace("-", " ");
 
 			// Find the page, or if it doesn't exist point to the new page URL
-			var page = _context.Pages.OrderBy(x => x.Id).FirstOrDefault(x => x.Title == title || x.Title == modifiedTitle);
+			var page = OnLinkParsed(title, modifiedTitle);
 			if (page != null)
 			{
 				href = _urlResolver.GetInternalUrlForTitle(page.Id, page.Title);
@@ -105,6 +109,12 @@ namespace Scribe.Converters
 			e.Target = "";
 			e.IsInternalLink = true;
 		}
+
+		#endregion
+
+		#region Events
+
+		public event Func<string, string, PageView> LinkParsed;
 
 		#endregion
 	}
