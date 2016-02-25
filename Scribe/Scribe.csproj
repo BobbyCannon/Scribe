@@ -40,8 +40,8 @@
       <HintPath>..\packages\EasyDataFramework.1.2.5884.38968\lib\net40\EasyDataFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MarkR, Version=1.15.5833.24723, Culture=neutral, PublicKeyToken=030ab3e7881eeaab, processorArchitecture=MSIL">
-      <HintPath>..\packages\MarkR.1.15.5833.24723\lib\net40\MarkR.dll</HintPath>
+    <Reference Include="MarkR, Version=1.16.5898.35368, Culture=neutral, PublicKeyToken=030ab3e7881eeaab, processorArchitecture=MSIL">
+      <HintPath>..\packages\MarkR.1.16.5898.35368\lib\net40\MarkR.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -69,12 +69,8 @@
     <Compile Include="Converters\UrlResolver.cs" />
     <Compile Include="Data\IScribeContext.cs" />
     <Compile Include="Exceptions\PageNotFoundException.cs" />
-    <Compile Include="Extensions\AssemblyExtensions.cs" />
-    <Compile Include="Extensions\ExceptionExtensions.cs" />
-    <Compile Include="Extensions\IdentityExtensions.cs" />
-    <Compile Include="Extensions\ObjectExtensions.cs" />
-    <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Extensions\TimeSpanExtensions.cs" />
+    <Compile Include="Exceptions\UserNotFoundException.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Models\Data\Credentials.cs" />
     <Compile Include="Models\Data\PagedRequest.cs" />
     <Compile Include="Models\Data\PagedResults.cs" />
@@ -82,6 +78,7 @@
     <Compile Include="Models\Entities\File.cs" />
     <Compile Include="Models\Entities\Page.cs" />
     <Compile Include="Models\Entities\PageHistory.cs" />
+    <Compile Include="Models\Enumerations\PageStatus.cs" />
     <Compile Include="Models\Entities\Setting.cs" />
     <Compile Include="Models\Entities\User.cs" />
     <Compile Include="Models\Views\FileView.cs" />
@@ -95,6 +92,7 @@
     <Compile Include="Models\Views\SettingsView.cs" />
     <Compile Include="Models\Views\SetupView.cs" />
     <Compile Include="Models\Views\TagView.cs" />
+    <Compile Include="Models\Views\UserView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\AuthenticationService.cs" />

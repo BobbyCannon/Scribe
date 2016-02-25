@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Web;
+using Scribe.Models.Enumerations;
 
 #endregion
 
@@ -22,6 +23,7 @@ namespace Scribe.Models.Views
 			LastModified = string.Empty;
 			ModifiedBy = string.Empty;
 			Pages = new List<string>();
+			Status = PageStatus.None;
 			Tags = new List<string>();
 			Text = string.Empty;
 			Title = string.Empty;
@@ -53,6 +55,8 @@ namespace Scribe.Models.Views
 		public DateTime ModifiedOn { get; set; }
 
 		public List<string> Pages { get; set; }
+
+		public PageStatus Status { get; set; }
 
 		public IEnumerable<string> Tags { get; set; }
 

@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Web;
 using System.Web.Security;
-using Scribe.Extensions;
 using Scribe.Models.Entities;
 
 #endregion

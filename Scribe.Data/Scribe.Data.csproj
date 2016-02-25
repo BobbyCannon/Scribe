@@ -74,6 +74,10 @@
     <Compile Include="Migrations\201602071603250_AddedDeleteFlag.Designer.cs">
       <DependentUpon>201602071603250_AddedDeleteFlag.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201602241528322_AddedPageStatus.cs" />
+    <Compile Include="Migrations\201602241528322_AddedPageStatus.Designer.cs">
+      <DependentUpon>201602241528322_AddedPageStatus.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\BaseDbMigration.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,6 +93,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201602071603250_AddedDeleteFlag.resx">
       <DependentUpon>201602071603250_AddedDeleteFlag.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201602241528322_AddedPageStatus.resx">
+      <DependentUpon>201602241528322_AddedPageStatus.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

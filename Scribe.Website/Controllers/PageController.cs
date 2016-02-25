@@ -8,6 +8,7 @@ using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Services;
+using Scribe.Website.Attributes;
 using Scribe.Website.Hubs;
 using Scribe.Website.Services;
 
@@ -119,6 +120,7 @@ namespace Scribe.Website.Controllers
 			return View(_searchService.Search(term));
 		}
 
+		[MvcAuthorize(Roles = "Administrator")]
 		public ActionResult Settings()
 		{
 			var service = new SettingsService(DataContext, GetCurrentUser());

@@ -525,7 +525,7 @@ table {
 	tr {
 		td  {
 			@include border-box();
-			@include rem-units(padding, 6);
+			@include rem-units(padding, 4);
 			vertical-align: top;
 
 			&.snug {
@@ -546,13 +546,13 @@ table {
 
 	thead tr td,
 	thead tr th {
-		color: $darkGray;
-		border-bottom: 1px solid $gray;
+		color: $darkBlue;
+		border-bottom: 1px solid $darkGray;
 		font-style: normal;
 		font-weight: normal;
 		text-align: left;
 		@include border-box();
-		@include rem-units(padding, 6 0);
+		@include rem-units(padding, 4 8);
 		vertical-align: top;
 	}
 
@@ -867,11 +867,10 @@ div.tag {
 	background-color: $darkBlue;
 	color: $white;
 	cursor: pointer;
-	@include rem-units(padding, 8 12);
+	@include rem-units(padding, 6 12);
 	@include rem-units(margin, 0 10 10 0);
-	@include rem-units(font-size, 12);
-	border: 1px solid $gray;
-	@include rem-units(height, 18);
+	@include rem-units(font-size, 16);
+	@include rem-units(height, 24);
 
 	&:hover {
 		background-color: $burgundy;

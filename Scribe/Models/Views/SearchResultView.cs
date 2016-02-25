@@ -59,6 +59,11 @@ namespace Scribe.Models.Views
 		/// </summary>
 		public string TitleForLink { get; set; }
 
+		/// <summary>
+		/// The page status.
+		/// </summary>
+		public string Status { get; set; }
+
 		#endregion
 	}
 }

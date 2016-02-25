@@ -24,11 +24,14 @@ namespace Scribe.Website.Controllers.API
 		#region Methods
 
 		[HttpPost]
+		[Authorize(Roles = "Administrator")]
 		public SettingsView Save(SettingsView settings)
 		{
 			var service = new SettingsService(DataContext, GetCurrentUser());
 			service.Save(settings);
 			DataContext.SaveChanges();
+			MvcApplication.PrintCss = settings.PrintCss;
+			MvcApplication.ViewCss = settings.ViewCss;
 			return settings;
 		}
 
@@ -38,7 +41,7 @@ namespace Scribe.Website.Controllers.API
 		{
 			var accountService = new AccountService(DataContext, AuthenticationService);
 			var user = accountService.Add(setup.UserName, setup.Password);
-			user.Roles = ",Administrator,";
+			user.Tags = ",Administrator,";
 			DataContext.SaveChanges();
 
 			var settingsService = new SettingsService(DataContext, user);

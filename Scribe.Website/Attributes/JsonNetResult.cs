@@ -3,7 +3,6 @@
 using System;
 using System.Web.Mvc;
 using Newtonsoft.Json;
-using Scribe.Extensions;
 
 #endregion
 
@@ -54,7 +53,7 @@ namespace Scribe.Website
 			}
 
 			var writer = new JsonTextWriter(response.Output) { Formatting = Formatting };
-			var serializer = JsonSerializer.Create(ObjectExtensions.GetSerializerSettings());
+			var serializer = JsonSerializer.Create(Extensions.GetSerializerSettings());
 			serializer.Serialize(writer, Data);
 			writer.Flush();
 		}

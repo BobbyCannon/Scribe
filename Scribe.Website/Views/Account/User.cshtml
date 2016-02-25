@@ -1,0 +1,97 @@
+﻿@model UserView
+
+@{
+	ViewBag.Title = Model.DisplayName;
+}
+<div id="user" ng-controller="controller">
+	<h1 id="pageTitle">{{model.displayName}}</h1>
+	<div class="row">
+		<div class="span11">
+			<p>
+				{{model.emailAddress}}
+			</p>
+			<div class="row">
+				<div class="parent expand">
+					<a id="addTagButton" class="button link pull-right child-right input-inner-button" ng-click="addTag()" ng-class="{ disabled: input.tag.length < 1 }">add</a>
+					<input id="addTag" class="expand" type="text" ng-model="input.tag" placeholder="tags" pattern="^[a-zA-Z0-9- ]*$" ng-blur="addTag()" ng-keydown="tagUpdated($event)" />
+				</div>
+			</div>
+			<div id="tags" class="row">
+				<div class="tag" ng-repeat="$tag in model.tags" ng-click="model.tags.splice($index, 1);">
+					{{$tag}}
+				</div>
+			</div>
+		</div>
+		<div class="offset1 span12">
+			Permissions
+			<ul>
+				<li ng-class="{'hide': model.tags.indexOf('administrator') === -1}">has full access to everything.</li>
+				<li ng-class="{'hide': model.tags.indexOf('approver') === -1}">can approve or reject pages.</li>
+				<li ng-class="{'hide': model.tags.indexOf('publisher') === -1}">can publish approved pages.</li>
+				<li>can add and edit pages.</li>
+			</ul>
+		</div>
+	</div>
+	<div>
+		<button id="saveButton" class="blue" ng-disabled="editorForm.$invalid" ng-click="save()">Save</button>
+		<button id="cancelButton" ng-click="cancel()">Cancel</button>
+	</div>
+</div>
+@section scripts
+{
+	<script type="text/javascript">
+
+		scribe.controller('controller', [
+			'$scope', '$http', '$window',
+			function ($scope, $http, $window) {
+				'use strict';
+
+				$scope.model = @(Html.Raw(Model.ToJson()));
+
+				$scope.input = {
+					tag: ''
+				};
+
+				$scope.addTag = function () {
+					if ($scope.input.tag && $scope.input.tag.length > 0) {
+						if ($scope.model.tags.indexOf($scope.input.tag) < 0) {
+							$scope.model.tags.push($scope.input.tag);
+						}
+
+						$scope.input.tag = '';
+					}
+				}
+
+				$scope.tagUpdated = function (keyEvent) {
+					if (keyEvent.which === 44) {
+						keyEvent.preventDefault();
+					}
+
+					if (keyEvent.which === 13) {
+						$scope.addTag();
+						keyEvent.preventDefault();
+					}
+				}
+
+				$scope.save = function () {
+					$http.post('/api/Service/SaveUser', $scope.model)
+						.success(function (data) {
+							$scope.model = data;
+							toastr.success("The user was updated.");
+						})
+						.error(function (error) {
+							if (error.message) {
+								toastr.error(error.message);
+							} else {
+								toastr.error('There was issue updating the user.');
+							}
+						});
+				}
+				
+				$scope.cancel = function () {
+					$window.location = '/Users';
+				}
+			}
+		]);
+	</script>
+}

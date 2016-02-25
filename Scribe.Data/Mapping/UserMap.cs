@@ -28,8 +28,8 @@ namespace Scribe.Data.Mapping
 			Property(x => x.IsEnabled).IsRequired();
 			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.PasswordHash).IsRequired().HasMaxLength(450);
-			Property(x => x.Roles).IsRequired().HasMaxLength(450);
 			Property(x => x.Salt).IsRequired().HasMaxLength(128);
+			Property(x => x.Tags).IsRequired().HasMaxLength(450);
 			Property(x => x.UserName).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new IndexAttribute("IX_Users_UserName") { IsUnique = true }));
 		}
 

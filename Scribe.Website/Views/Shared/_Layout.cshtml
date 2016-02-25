@@ -8,6 +8,18 @@
 		<title>@(ViewBag.Title ?? "Scribe")</title>
 		<link href="~/favicon.ico?v=0.3" rel="shortcut icon" type="image/x-icon" />
 		@Styles.Render("~/content/css")
+		@if (MvcApplication.ViewCss.Length > 0)
+		{
+			<style media="all">
+				@Html.Raw(MvcApplication.ViewCss)
+			</style>
+		}
+		@if (MvcApplication.PrintCss.Length > 0)
+		{
+			<style media="print">
+				@Html.Raw(MvcApplication.PrintCss)
+			</style>
+		}
 	</head>
 	<body ng-cloak>
 		<div id="header">
@@ -41,20 +53,20 @@
 					</div>
 				}
 				<ul id="headerMenu">
-					<li>@Html.ActionLink("Home", "Home", "Page")</li>
-					<li>@Html.ActionLink("Tags", "Tags", "Page")</li>
-					<li>@Html.ActionLink("Pages", "Pages", "Page")</li>
+					<li id="homeMenuItem">@Html.ActionLink("Home", "Home", "Page")</li>
+					<li id="tagsMenuItem">@Html.ActionLink("Tags", "Tags", "Page")</li>
+					<li id="pagesMenuItem">@Html.ActionLink("Pages", "Pages", "Page")</li>
 					@if (Request.IsAuthenticated)
 					{
-						<li>@Html.ActionLink("Files", "Files", "File")</li>
-						<li>@Html.ActionLink("New Page", "New", "Page")</li>
+						<li id="filesMenuItem">@Html.ActionLink("Files", "Files", "File")</li>
+						<li id="newPageMenuItem">@Html.ActionLink("New Page", "New", "Page")</li>
 
 						if (ViewBag.IsAdministrator)
 						{
-							<li>@Html.ActionLink("Settings", "Settings", "Page")</li>
+							<li id="settingsMenuItem">@Html.ActionLink("Settings", "Settings", "Page")</li>
 						}
 					}
-					<li>@Html.ActionLink("About", "About", "Page")</li>
+					<li id="aboutMenuItem">@Html.ActionLink("About", "About", "Page")</li>
 				</ul>
 			</div>
 		</div>

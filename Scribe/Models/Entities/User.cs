@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using EasyDataFramework;
+using Scribe.Models.Views;
 
 #endregion
 
@@ -93,15 +95,15 @@ namespace Scribe.Models.Entities
 		public string PasswordHash { get; private set; }
 
 		/// <summary>
-		/// Gets or sets the roles for the user in the format ",role1,role2,role3," (no spaces between roles).
-		/// </summary>
-		public string Roles { get; set; }
-
-		/// <summary>
 		/// Do not use this property to set the password - use <see cref="SetPassword" /> instead. Use
 		/// <see cref="HashPassword" /> for authentication with the salt and password.
 		/// </summary>
 		public string Salt { get; private set; }
+
+		/// <summary>
+		/// Gets or sets the tags for the user in the format ",Administrator,Editor,Approver," (no spaces between tags).
+		/// </summary>
+		public string Tags { get; set; }
 
 		/// <summary>
 		/// Gets the user name for the user.
@@ -137,7 +139,7 @@ namespace Scribe.Models.Entities
 		/// <returns> True if the user is in the role or otherwise false. </returns>
 		public bool InRole(string role)
 		{
-			return Roles.IndexOf("," + role + ",", StringComparison.OrdinalIgnoreCase) >= 0;
+			return Tags.IndexOf("," + role + ",", StringComparison.OrdinalIgnoreCase) >= 0;
 		}
 
 		/// <summary>
@@ -148,6 +150,22 @@ namespace Scribe.Models.Entities
 		{
 			Salt = GetSalt();
 			PasswordHash = HashPassword(password, Salt);
+		}
+
+		/// <summary>
+		/// Converts the user into a user view.
+		/// </summary>
+		/// <returns> </returns>
+		public UserView ToView()
+		{
+			return new UserView
+			{
+				DisplayName = DisplayName,
+				EmailAddress = EmailAddress,
+				Id = Id,
+				Tags = Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().OrderBy(x => x),
+				UserName = UserName
+			};
 		}
 
 		/// <summary>

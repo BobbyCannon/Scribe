@@ -6,7 +6,6 @@ using System.Security.Authentication;
 using System.Threading;
 using System.Web.Mvc;
 using Scribe.Data;
-using Scribe.Extensions;
 using Scribe.Models.Entities;
 using Scribe.Services;
 

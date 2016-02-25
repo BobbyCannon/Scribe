@@ -26,6 +26,7 @@ namespace Scribe.Data.Mapping
 			Property(x => x.IsLocked);
 			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.Tags).IsRequired().HasMaxLength(450);
+			Property(x => x.Text).IsRequired();
 			Property(x => x.Title).IsRequired().HasMaxLength(450).HasColumnAnnotation("Index", new IndexAnnotation(new IndexAttribute("IX_Pages_Title") { IsUnique = true }));
 
 			// Relationships

@@ -1,0 +1,62 @@
+﻿@model PagedResults<UserView>
+
+@{
+	ViewBag.Title = "All Users";
+}
+<div ng-controller="controller" ng-cloak>
+	<input id="userFilter" ng-model="input.userFilter" class="pull-right" type="text" title="filter" placeholder="filter" />
+	<h1>All Users</h1>
+	<table class="expand striped">
+		<thead>
+			<tr>
+				<th style="width: 30%">
+					<a href="#" ng-click="predicate='displayName'; reverse=!reverse">display name</a>
+					<i ng-show="predicate === 'displayName' && reverse === false" class="fa fa-sort-asc"></i>
+					<i ng-show="predicate === 'displayName' && reverse === true" class="fa fa-sort-desc"></i>
+					<i ng-show="predicate !== 'displayName'" class="fa fa-sort"></i>
+				</th>
+				<th style="width: 30%">
+					<a href="#" ng-click="predicate='emailAddress'; reverse=!reverse">email address</a>
+					<i ng-show="predicate === 'emailAddress' && reverse === false" class="fa fa-sort-asc"></i>
+					<i ng-show="predicate === 'emailAddress' && reverse === true" class="fa fa-sort-desc"></i>
+					<i ng-show="predicate !== 'emailAddress'" class="fa fa-sort"></i>
+				</th>
+				<th>
+					tags
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="$item in model.results | filter: input.userFilter | orderBy:predicate:reverse">
+				<td>
+					<a ng-href="/User/{{ $item.id }}">{{ $item.displayName }}</a>
+				</td>
+				<td>
+					{{ $item.emailAddress }}
+				</td>
+				<td>
+					<span ng-repeat="$tag in $item.tags">
+						<a ng-href="/UsersWithTag/{{ $tag }}">{{ $tag }}</a><span ng-show="$index < $item.tags.length - 1">,</span>
+					</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+@section scripts
+{
+	<script type="text/javascript">
+
+		scribe.controller('controller', [
+			'$scope', '$http', '$window',
+			function ($scope, $http, $window) {
+				'use strict';
+
+				$scope.model = @(Html.Raw(Model.ToJson()));
+				$scope.predicate = 'displayName';
+				$scope.reverse = false;
+			}
+		]);
+
+	</script>
+}

@@ -87,9 +87,35 @@ namespace Scribe.Website.Controllers.API
 		}
 
 		[HttpPost]
+		public PagedResults<PageView> GetPagesWithTag(PagedRequest request = null)
+		{
+			return _service.GetPagesWithTag(request);
+		}
+
+		[HttpPost]
 		public PagedResults<TagView> GetTags(PagedRequest request = null)
 		{
 			return _service.GetTags(request);
+		}
+
+		[Authorize(Roles = "Administrator")]
+		public UserView GetUser(int id)
+		{
+			return _service.GetUser(id);
+		}
+
+		[HttpPost]
+		[Authorize(Roles = "Administrator")]
+		public PagedResults<UserView> GetUsers(PagedRequest request = null)
+		{
+			return _service.GetUsers(request);
+		}
+
+		[HttpPost]
+		[Authorize(Roles = "Administrator")]
+		public PagedResults<UserView> GetUsersWithTag(PagedRequest request = null)
+		{
+			return _service.GetUsersWithTag(request);
 		}
 
 		[HttpPost]
@@ -127,6 +153,13 @@ namespace Scribe.Website.Controllers.API
 		public PageView SavePage(PageView view)
 		{
 			return _service.SavePage(view);
+		}
+
+		[HttpPost]
+		[Authorize(Roles = "Administrator")]
+		public UserView SaveUser(UserView view)
+		{
+			return _service.SaveUser(view);
 		}
 
 		#endregion

@@ -4,45 +4,60 @@
 	ViewBag.Title = "Settings";
 }
 <div ng-controller="controller">
-	<form name="settings" class="span12">
-		<h1>Settings</h1>
-		<dl>
-			<dt>LDAP Connection String</dt>
-			<dd>
-				<input class="x-large" type="text" ng-model="model.ldapConnectionString" />
-			</dd>
-			<dt>
-				Enable Public Tag
-			</dt>
-			<dd class="padding-top-4">
-				<input id="enablePublicTag" type="checkbox" ng-model="model.enablePublicTag" />
-				<label for="enablePublicTag">Only show pages with the "public" tag to guest users</label>
-			</dd>
-			<dt>
-				Overwrite Files
-			</dt>
-			<dd class="padding-top-4">
-				<input id="overwriteFilesOnUpload" type="checkbox" ng-model="model.overwriteFilesOnUpload" />
-				<label for="overwriteFilesOnUpload">Automatically overwrite existing files on upload </label>
-			</dd>
-			<dt>
-				Soft Delete
-			</dt>
-			<dd class="padding-top-4">
-				<input id="softDelete" type="checkbox" ng-model="model.softDelete" />
-				<label for="softDelete">Soft delete pages and files </label>
-			</dd>
-		</dl>
-		<button class="blue" ng-disabled="!settings.$dirty" ng-click="save()">Save</button>
-	</form>
-	<div class="span12 hide">
-		<h1>Tools</h1>
-		<div class="padding-left-20">
-			<h4>
-				<a href="#" title="Forces a rebuild of the page search index, useful if the search begins to get out of sync for any reason.">Rebuild Search Indexes</a>
-			</h4>
+	<form name="settings">
+		<div class="row">
+			<div class="span12">
+				<h1>Settings</h1>
+				<dl>
+					<dt>LDAP Connection String</dt>
+					<dd>
+						<input class="x-large" type="text" ng-model="model.ldapConnectionString" />
+					</dd>
+					<dt>
+						Enable Page Approval
+					</dt>
+					<dd class="padding-top-4">
+						<input id="enablePageApproval" type="checkbox" ng-model="model.enablePageApproval" />
+						<label for="enablePageApproval">Only show pages that have been approved to guest users</label>
+					</dd>
+					<dt>
+						Overwrite Files
+					</dt>
+					<dd class="padding-top-4">
+						<input id="overwriteFilesOnUpload" type="checkbox" ng-model="model.overwriteFilesOnUpload" />
+						<label for="overwriteFilesOnUpload">Automatically overwrite existing files on upload </label>
+					</dd>
+					<dt>
+						Soft Delete
+					</dt>
+					<dd class="padding-top-4">
+						<input id="softDelete" type="checkbox" ng-model="model.softDelete" />
+						<label for="softDelete">Soft delete pages and files </label>
+					</dd>
+				</dl>
+			</div>
+			<div class="span12">
+				<ul class="tabs">
+					<li ng-click="input.tab = 'viewCss'" ng-class="{selected: input.tab === 'viewCss'}">View CSS</li>
+					<li ng-click="input.tab = 'printCss'" ng-class="{selected: input.tab === 'printCss'}">Print CSS</li>
+				</ul>
+				<div ng-show="input.tab === 'viewCss'">
+					<textarea id="viewCss" class="expand editor" ng-model="model.viewCss"></textarea>
+				</div>
+				<div ng-show="input.tab === 'printCss'">
+					<textarea id="printCss" class="expand editor" ng-model="model.printCss"></textarea>
+				</div>
+			</div>
 		</div>
-	</div>
+		<div class="row">
+			<div class="span12">
+				<button class="blue" ng-disabled="!settings.$dirty" ng-click="save()">Save</button>
+			</div>
+			<div class="span12">
+				Links: @Html.ActionLink("Users", "Users", "Account")
+			</div>
+		</div>
+	</form>
 </div>
 @section scripts
 {
@@ -54,6 +69,10 @@
 				'use strict';
 
 				$scope.model = @(Html.Raw(Model.ToJson()));
+
+				$scope.input = {
+					tab: 'viewCss'
+				};
 
 				$scope.save = function () {
 					$http.post('/api/Settings/Save', $scope.model)

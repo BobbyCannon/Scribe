@@ -7,9 +7,9 @@ using System.Linq.Expressions;
 using Scribe.Converters;
 using Scribe.Data;
 using Scribe.Exceptions;
-using Scribe.Extensions;
 using Scribe.Models.Data;
 using Scribe.Models.Entities;
+using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
 
 #endregion
@@ -138,11 +138,6 @@ namespace Scribe.Services
 
 		public void DeleteTag(string tag)
 		{
-			if (tag.Equals("public", StringComparison.OrdinalIgnoreCase))
-			{
-				throw new ArgumentException("Cannot rename the tag to public.");
-			}
-
 			if (string.IsNullOrWhiteSpace(tag))
 			{
 				throw new ArgumentException("The tag name must be provided.", nameof(tag));
@@ -245,19 +240,21 @@ namespace Scribe.Services
 			{
 				Id = version.PageId,
 				LastModified = DateTime.UtcNow.Subtract(version.EditedOn).ToTimeAgo(),
-				ModifiedBy = version.EditedBy.DisplayName,
-				Title = version.Page.Title,
-				TitleForLink = PageView.ConvertTitleForLink(version.Page.Title)
+				ModifiedBy = version.EditedBy.DisplayName
 			};
 
 			if (previous == null)
 			{
 				response.Html = _converter.ToHtml(version.Text);
+				response.Title = version.Title;
+				response.TitleForLink = PageView.ConvertTitleForLink(version.Title);
 			}
 			else
 			{
 				var service = new HtmlDiff(_converter.ToHtml(previous.Text), _converter.ToHtml(version.Text));
 				response.Html = service.Build();
+				response.Title = previous.Title;
+				response.TitleForLink = PageView.ConvertTitleForLink(previous.Title);
 			}
 
 			return response;
@@ -311,6 +308,44 @@ namespace Scribe.Services
 			return GetPagedResults(query, request, x => x.Key, x => TagView.Create(x.Key, x.Count()));
 		}
 
+		public UserView GetUser(int id)
+		{
+			if (_user == null || !_user.InRole("Administrator"))
+			{
+				throw new UnauthorizedAccessException("You do not have the permission to be access users.");
+			}
+
+			return _context.Users.FirstOrDefault(x => x.Id == id)?.ToView();
+		}
+
+		public PagedResults<UserView> GetUsers(PagedRequest request = null)
+		{
+			if (_user == null || !_user.InRole("Administrator"))
+			{
+				throw new UnauthorizedAccessException("You do not have the permission to be access users.");
+			}
+
+			var query = _context.Users.OrderBy(x => x.DisplayName).AsQueryable();
+			request = request ?? new PagedRequest();
+
+			if (!string.IsNullOrWhiteSpace(request.Filter))
+			{
+				query = query.Where(x => x.UserName.Contains(request.Filter) || x.EmailAddress.Contains(request.Filter));
+			}
+
+			return GetPagedResults(query, request, x => x.UserName, x => x.ToView());
+		}
+
+		public PagedResults<UserView> GetUsersWithTag(PagedRequest request = null)
+		{
+			request = request ?? new PagedRequest();
+
+			var formattedTag = "," + request.Filter + ",";
+			var query = _context.Users.OrderBy(x => x.DisplayName).Where(x => x.Tags.Contains(formattedTag));
+
+			return GetPagedResults(query, request, x => x.DisplayName, x => x.ToView());
+		}
+
 		public void LogIn(Credentials credentials)
 		{
 			_accountService.LogIn(credentials);
@@ -334,16 +369,6 @@ namespace Scribe.Services
 
 		public void RenameTag(RenameValues values)
 		{
-			if (values.OldName.Equals("public", StringComparison.OrdinalIgnoreCase))
-			{
-				throw new ArgumentException("Cannot rename the public tag.");
-			}
-
-			if (values.NewName.Equals("public", StringComparison.OrdinalIgnoreCase))
-			{
-				throw new ArgumentException("Cannot rename the tag to public.");
-			}
-
 			if (string.IsNullOrWhiteSpace(values.OldName))
 			{
 				throw new ArgumentException("The old name must be provided.", nameof(values));
@@ -397,30 +422,30 @@ namespace Scribe.Services
 				throw new InvalidOperationException("This page is currently being edited by another user.");
 			}
 
-			if (page.Id == view.Id && page.Title == view.Title && page.Text == view.Text && page.Tags == $",{string.Join(",", view.Tags)},")
-			{
-				return null;
-			}
+			var tags = $",{string.Join(",", view.Tags.Select(x => x.Trim()).Distinct().OrderBy(x => x))},";
 
-			if (page.Text != view.Text)
+			if (tags != page.Tags || page.Text != view.Text || page.Title != view.Title)
 			{
 				var version = new PageHistory
 				{
-					Text = view.Text,
+					Tags = page.Tags,
+					Text = page.Text,
+					Title = page.Title,
 					EditedBy = _user,
 					EditedOn = DateTime.UtcNow
 				};
 
 				page.History.Add(version);
+				page.Status = view.Status;
+				page.Tags = tags;
 				page.Text = view.Text;
+				page.Title = view.Title;
 				page.ModifiedBy = version.EditedBy;
 				page.ModifiedOn = version.EditedOn;
 			}
 
 			page.EditingById = null;
 			page.EditingOn = SqlDateTime.MinValue.Value;
-			page.Tags = $",{string.Join(",", view.Tags.Select(x => x.Trim()).Distinct())},";
-			page.Title = view.Title;
 
 			_context.Pages.AddOrUpdate(page);
 			_context.SaveChanges();
@@ -428,15 +453,27 @@ namespace Scribe.Services
 			return page.ToView(_converter);
 		}
 
-		public void UpdateEditingPage(PageView model)
+		public UserView SaveUser(UserView view)
 		{
-			var page = GetPageQuery().FirstOrDefault(x => x.Id == model.Id);
-			if (page == null)
+			if (_user == null || !_user.InRole("Administrator"))
 			{
-				throw new ArgumentException("The page could not be found.", nameof(model));
+				throw new UnauthorizedAccessException("You do not have the permission to be access users.");
 			}
 
-			page.EditingOn = DateTime.UtcNow;
+			var user = _context.Users.FirstOrDefault(x => x.Id == view.Id);
+			if (user == null)
+			{
+				throw new UserNotFoundException("The user could not be found.");
+			}
+
+			user.DisplayName = view.DisplayName;
+			user.EmailAddress = view.EmailAddress;
+			user.UserName = view.UserName;
+			user.Tags = $",{string.Join(",", view.Tags.Select(x => x.Trim()).Distinct().OrderBy(x => x))},";
+
+			_context.SaveChanges();
+
+			return user.ToView();
 		}
 
 		private PagedResults<T2> GetPagedResults<T1, T2>(IQueryable<T1> query, PagedRequest request, Func<T1, object> orderBy, Func<T1, T2> transform)
@@ -463,12 +500,23 @@ namespace Scribe.Services
 			var query = includes != null ? _context.Pages.Including(includes) : _context.Pages;
 			query = query.Where(x => !x.IsDeleted);
 
-			if (_user == null && _settingsService.EnablePublicTag)
+			if (_user == null && _settingsService.EnablePageApproval)
 			{
-				query = query.Where(x => x.Tags.Contains(",public,"));
+				query = query.Where(x => x.Status == PageStatus.Approved);
 			}
 
 			return query;
+		}
+
+		private void UpdateEditingPage(PageView model)
+		{
+			var page = GetPageQuery().FirstOrDefault(x => x.Id == model.Id);
+			if (page == null)
+			{
+				throw new ArgumentException("The page could not be found.", nameof(model));
+			}
+
+			page.EditingOn = DateTime.UtcNow;
 		}
 
 		#endregion

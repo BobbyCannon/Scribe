@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using Scribe.Data;
-using Scribe.Extensions;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Services;

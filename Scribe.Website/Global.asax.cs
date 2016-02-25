@@ -9,7 +9,7 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using Scribe.Data;
 using Scribe.Data.Migrations;
-using Scribe.Extensions;
+using Scribe.Services;
 
 #endregion
 
@@ -20,6 +20,8 @@ namespace Scribe.Website
 		#region Properties
 
 		public static bool IsConfigured { get; set; }
+		public static string PrintCss { get; set; }
+		public static string ViewCss { get; set; }
 
 		#endregion
 
@@ -43,7 +45,7 @@ namespace Scribe.Website
 			RouteConfig.RegisterRoutes(RouteTable.Routes);
 			BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-			GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings = ObjectExtensions.GetSerializerSettings();
+			GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings = Extensions.GetSerializerSettings();
 			GlobalConfiguration.Configuration.Formatters.Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
 			GlobalConfiguration.Configuration.EnsureInitialized();
 
@@ -51,7 +53,11 @@ namespace Scribe.Website
 
 			using (var datacontext = new ScribeContext())
 			{
+				var settingsService = new SettingsService(datacontext, null);
+
 				IsConfigured = datacontext.Users.Any();
+				PrintCss = settingsService.PrintCss;
+				ViewCss = settingsService.ViewCss;
 			}
 		}
 

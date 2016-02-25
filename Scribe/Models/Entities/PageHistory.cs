@@ -2,7 +2,6 @@
 
 using System;
 using EasyDataFramework;
-using Scribe.Extensions;
 using Scribe.Models.Views;
 
 #endregion
@@ -40,11 +39,21 @@ namespace Scribe.Models.Entities
 		/// The ID of the page this version is for.
 		/// </summary>
 		public int PageId { get; set; }
+		
+		/// <summary>
+		/// Gets or sets the tags for the page, in the format ",tag1,tag2,tag3," (no spaces between tags).
+		/// </summary>
+		public string Tags { get; set; }
 
 		/// <summary>
 		/// Gets or sets the markdown text for the page.
 		/// </summary>
 		public string Text { get; set; }
+
+		/// <summary>
+		/// Gets or sets the title.
+		/// </summary>
+		public string Title { get; set; }
 
 		#endregion
 

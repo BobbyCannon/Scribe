@@ -5,6 +5,7 @@ using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Services;
+using Scribe.Website.Attributes;
 
 #endregion
 
@@ -81,10 +82,35 @@ namespace Scribe.Website.Controllers
 		[HttpPost]
 		public ActionResult UserProfile(ProfileView profile)
 		{
-			var accountService = new AccountService(DataContext, AuthenticationService);
-			accountService.Update(profile);
+			var service = new AccountService(DataContext, AuthenticationService);
+			service.Update(profile);
 			DataContext.SaveChanges();
 			return View(profile);
+		}
+
+		[MvcAuthorize(Roles = "Administrator")]
+		public ActionResult Users()
+		{
+			var accountService = new AccountService(DataContext, AuthenticationService);
+			var service = new ScribeService(DataContext, accountService, null, GetCurrentUser());
+			return View(service.GetUsers(new PagedRequest(perPage: int.MaxValue)));
+		}
+
+		[MvcAuthorize(Roles = "Administrator")]
+		[ActionName("User")]
+		public ActionResult UserView(int id)
+		{
+			var accountService = new AccountService(DataContext, AuthenticationService);
+			var service = new ScribeService(DataContext, accountService, null, GetCurrentUser());
+			return View(service.GetUser(id));
+		}
+
+		[MvcAuthorize(Roles = "Administrator")]
+		public ActionResult UsersWithTag(string tag)
+		{
+			var accountService = new AccountService(DataContext, AuthenticationService);
+			var service = new ScribeService(DataContext, accountService, null, GetCurrentUser());
+			return View(service.GetUsersWithTag(new PagedRequest(tag, 1, int.MaxValue)));
 		}
 
 		#endregion

@@ -115,6 +115,7 @@ namespace Scribe.Website.Services
 				Tags = document.GetField("tags").StringValue.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).Distinct(),
 				CreatedBy = document.GetField("createdby").StringValue,
 				ContentLength = int.Parse(document.GetField("contentlength").StringValue),
+				Status = document.GetField("status").StringValue,
 				Score = scoreDoc.Score,
 				CreatedOn = createdOn
 			};
@@ -210,7 +211,7 @@ namespace Scribe.Website.Services
 							var document = searcher.Doc(scoreDoc.Doc);
 							var result = Create(document, scoreDoc);
 
-							if (_user == null && _settings.EnablePublicTag && !result.Tags.Contains("public"))
+							if (_user == null && _settings.EnablePageApproval && result.Status != "Approved" )
 							{
 								continue;
 							}
@@ -251,6 +252,7 @@ namespace Scribe.Website.Services
 			document.Add(new Field("contentsummary", GetContentSummary(content), Field.Store.YES, Field.Index.NO));
 			document.Add(new Field("title", model.Title, Field.Store.YES, Field.Index.ANALYZED));
 			document.Add(new Field("tags", tags, Field.Store.YES, Field.Index.ANALYZED));
+			document.Add(new Field("status", model.Status.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
 			document.Add(new Field("createdby", model.CreatedBy, Field.Store.YES, Field.Index.NOT_ANALYZED));
 			document.Add(new Field("createdon", model.CreatedOn, Field.Store.YES, Field.Index.NOT_ANALYZED));
 			document.Add(new Field("contentlength", content.Length.ToString(), Field.Store.YES, Field.Index.NO));
@@ -282,6 +284,7 @@ namespace Scribe.Website.Services
 			EnsureFieldExists(fields, "title");
 			EnsureFieldExists(fields, "contentsummary");
 			EnsureFieldExists(fields, "tags");
+			EnsureFieldExists(fields, "status");
 			EnsureFieldExists(fields, "createdby");
 			EnsureFieldExists(fields, "contentlength");
 			EnsureFieldExists(fields, "createdon");

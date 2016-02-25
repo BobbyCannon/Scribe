@@ -31,10 +31,10 @@ namespace Scribe.Services
 
 		#region Properties
 
-		public bool EnablePublicTag
+		public bool EnablePageApproval
 		{
-			get { return GetSetting("Enable Public Tag", false); }
-			set { AddOrUpdateSetting("Enable Public Tag", value.ToString()); }
+			get { return GetSetting("Enable Page Approval", false); }
+			set { AddOrUpdateSetting("Enable Page Approval", value.ToString()); }
 		}
 
 		public string LdapConnectionString
@@ -49,10 +49,22 @@ namespace Scribe.Services
 			set { AddOrUpdateSetting("Overwrite Files On Upload", value.ToString()); }
 		}
 
+		public string PrintCss
+		{
+			get { return GetSetting("Print CSS", string.Empty); }
+			set { AddOrUpdateSetting("Print CSS", value.ToString()); }
+		}
+
 		public bool SoftDelete
 		{
 			get { return GetSetting("Soft Delete", false); }
 			set { AddOrUpdateSetting("Soft Delete", value.ToString()); }
+		}
+
+		public string ViewCss
+		{
+			get { return GetSetting("View CSS", string.Empty); }
+			set { AddOrUpdateSetting("View CSS", value.ToString()); }
 		}
 
 		#endregion
@@ -68,10 +80,12 @@ namespace Scribe.Services
 
 			return new SettingsView
 			{
-				EnablePublicTag = EnablePublicTag,
+				EnablePageApproval = EnablePageApproval,
 				LdapConnectionString = LdapConnectionString,
 				OverwriteFilesOnUpload = OverwriteFilesOnUpload,
-				SoftDelete = SoftDelete
+				PrintCss = PrintCss,
+				SoftDelete = SoftDelete,
+				ViewCss = ViewCss
 			};
 		}
 
@@ -82,14 +96,21 @@ namespace Scribe.Services
 				throw new UnauthorizedAccessException("You do not have the permission to be able to save settings.");
 			}
 
-			EnablePublicTag = settings.EnablePublicTag;
+			EnablePageApproval = settings.EnablePageApproval;
 			LdapConnectionString = settings.LdapConnectionString ?? string.Empty;
 			OverwriteFilesOnUpload = settings.OverwriteFilesOnUpload;
+			PrintCss = settings.PrintCss;
 			SoftDelete = settings.SoftDelete;
+			ViewCss = settings.ViewCss;
 		}
 
 		private void AddOrUpdateSetting(string name, string value)
 		{
+			if (_user == null || !_user.InRole("Administrator"))
+			{
+				throw new UnauthorizedAccessException("You do not have the permission to be able to change settings.");
+			}
+
 			var setting = _dataContext.Settings.FirstOrDefault(x => x.Name == name);
 			if (setting == null)
 			{

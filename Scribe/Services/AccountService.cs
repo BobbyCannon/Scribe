@@ -87,7 +87,7 @@ namespace Scribe.Services
 				DisplayName = $"{GetProperty(result?.Properties["givenname"], string.Empty)} {GetProperty(result?.Properties["sn"], string.Empty)}",
 				IsActiveDirectory = result != null,
 				IsEnabled = true,
-				Roles = string.Empty,
+				Tags = string.Empty,
 				UserName = userName
 			};
 

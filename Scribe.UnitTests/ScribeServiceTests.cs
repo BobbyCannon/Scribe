@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Scribe.Models.Data;
 using Scribe.Models.Entities;
+using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
 using Scribe.Services;
 using Scribe.Website.Services;
@@ -27,7 +28,7 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, PageStatus.None, "myTag");
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, john);
@@ -110,7 +111,7 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = false });
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, PageStatus.None, "myTag");
 				context.SaveChanges();
 
 				Assert.AreEqual(0, context.Pages.Count(x => x.IsDeleted));
@@ -150,7 +151,7 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, PageStatus.None, "myTag");
 				context.SaveChanges();
 
 				Assert.AreEqual(0, context.Pages.Count(x => x.IsDeleted));
@@ -175,8 +176,8 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", john, "Tag1", "Tag2", "Tag3");
-				TestHelper.AddPage(context, "Page2", "Hello World", john, "Tag1", "Tag2");
+				TestHelper.AddPage(context, "Page1", "Hello World", john, PageStatus.None, "Tag1", "Tag2", "Tag3");
+				TestHelper.AddPage(context, "Page2", "Hello World", john, PageStatus.None, "Tag1", "Tag2");
 				context.SaveChanges();
 
 				var path = Path.GetTempPath() + "ScribeTests";
@@ -205,27 +206,6 @@ namespace Scribe.UnitTests
 				var searchService = new SearchService(context, path, null);
 				var service = new ScribeService(context, null, searchService, null);
 				TestHelper.ExpectedException<Exception>(() => service.DeleteTag(string.Empty), "The tag name must be provided.");
-			}
-		}
-
-		[TestMethod]
-		public void DeleteTagPublic()
-		{
-			var provider = TestHelper.GetContextProvider();
-
-			using (var context = provider.GetContext())
-			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", john, "Tag1", "Tag2", "Tag3");
-				TestHelper.AddPage(context, "Page2", "Hello World", john, "Tag1", "Tag2");
-				context.SaveChanges();
-
-				var path = Path.GetTempPath() + "ScribeTests";
-				var searchService = new SearchService(context, path, john);
-				var service = new ScribeService(context, null, searchService, john);
-				TestHelper.ExpectedException<Exception>(() => service.DeleteTag("Public"), "Cannot rename the tag to public.");
 			}
 		}
 
@@ -294,10 +274,10 @@ namespace Scribe.UnitTests
 			using (var context = TestHelper.GetContext())
 			{
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { EnablePublicTag = false });
+				TestHelper.AddSettings(context, user, new SettingsView { EnablePageApproval = false });
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page1 = TestHelper.AddPage(context, "Front Page1", "Hello World1", john, "homepage");
-				TestHelper.AddPage(context, "Front Page2", "Hello World2", john, "homepage", "public");
+				var page1 = TestHelper.AddPage(context, "Front Page1", "Hello World1", john, PageStatus.None, "homepage");
+				TestHelper.AddPage(context, "Front Page2", "Hello World2", john, PageStatus.None, "homepage", "public");
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
@@ -313,10 +293,10 @@ namespace Scribe.UnitTests
 			using (var context = TestHelper.GetContext())
 			{
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { EnablePublicTag = true });
+				TestHelper.AddSettings(context, user, new SettingsView { EnablePageApproval = true });
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Front Page1", "Hello World1", john, "homepage");
-				var page2 = TestHelper.AddPage(context, "Front Page2", "Hello World2", john, "homepage", "public");
+				TestHelper.AddPage(context, "Front Page1", "Hello World1", john, PageStatus.None, "homepage");
+				var page2 = TestHelper.AddPage(context, "Front Page2", "Hello World2", john, PageStatus.Approved, "homepage");
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
@@ -334,7 +314,7 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, PageStatus.None, "myTag");
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
@@ -362,7 +342,7 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, PageStatus.None, "myTag");
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
@@ -381,7 +361,7 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, PageStatus.None, "myTag");
 				page.IsDeleted = true;
 				context.SaveChanges();
 
@@ -395,16 +375,16 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
-		public void GetPagesShouldOnlyReturnPublicPages()
+		public void GetPagesShouldOnlyReturnPublishedPages()
 		{
 			using (var context = TestHelper.GetContext())
 			{
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				var settings = new SettingsView { EnablePublicTag = true, LdapConnectionString = string.Empty };
+				var settings = new SettingsView { EnablePageApproval = true, LdapConnectionString = string.Empty };
 				TestHelper.AddSettings(context, user, settings);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
-				TestHelper.AddPage(context, "Public Page", "Hello Real World", john, "myTag", "public");
+				TestHelper.AddPage(context, "Hello Page", "Hello World", john, PageStatus.None, "myTag");
+				TestHelper.AddPage(context, "Public Page", "Hello Real World", john, PageStatus.Approved, "myTag");
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
@@ -426,7 +406,7 @@ namespace Scribe.UnitTests
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
+					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, PageStatus.None, "Tag" + i);
 				}
 				context.SaveChanges();
 
@@ -455,11 +435,11 @@ namespace Scribe.UnitTests
 				{
 					if (i % 2 == 0)
 					{
-						TestHelper.AddPage(context, "Even Page " + i, "Hello World", john, "Tag" + i);
+						TestHelper.AddPage(context, "Even Page " + i, "Hello World", john, PageStatus.None, "Tag" + i);
 					}
 					else
 					{
-						TestHelper.AddPage(context, "Odd Page " + i, "Hello World", john, "Tag" + i);
+						TestHelper.AddPage(context, "Odd Page " + i, "Hello World", john, PageStatus.None, "Tag" + i);
 					}
 				}
 				context.SaveChanges();
@@ -490,11 +470,11 @@ namespace Scribe.UnitTests
 				{
 					if (i % 2 == 0)
 					{
-						TestHelper.AddPage(context, "Even Page " + i, "Hello World", john, "Tag" + i);
+						TestHelper.AddPage(context, "Even Page " + i, "Hello World", john, PageStatus.None, "Tag" + i);
 					}
 					else
 					{
-						TestHelper.AddPage(context, "Odd Page " + i, "Hello World", john, "Tag" + i);
+						TestHelper.AddPage(context, "Odd Page " + i, "Hello World", john, PageStatus.None, "Tag" + i);
 					}
 				}
 				context.SaveChanges();
@@ -523,7 +503,7 @@ namespace Scribe.UnitTests
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
+					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, PageStatus.None, "Tag" + i);
 				}
 				context.SaveChanges();
 
@@ -551,7 +531,7 @@ namespace Scribe.UnitTests
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
+					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, PageStatus.None, "Tag" + i);
 				}
 				context.SaveChanges();
 
@@ -579,7 +559,7 @@ namespace Scribe.UnitTests
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
+					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, PageStatus.None, "Tag" + i);
 				}
 				context.SaveChanges();
 
@@ -606,7 +586,7 @@ namespace Scribe.UnitTests
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, "Tag" + i);
+					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john, PageStatus.None, "Tag" + i);
 				}
 				context.SaveChanges();
 
@@ -632,7 +612,7 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, PageStatus.None, "myTag");
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
@@ -652,9 +632,9 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", john, "Tag1", "Tag2", "Tag3");
-				TestHelper.AddPage(context, "Page2", "Hello World", john, "Tag1", "Tag2");
-				TestHelper.AddPage(context, "Page3", "Hello World", john, "Tag1", "Tag3");
+				TestHelper.AddPage(context, "Page1", "Hello World", john, PageStatus.None, "Tag1", "Tag2", "Tag3");
+				TestHelper.AddPage(context, "Page2", "Hello World", john, PageStatus.None, "Tag1", "Tag2");
+				TestHelper.AddPage(context, "Page3", "Hello World", john, PageStatus.None, "Tag1", "Tag3");
 				context.SaveChanges();
 
 				var path = Path.GetTempPath() + "ScribeTests";
@@ -677,9 +657,9 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", john, "Tag1", "Tag2", "Tag3");
-				TestHelper.AddPage(context, "Page2", "Hello World", john, "Tag1", "Tag2");
-				TestHelper.AddPage(context, "Page3", "Hello World", john, "Tag1", "Tag3");
+				TestHelper.AddPage(context, "Page1", "Hello World", john, PageStatus.None, "Tag1", "Tag2", "Tag3");
+				TestHelper.AddPage(context, "Page2", "Hello World", john, PageStatus.None, "Tag1", "Tag2");
+				TestHelper.AddPage(context, "Page3", "Hello World", john, PageStatus.None, "Tag1", "Tag3");
 				context.SaveChanges();
 
 				var path = Path.GetTempPath() + "ScribeTests";
@@ -704,8 +684,8 @@ namespace Scribe.UnitTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", john, "Tag1", "Tag2", "Tag3");
-				TestHelper.AddPage(context, "Page2", "Hello World", john, "Tag1", "Tag2");
+				TestHelper.AddPage(context, "Page1", "Hello World", john, PageStatus.None, "Tag1", "Tag2", "Tag3");
+				TestHelper.AddPage(context, "Page2", "Hello World", john, PageStatus.None, "Tag1", "Tag2");
 				context.SaveChanges();
 
 				var path = Path.GetTempPath() + "ScribeTests";
@@ -716,50 +696,6 @@ namespace Scribe.UnitTests
 				var actual = service.GetTags().Results.Select(x => x.Tag).ToArray();
 				Assert.AreEqual(3, actual.Length);
 				TestHelper.AreEqual(new[] { "Tag1", "Tag3", "TagTwo" }, actual);
-			}
-		}
-
-		[TestMethod]
-		public void RenameTagFromPublic()
-		{
-			var provider = TestHelper.GetContextProvider();
-
-			using (var context = provider.GetContext())
-			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", john, "Tag1", "Tag2", "Public");
-				TestHelper.AddPage(context, "Page2", "Hello World", john, "Tag1", "Tag2");
-				context.SaveChanges();
-
-				var path = Path.GetTempPath() + "ScribeTests";
-				var searchService = new SearchService(context, path, john);
-				var service = new ScribeService(context, null, searchService, john);
-
-				TestHelper.ExpectedException<Exception>(() => { service.RenameTag(new RenameValues { OldName = "Public", NewName = "TagTwo" }); }, "Cannot rename the public tag.");
-			}
-		}
-
-		[TestMethod]
-		public void RenameTagToPublic()
-		{
-			var provider = TestHelper.GetContextProvider();
-
-			using (var context = provider.GetContext())
-			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", john, "Tag1", "Tag2", "Tag3");
-				TestHelper.AddPage(context, "Page2", "Hello World", john, "Tag1", "Tag2");
-				context.SaveChanges();
-
-				var path = Path.GetTempPath() + "ScribeTests";
-				var searchService = new SearchService(context, path, john);
-				var service = new ScribeService(context, null, searchService, john);
-
-				TestHelper.ExpectedException<Exception>(() => { service.RenameTag(new RenameValues { OldName = "Tag3", NewName = "Public" }); }, "Cannot rename the tag to public.");
 			}
 		}
 

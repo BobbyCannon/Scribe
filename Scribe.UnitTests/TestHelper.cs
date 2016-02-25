@@ -7,8 +7,8 @@ using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Scribe.Data;
-using Scribe.Extensions;
 using Scribe.Models.Entities;
+using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
 using Scribe.Services;
 using Scribe.UnitTests.Properties;
@@ -42,7 +42,7 @@ namespace Scribe.UnitTests
 			var service = new SettingsService(context, administrator);
 			var settings = new SettingsView
 			{
-				EnablePublicTag = false,
+				EnablePageApproval = false,
 				LdapConnectionString = string.Empty,
 				OverwriteFilesOnUpload = false
 			};
@@ -57,10 +57,10 @@ namespace Scribe.UnitTests
 			return context.Files.First(x => x.Id == id);
 		}
 
-		public static Page AddPage(IScribeContext context, string title, string content, User user, params string[] tags)
+		public static Page AddPage(IScribeContext context, string title, string content, User user, PageStatus status, params string[] tags)
 		{
 			var service = new ScribeService(context, null, null, user);
-			var view = service.SavePage(new PageView { Title = title, Text = content, Tags = tags });
+			var view = service.SavePage(new PageView { Status = status, Title = title, Text = content, Tags = tags });
 			return context.Pages.First(x => x.Id == view.Id);
 		}
 
@@ -77,7 +77,7 @@ namespace Scribe.UnitTests
 				DisplayName = userName,
 				UserName = userName,
 				EmailAddress = $"{userName}@domain.com",
-				Roles = $",{string.Join(",", roles)},"
+				Tags = $",{string.Join(",", roles)},"
 			};
 
 			user.SetPassword(password);

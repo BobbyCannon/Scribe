@@ -16,6 +16,10 @@ namespace Scribe.Website
 			routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
 			routes.MapRoute("Login", "Login", new { controller = "Account", action = "Login", returnUrl = UrlParameter.Optional });
+			routes.MapRoute("Users", "Users", new { controller = "Account", action = "Users" });
+			routes.MapRoute("User", "User/{id}", new { controller = "Account", action = "User", id = UrlParameter.Optional });
+			routes.MapRoute("UsersWithTag", "UsersWithTag/{tag}", new { controller = "Account", action = "UsersWithTag", tag = UrlParameter.Optional });
+			routes.MapRoute("Unauthorized", "Unauthorized", new { controller = "Account", action = "Unauthorized" });
 			routes.MapRoute("Tags", "Tags", new { controller = "Page", action = "Tags" });
 			routes.MapRoute("Setup", "Setup", new { controller = "Page", action = "Setup" });
 			routes.MapRoute("About", "About", new { controller = "Page", action = "About" });

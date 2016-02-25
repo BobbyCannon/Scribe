@@ -1,12 +1,4 @@
-﻿#region References
-
-using System;
-using Scribe.Extensions;
-using Scribe.Models.Entities;
-
-#endregion
-
-namespace Scribe.Models.Views
+﻿namespace Scribe.Models.Views
 {
 	public class PageHistorySummaryView
 	{

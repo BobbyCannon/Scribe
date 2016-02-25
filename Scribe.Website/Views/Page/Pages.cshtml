@@ -4,6 +4,7 @@
 	ViewBag.Title = "All Pages";
 }
 <div ng-controller="controller" ng-cloak>
+	<input id="pageFilter" ng-model="input.pageFilter" class="pull-right" type="text" title="filter" placeholder="filter" />
 	<h1>All Pages</h1>
 	<table class="expand striped">
 		<thead>
@@ -26,10 +27,19 @@
 					<i ng-show="predicate === 'modifiedOn' && reverse === true" class="fa fa-sort-desc"></i>
 					<i ng-show="predicate !== 'modifiedOn'" class="fa fa-sort"></i>
 				</th>
+				@if (Request.IsAuthenticated)
+				{
+					<th>
+						<a href="#" ng-click="predicate='status'; reverse=!reverse">status</a>
+						<i ng-show="predicate === 'status' && reverse === false" class="fa fa-sort-asc"></i>
+						<i ng-show="predicate === 'status' && reverse === true" class="fa fa-sort-desc"></i>
+						<i ng-show="predicate !== 'status'" class="fa fa-sort"></i>
+					</th>
+				}
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="$item in model.results | orderBy:predicate:reverse">
+			<tr ng-repeat="$item in model.results | filter:input.pageFilter | orderBy:predicate:reverse">
 				<td>
 					<a ng-href="/Page/{{$item.id}}/{{$item.titleForLink}}">{{$item.title}}</a>
 				</td>
@@ -39,6 +49,12 @@
 				<td>
 					{{$item.lastModified}} ago
 				</td>
+				@if (Request.IsAuthenticated)
+				{
+					<td>
+						<span ng-hide="$time.status !== 'none'">{{$item.status}}</span>
+					</td>
+				}
 			</tr>
 		</tbody>
 	</table>

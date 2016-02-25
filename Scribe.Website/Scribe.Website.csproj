@@ -226,9 +226,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\JsonNetResult.cs" />
+    <Compile Include="Attributes\MvcAuthorizeAttribute.cs" />
     <Compile Include="Attributes\MvcExceptionFilterAttribute.cs" />
     <Compile Include="Attributes\TraceExceptionLogger.cs" />
     <Compile Include="Attributes\WebApiExceptionFilterAttribute.cs" />
+    <Compile Include="Providers\RoleProvider.cs" />
     <Compile Include="Services\SearchService.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -263,7 +265,7 @@
     <Content Include="Fonts\FontAwesome.otf" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Profile.cshtml" />
-    <Content Include="Views\Account\Unauthorized.cshtml" />
+    <Content Include="Views\Shared\Unauthorized.cshtml" />
     <Content Include="Views\File\Files.cshtml" />
     <Content Include="Views\Page\Difference.cshtml" />
     <Content Include="Views\Page\Edit.cshtml" />
@@ -281,6 +283,9 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Page\Setup.cshtml" />
     <Content Include="Views\Page\About.cshtml" />
+    <Content Include="Views\Account\Users.cshtml" />
+    <Content Include="Views\Account\User.cshtml" />
+    <Content Include="Views\Account\UsersWithTag.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

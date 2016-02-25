@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EasyDataFramework;
 using Scribe.Converters;
-using Scribe.Extensions;
+using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
 using Scribe.Services;
 
@@ -97,6 +97,11 @@ namespace Scribe.Models.Entities
 		/// </summary>
 		public string Title { get; set; }
 
+		/// <summary>
+		/// Gets or sets the approval status of the page.
+		/// </summary>
+		public PageStatus Status { get; set; }
+
 		#endregion
 
 		#region Methods
@@ -125,6 +130,8 @@ namespace Scribe.Models.Entities
 				LastModified = DateTime.UtcNow.Subtract(ModifiedOn).ToTimeAgo(),
 				ModifiedBy = ModifiedBy.DisplayName,
 				ModifiedOn = ModifiedOn,
+				Status = Status,
+				Tags = Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().OrderBy(x => x),
 				Title = Title,
 				TitleForLink = PageView.ConvertTitleForLink(Title)
 			};
@@ -144,7 +151,8 @@ namespace Scribe.Models.Entities
 				ModifiedBy = ModifiedBy.DisplayName,
 				ModifiedOn = ModifiedOn,
 				Pages = new List<string>(),
-				Tags = Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct(),
+				Status = Status,
+				Tags = Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().OrderBy(x => x),
 				Text = Text,
 				Title = Title,
 				TitleForLink = PageView.ConvertTitleForLink(Title)

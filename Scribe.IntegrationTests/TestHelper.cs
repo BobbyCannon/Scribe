@@ -6,7 +6,6 @@ using System.Web.Http;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Scribe.Data;
-using Scribe.Extensions;
 using Scribe.IntegrationTests.Properties;
 using Scribe.Models.Entities;
 using Scribe.Models.Views;
@@ -35,7 +34,7 @@ namespace Scribe.IntegrationTests
 			var service = new SettingsService(context, administrator);
 			var settings = new SettingsView
 			{
-				EnablePublicTag = false,
+				EnablePageApproval = false,
 				LdapConnectionString = string.Empty,
 				OverwriteFilesOnUpload = false,
 				SoftDelete = false
@@ -71,7 +70,7 @@ namespace Scribe.IntegrationTests
 				DisplayName = userName,
 				UserName = userName,
 				EmailAddress = $"{userName}@domain.com",
-				Roles = $",{string.Join(",", roles)},"
+				Tags = $",{string.Join(",", roles)},"
 			};
 
 			user.SetPassword(password);

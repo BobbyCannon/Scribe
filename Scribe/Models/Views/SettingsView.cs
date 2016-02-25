@@ -4,13 +4,17 @@
 	{
 		#region Properties
 
-		public bool EnablePublicTag { get; set; }
+		public bool EnablePageApproval { get; set; }
 
 		public string LdapConnectionString { get; set; }
 
 		public bool OverwriteFilesOnUpload { get; set; }
 
+		public string PrintCss { get; set; }
+
 		public bool SoftDelete { get; set; }
+
+		public string ViewCss { get; set; }
 
 		#endregion
 	}
