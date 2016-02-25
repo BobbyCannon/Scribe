@@ -68,11 +68,6 @@ namespace Scribe.Models.Entities
 		public bool IsDeleted { get; set; }
 
 		/// <summary>
-		/// Gets or sets whether the page is locked for administrator only editing.
-		/// </summary>
-		public bool IsLocked { get; set; }
-
-		/// <summary>
 		/// Gets or sets the user who last modified the page.
 		/// </summary>
 		public virtual User ModifiedBy { get; set; }
@@ -81,6 +76,11 @@ namespace Scribe.Models.Entities
 		/// Gets or sets the user ID of who last modified the page.
 		/// </summary>
 		public int ModifiedById { get; set; }
+
+		/// <summary>
+		/// Gets or sets the approval status of the page.
+		/// </summary>
+		public PageStatus Status { get; set; }
 
 		/// <summary>
 		/// Gets or sets the tags for the page, in the format ",tag1,tag2,tag3," (no spaces between tags).
@@ -96,11 +96,6 @@ namespace Scribe.Models.Entities
 		/// Gets or sets the title.
 		/// </summary>
 		public string Title { get; set; }
-
-		/// <summary>
-		/// Gets or sets the approval status of the page.
-		/// </summary>
-		public PageStatus Status { get; set; }
 
 		#endregion
 

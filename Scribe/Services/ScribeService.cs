@@ -198,7 +198,6 @@ namespace Scribe.Services
 			var page = GetPageQuery()
 				.Where(x => x.Tags.Contains(",homepage,"))
 				.OrderBy(x => x.Id)
-				.ThenBy(x => x.IsLocked)
 				.FirstOrDefault();
 
 			return page != null
@@ -278,18 +277,9 @@ namespace Scribe.Services
 
 			if (!string.IsNullOrWhiteSpace(request.Filter))
 			{
-				query = query.Where(x => x.Title.Contains(request.Filter));
+				var filter = RequestFilter.Parse(request.Filter);
+				query = ProcessFilter(query, filter);
 			}
-
-			return GetPagedResults(query, request, x => x.Title, x => x.ToSummaryView());
-		}
-
-		public PagedResults<PageView> GetPagesWithTag(PagedRequest request = null)
-		{
-			request = request ?? new PagedRequest();
-
-			var formattedTag = "," + request.Filter + ",";
-			var query = GetPageQuery().Where(x => x.Tags.Contains(formattedTag));
 
 			return GetPagedResults(query, request, x => x.Title, x => x.ToSummaryView());
 		}
@@ -330,20 +320,11 @@ namespace Scribe.Services
 
 			if (!string.IsNullOrWhiteSpace(request.Filter))
 			{
-				query = query.Where(x => x.UserName.Contains(request.Filter) || x.EmailAddress.Contains(request.Filter));
+				var filter = RequestFilter.Parse(request.Filter);
+				query = ProcessFilter(query, filter);
 			}
 
 			return GetPagedResults(query, request, x => x.UserName, x => x.ToView());
-		}
-
-		public PagedResults<UserView> GetUsersWithTag(PagedRequest request = null)
-		{
-			request = request ?? new PagedRequest();
-
-			var formattedTag = "," + request.Filter + ",";
-			var query = _context.Users.OrderBy(x => x.DisplayName).Where(x => x.Tags.Contains(formattedTag));
-
-			return GetPagedResults(query, request, x => x.DisplayName, x => x.ToView());
 		}
 
 		public void LogIn(Credentials credentials)
@@ -415,7 +396,7 @@ namespace Scribe.Services
 		public PageView SavePage(PageView view)
 		{
 			var page = GetPageQuery().FirstOrDefault(x => x.Id == view.Id)
-				?? new Page { CreatedOn = DateTime.UtcNow, CreatedBy = _user, IsLocked = false };
+				?? new Page { CreatedOn = DateTime.UtcNow, CreatedBy = _user };
 
 			if (page.EditingById != null && page.EditingById != _user?.Id)
 			{
@@ -424,26 +405,33 @@ namespace Scribe.Services
 
 			var tags = $",{string.Join(",", view.Tags.Select(x => x.Trim()).Distinct().OrderBy(x => x))},";
 
+			// Only create history on changes for Tags, Text, and/or Title.
 			if (tags != page.Tags || page.Text != view.Text || page.Title != view.Title)
 			{
-				var version = new PageHistory
+				// Only create version when editing existing page.
+				if (view.Id > 0)
 				{
-					Tags = page.Tags,
-					Text = page.Text,
-					Title = page.Title,
-					EditedBy = _user,
-					EditedOn = DateTime.UtcNow
-				};
+					var version = new PageHistory
+					{
+						EditedBy = page.ModifiedBy,
+						EditedOn = page.ModifiedOn,
+						Status = page.Status,
+						Tags = page.Tags,
+						Text = page.Text,
+						Title = page.Title
+					};
 
-				page.History.Add(version);
-				page.Status = view.Status;
+					page.History.Add(version);
+				}
+
 				page.Tags = tags;
 				page.Text = view.Text;
 				page.Title = view.Title;
-				page.ModifiedBy = version.EditedBy;
-				page.ModifiedOn = version.EditedOn;
+				page.ModifiedBy = _user;
+				page.ModifiedOn = DateTime.UtcNow;
 			}
 
+			page.Status = view.Status;
 			page.EditingById = null;
 			page.EditingOn = SqlDateTime.MinValue.Value;
 
@@ -503,6 +491,51 @@ namespace Scribe.Services
 			if (_user == null && _settingsService.EnablePageApproval)
 			{
 				query = query.Where(x => x.Status == PageStatus.Approved);
+			}
+
+			return query;
+		}
+
+		private static IQueryable<User> ProcessFilter(IQueryable<User> query, RequestFilter filter)
+		{
+			foreach (var item in filter)
+			{
+				switch (item.Key.ToLower())
+				{
+					case "tags":
+						var tag = $",{item.Value},";
+						query = query.Where(x => x.Tags.Contains(tag));
+						break;
+
+					default:
+						query = query.Where(x => x.UserName.Contains(item.Value) || x.EmailAddress.Contains(item.Value));
+						break;
+				}
+			}
+
+			return query;
+		}
+
+		private static IQueryable<Page> ProcessFilter(IQueryable<Page> query, RequestFilter filter)
+		{
+			foreach (var item in filter)
+			{
+				switch (item.Key.ToLower())
+				{
+					case "status":
+						var status = (PageStatus) Enum.Parse(typeof (PageStatus), item.Value);
+						query = query.Where(x => x.Status == status);
+						break;
+
+					case "tags":
+						var tag = $",{item.Value},";
+						query = query.Where(x => x.Tags.Contains(tag));
+						break;
+
+					default:
+						query = query.Where(x => x.Title.Contains(item.Value));
+						break;
+				}
 			}
 
 			return query;

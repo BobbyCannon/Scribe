@@ -44,7 +44,9 @@ namespace Scribe.UnitTests
 			{
 				EnablePageApproval = false,
 				LdapConnectionString = string.Empty,
-				OverwriteFilesOnUpload = false
+				OverwriteFilesOnUpload = false,
+				PrintCss = string.Empty,
+				ViewCss = string.Empty
 			};
 
 			service.Save(settings);

@@ -34,6 +34,7 @@ namespace Scribe.Website.Controllers
 			var file = service.GetFile(name, true);
 			if (file != null)
 			{
+				Response.AddHeader("Content-Disposition", "inline; filename=" + file.Name);
 				return new FileContentResult(file.Data, file.Type);
 			}
 
@@ -43,6 +44,7 @@ namespace Scribe.Website.Controllers
 				throw new HttpException(404, "Failed to find the file requested.");
 			}
 
+			Response.AddHeader("Content-Disposition", "inline; filename=404.png");
 			var data = Assembly.GetExecutingAssembly().ReadEmbeddedBinaryFile("Scribe.Website.Content.404.png");
 			return new FileContentResult(data, "image/png");
 		}

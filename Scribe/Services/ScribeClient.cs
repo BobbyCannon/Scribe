@@ -108,15 +108,6 @@ namespace Scribe.Services
 			}
 		}
 
-		public PagedResults<PageView> GetPagesWithTag(PagedRequest request = null)
-		{
-			using (var response = Post($"{_service}GetPagesWithTag", request))
-			{
-				ValidateResponse(response);
-				return Read<PagedResults<PageView>>(response);
-			}
-		}
-
 		public PagedResults<TagView> GetTags(PagedRequest request = null)
 		{
 			using (var response = Post($"{_service}GetTags", request))
@@ -138,15 +129,6 @@ namespace Scribe.Services
 		public PagedResults<UserView> GetUsers(PagedRequest request = null)
 		{
 			using (var response = Post($"{_service}GetUsers", request))
-			{
-				ValidateResponse(response);
-				return Read<PagedResults<UserView>>(response);
-			}
-		}
-
-		public PagedResults<UserView> GetUsersWithTag(PagedRequest request = null)
-		{
-			using (var response = Post($"{_service}GetUsersWithTag", request))
 			{
 				ValidateResponse(response);
 				return Read<PagedResults<UserView>>(response);

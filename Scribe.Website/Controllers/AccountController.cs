@@ -97,20 +97,20 @@ namespace Scribe.Website.Controllers
 		}
 
 		[MvcAuthorize(Roles = "Administrator")]
+		public ActionResult UsersWithTag(string tag)
+		{
+			var accountService = new AccountService(DataContext, AuthenticationService);
+			var service = new ScribeService(DataContext, accountService, null, GetCurrentUser());
+			return View(service.GetUsers(new PagedRequest($"Tags={tag}", 1, int.MaxValue)));
+		}
+
+		[MvcAuthorize(Roles = "Administrator")]
 		[ActionName("User")]
 		public ActionResult UserView(int id)
 		{
 			var accountService = new AccountService(DataContext, AuthenticationService);
 			var service = new ScribeService(DataContext, accountService, null, GetCurrentUser());
 			return View(service.GetUser(id));
-		}
-
-		[MvcAuthorize(Roles = "Administrator")]
-		public ActionResult UsersWithTag(string tag)
-		{
-			var accountService = new AccountService(DataContext, AuthenticationService);
-			var service = new ScribeService(DataContext, accountService, null, GetCurrentUser());
-			return View(service.GetUsersWithTag(new PagedRequest(tag, 1, int.MaxValue)));
 		}
 
 		#endregion

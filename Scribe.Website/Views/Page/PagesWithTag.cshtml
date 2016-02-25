@@ -4,7 +4,7 @@
 	ViewBag.Title = "Pages with Tag";
 }
 <h1>
-	All pages with tag "@Model.Filter"
+	All pages with tag "@Model.Filter.Replace("Tags=", "")"
 </h1>
 <ul class="striped">
 	@foreach (var item in Model.Results)

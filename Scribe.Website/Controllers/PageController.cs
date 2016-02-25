@@ -105,7 +105,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult PagesWithTag(string tag)
 		{
-			return View(_service.GetPagesWithTag(new PagedRequest(tag, 1, int.MaxValue)));
+			return View(_service.GetPages(new PagedRequest($"Tags={tag}", 1, int.MaxValue)));
 		}
 
 		public ActionResult RenameTag(string oldName, string newName)

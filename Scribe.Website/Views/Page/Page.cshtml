@@ -32,7 +32,6 @@
 		@if (Request.IsAuthenticated)
 		{
 			<a id="pageEditingByLink2" ng-href="/EditPage/{{ model.id }}/{{ model.titleForLink }}" ng-show="model.editingBy.length === 0 || model.editingBy == currentUser">Edit</a>
-			<a id="requestApproval"></a>
 		}
 		<span id="pageEditingBySpan" ng-show="model.editingBy.length > 0">
 			<br />This page is currently being edited by <span id="pageEditingBy">{{ model.editingBy }}</span>.

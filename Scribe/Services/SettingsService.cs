@@ -52,7 +52,7 @@ namespace Scribe.Services
 		public string PrintCss
 		{
 			get { return GetSetting("Print CSS", string.Empty); }
-			set { AddOrUpdateSetting("Print CSS", value.ToString()); }
+			set { AddOrUpdateSetting("Print CSS", value); }
 		}
 
 		public bool SoftDelete
@@ -64,7 +64,7 @@ namespace Scribe.Services
 		public string ViewCss
 		{
 			get { return GetSetting("View CSS", string.Empty); }
-			set { AddOrUpdateSetting("View CSS", value.ToString()); }
+			set { AddOrUpdateSetting("View CSS", value); }
 		}
 
 		#endregion

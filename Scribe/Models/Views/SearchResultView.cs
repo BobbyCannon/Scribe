@@ -45,6 +45,11 @@ namespace Scribe.Models.Views
 		public float Score { get; set; }
 
 		/// <summary>
+		/// The page status.
+		/// </summary>
+		public string Status { get; set; }
+
+		/// <summary>
 		/// The tags for the page, in space delimited format.
 		/// </summary>
 		public IEnumerable<string> Tags { get; set; }
@@ -58,11 +63,6 @@ namespace Scribe.Models.Views
 		/// The page title for a link.
 		/// </summary>
 		public string TitleForLink { get; set; }
-
-		/// <summary>
-		/// The page status.
-		/// </summary>
-		public string Status { get; set; }
 
 		#endregion
 	}

@@ -54,7 +54,7 @@
 				<button class="blue" ng-disabled="!settings.$dirty" ng-click="save()">Save</button>
 			</div>
 			<div class="span12">
-				Links: @Html.ActionLink("Users", "Users", "Account")
+				@Html.ActionLink("Manage Users", "Users", "Account", new { @class = "button link" }, null)
 			</div>
 		</div>
 	</form>

@@ -211,7 +211,7 @@ namespace Scribe.Website.Services
 							var document = searcher.Doc(scoreDoc.Doc);
 							var result = Create(document, scoreDoc);
 
-							if (_user == null && _settings.EnablePageApproval && result.Status != "Approved" )
+							if (_user == null && _settings.EnablePageApproval && result.Status != "Approved")
 							{
 								continue;
 							}

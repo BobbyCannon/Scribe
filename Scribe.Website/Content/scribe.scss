@@ -321,7 +321,6 @@ select {
 	@include box-shadow();
 	color: $blackish;
 	line-height: 1.2em;
-	font-family: Helvetica, Arial;
 	@include rem-units(font-size, 16);
 	@include rem-units(height, 36);
 	@include rem-units(min-height, 36);
@@ -400,14 +399,13 @@ input[type=submit],
 input[type=reset],
 button {
 	display: inline-block;
-	@include rem-units(padding, 8 12);
 	@include border-box();
 	background-color: $white;
 	border: 1px solid $gray;
 	color: $blackish;
 	cursor: pointer;
 	line-height: 1.2em;
-	font-family: Helvetica, Arial;
+	@include rem-units(padding, 8 12);
 	@include rem-units(font-size, 16);
 	@include rem-units(height, 36);
 	@include rem-units(min-height, 36);
@@ -613,7 +611,7 @@ table {
 	}
 }
 
-dl{
+dl {
 	dt {
 		color: $blackish;
 		@include rem-units(margin, 0 0 10 0);
@@ -863,17 +861,26 @@ ul.tag {
 }
 
 div.tag {
-	float: left;
+	display: inline-block;
+	@include border-box();
 	background-color: $darkBlue;
+	border: 1px solid $darkBlue;
 	color: $white;
 	cursor: pointer;
+	line-height: 1.2em;
 	@include rem-units(padding, 6 12);
-	@include rem-units(margin, 0 10 10 0);
 	@include rem-units(font-size, 16);
-	@include rem-units(height, 24);
+	@include rem-units(height, 36);
+	@include rem-units(min-height, 36);
+	@include rem-units(min-width, 70);
+	@include rem-units(margin, 0 10 10 0);
+	overflow: visible;
+	text-align: center;
+	vertical-align: top;
 
 	&:hover {
 		background-color: $burgundy;
+		border: 1px solid $burgundy;
 	}
 }
 

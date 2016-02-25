@@ -26,6 +26,7 @@ namespace Scribe.Data.Mapping
 			Property(x => x.Tags).IsRequired().HasMaxLength(450);
 			Property(x => x.Text).IsRequired();
 			Property(x => x.Title).IsRequired().HasMaxLength(450);
+			Property(x => x.Status).IsRequired();
 
 			// Relationships
 			HasRequired(x => x.Page)

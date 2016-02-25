@@ -20,11 +20,9 @@ namespace Scribe.Services
 		PagedResults<FileView> GetFiles(PagedRequest request = null);
 		PageView GetPage(int id, bool includeHistory = false);
 		PagedResults<PageView> GetPages(PagedRequest request = null);
-		PagedResults<PageView> GetPagesWithTag(PagedRequest request = null);
 		PagedResults<TagView> GetTags(PagedRequest request = null);
 		UserView GetUser(int id);
 		PagedResults<UserView> GetUsers(PagedRequest request = null);
-		PagedResults<UserView> GetUsersWithTag(PagedRequest request = null);
 		void LogIn(Credentials login);
 		void LogOut();
 		string Preview(PageView view);

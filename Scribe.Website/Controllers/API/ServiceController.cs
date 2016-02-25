@@ -87,12 +87,6 @@ namespace Scribe.Website.Controllers.API
 		}
 
 		[HttpPost]
-		public PagedResults<PageView> GetPagesWithTag(PagedRequest request = null)
-		{
-			return _service.GetPagesWithTag(request);
-		}
-
-		[HttpPost]
 		public PagedResults<TagView> GetTags(PagedRequest request = null)
 		{
 			return _service.GetTags(request);
@@ -109,13 +103,6 @@ namespace Scribe.Website.Controllers.API
 		public PagedResults<UserView> GetUsers(PagedRequest request = null)
 		{
 			return _service.GetUsers(request);
-		}
-
-		[HttpPost]
-		[Authorize(Roles = "Administrator")]
-		public PagedResults<UserView> GetUsersWithTag(PagedRequest request = null)
-		{
-			return _service.GetUsersWithTag(request);
 		}
 
 		[HttpPost]

@@ -665,9 +665,9 @@ namespace Scribe.UnitTests
 				var path = Path.GetTempPath() + "ScribeTests";
 				var searchService = new SearchService(context, path, john);
 				var service = new ScribeService(context, null, searchService, john);
-				var actual = service.GetPagesWithTag(new PagedRequest("Tag3"));
+				var actual = service.GetPages(new PagedRequest("Tags=Tag3"));
 
-				Assert.AreEqual("Tag3", actual.Filter);
+				Assert.AreEqual("Tags=Tag3", actual.Filter);
 				Assert.AreEqual(2, actual.Results.Count());
 				Assert.AreEqual("Page1", actual.Results.First().Title);
 				Assert.AreEqual("Page3", actual.Results.Last().Title);

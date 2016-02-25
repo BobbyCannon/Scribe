@@ -11,13 +11,13 @@
 		@if (MvcApplication.ViewCss.Length > 0)
 		{
 			<style media="all">
-				@Html.Raw(MvcApplication.ViewCss)
+				@Html.Raw(MvcApplication.ViewCss) 
 			</style>
 		}
 		@if (MvcApplication.PrintCss.Length > 0)
 		{
 			<style media="print">
-				@Html.Raw(MvcApplication.PrintCss)
+				@Html.Raw(MvcApplication.PrintCss) 
 			</style>
 		}
 	</head>
@@ -49,7 +49,7 @@
 				@using (Html.BeginForm("Search", "Page", FormMethod.Get))
 				{
 					<div id="headerSearch">
-						<input name="term" type="text" placeholder="Enter text to search" />
+						<input name="term" type="text" placeholder="enter text to search" />
 					</div>
 				}
 				<ul id="headerMenu">

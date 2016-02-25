@@ -101,6 +101,7 @@
 	<div id="editorFormControls" class="row" ng-hide="!isCurrentEditor()">
 		<div class="span24">
 			<div class="pull-right">
+				<button id="saveAndPublishButton" class="blue" ng-disabled="editorForm.$invalid" ng-click="save(true)">Publish</button>
 				<button id="saveButton" class="blue" ng-disabled="editorForm.$invalid" ng-click="save()">Save</button>
 				<button id="cancelButton" ng-click="cancel()">Cancel</button>
 			</div>
@@ -283,7 +284,11 @@
 					httpRequest.send(formData);
 				}
 
-				$scope.save = function () {
+				$scope.save = function (publish) {
+					if (publish) {
+						$scope.model.status = 'pending';
+					}
+
 					$http.post('/api/Service/SavePage', $scope.model)
 						.success(function (data) {
 							$scope.model = data;
@@ -313,7 +318,9 @@
 				}
 
 				$window.onbeforeunload = function () {
-					$http.post('/api/Service/CancelPage/' + $scope.model.id);
+					if ($scope.model.id !== 0) {
+						$http.post('/api/Service/CancelPage/' + $scope.model.id);
+					}
 				}
 
 				var service = $.connection.notificationHub;

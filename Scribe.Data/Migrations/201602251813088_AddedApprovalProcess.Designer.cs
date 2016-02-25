@@ -7,13 +7,13 @@ namespace Scribe.Data.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddedPageStatus : IMigrationMetadata
+    public sealed partial class AddedApprovalProcess : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddedPageStatus));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddedApprovalProcess));
         
         string IMigrationMetadata.Id
         {
-            get { return "201602241528322_AddedPageStatus"; }
+            get { return "201602251813088_AddedApprovalProcess"; }
         }
         
         string IMigrationMetadata.Source

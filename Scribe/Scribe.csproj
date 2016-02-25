@@ -75,6 +75,7 @@
     <Compile Include="Models\Data\PagedRequest.cs" />
     <Compile Include="Models\Data\PagedResults.cs" />
     <Compile Include="Models\Data\RenameValues.cs" />
+    <Compile Include="Models\Data\RequestFilter.cs" />
     <Compile Include="Models\Entities\File.cs" />
     <Compile Include="Models\Entities\Page.cs" />
     <Compile Include="Models\Entities\PageHistory.cs" />

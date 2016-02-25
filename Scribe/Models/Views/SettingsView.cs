@@ -2,6 +2,20 @@
 {
 	public class SettingsView
 	{
+		#region Constructors
+
+		public SettingsView()
+		{
+			EnablePageApproval = false;
+			LdapConnectionString = string.Empty;
+			OverwriteFilesOnUpload = false;
+			PrintCss = string.Empty;
+			SoftDelete = true;
+			ViewCss = string.Empty;
+		}
+
+		#endregion
+
 		#region Properties
 
 		public bool EnablePageApproval { get; set; }
