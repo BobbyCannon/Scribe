@@ -1,6 +1,6 @@
 namespace Scribe.Models.Enumerations
 {
-	public enum PageStatus
+	public enum ApprovalStatus
 	{
 		None = 0,
 		Pending = 1,

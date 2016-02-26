@@ -15,6 +15,15 @@
 					<i ng-show="predicate === 'title' && reverse === true" class="fa fa-sort-desc"></i>
 					<i ng-show="predicate !== 'title'" class="fa fa-sort"></i>
 				</th>
+				@if (Request.IsAuthenticated)
+				{
+					<th>
+						<a href="#" ng-click="predicate='isPublished'; reverse=!reverse">published</a>
+						<i ng-show="predicate === 'isPublished' && reverse === false" class="fa fa-sort-asc"></i>
+						<i ng-show="predicate === 'isPublished' && reverse === true" class="fa fa-sort-desc"></i>
+						<i ng-show="predicate !== 'isPublished'" class="fa fa-sort"></i>
+					</th>
+				}
 				<th>
 					<a href="#" ng-click="predicate='modifiedBy'; reverse=!reverse">modified by</a>
 					<i ng-show="predicate === 'modifiedBy' && reverse === false" class="fa fa-sort-asc"></i>
@@ -30,10 +39,10 @@
 				@if (Request.IsAuthenticated)
 				{
 					<th>
-						<a href="#" ng-click="predicate='status'; reverse=!reverse">status</a>
-						<i ng-show="predicate === 'status' && reverse === false" class="fa fa-sort-asc"></i>
-						<i ng-show="predicate === 'status' && reverse === true" class="fa fa-sort-desc"></i>
-						<i ng-show="predicate !== 'status'" class="fa fa-sort"></i>
+						<a href="#" ng-click="predicate='approvalStatus'; reverse=!reverse">status</a>
+						<i ng-show="predicate === 'approvalStatus' && reverse === false" class="fa fa-sort-asc"></i>
+						<i ng-show="predicate === 'approvalStatus' && reverse === true" class="fa fa-sort-desc"></i>
+						<i ng-show="predicate !== 'approvalStatus'" class="fa fa-sort"></i>
 					</th>
 				}
 			</tr>
@@ -43,6 +52,12 @@
 				<td>
 					<a ng-href="/Page/{{$item.id}}/{{$item.titleForLink}}">{{$item.title}}</a>
 				</td>
+				@if (Request.IsAuthenticated)
+				{
+					<td>
+						<span ng-show="$item.isPublished">published</span>
+					</td>
+				}
 				<td>
 					{{$item.modifiedBy}}
 				</td>
@@ -52,7 +67,7 @@
 				@if (Request.IsAuthenticated)
 				{
 					<td>
-						<span ng-hide="$time.status !== 'none'">{{$item.status}}</span>
+						<span ng-show="$item.approvalStatus !== 'none'">{{$item.approvalStatus}}</span>
 					</td>
 				}
 			</tr>

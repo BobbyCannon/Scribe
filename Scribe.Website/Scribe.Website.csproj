@@ -286,6 +286,7 @@
     <Content Include="Views\Account\Users.cshtml" />
     <Content Include="Views\Account\User.cshtml" />
     <Content Include="Views\Account\UsersWithTag.cshtml" />
+    <Content Include="Views\Page\Manual.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

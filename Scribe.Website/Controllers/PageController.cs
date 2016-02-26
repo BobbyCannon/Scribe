@@ -50,6 +50,13 @@ namespace Scribe.Website.Controllers
 		}
 
 		[AllowAnonymous]
+		public ActionResult Manual()
+		{
+			ViewBag.Version = Assembly.GetExecutingAssembly().GetName().Version;
+			return View();
+		}
+
+		[AllowAnonymous]
 		public ActionResult Difference(int id)
 		{
 			return View(_service.GetPageDifference(id));

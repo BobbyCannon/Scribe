@@ -1,4 +1,5 @@
-﻿@model PageHistoryView
+﻿@using Scribe.Models.Enumerations
+@model PageHistoryView
 
 @{
 	ViewBag.Title = "Page History";
@@ -9,9 +10,10 @@
 <table class="expand striped">
 	<thead>
 		<tr>
-			<th>Version</th>
-			<th>Modified On</th>
-			<th>Modified By</th>
+			<th>version</th>
+			<th>modified on</th>
+			<th>modified by</th>
+			<th>approved</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -21,6 +23,12 @@
 				<td>@Html.ActionLink(version.Number.ToString(), "Difference", new { id = version.Id, title = Model.TitleForLink })</td>
 				<td>@version.LastModified ago</td>
 				<td>@version.ModifiedBy</td>
+				<td>
+					@if (version.ApprovalStatus != ApprovalStatus.None)
+					{
+						@version.ApprovalStatus
+					}
+				</td>
 			</tr>
 		}
 	</tbody>

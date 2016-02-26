@@ -20,13 +20,13 @@ namespace Scribe.Data.Mapping
 			// Table & Column Mappings
 			ToTable("PageHistory");
 			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.ApprovalStatus).IsRequired();
 			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.EditedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.Tags).IsRequired().HasMaxLength(450);
 			Property(x => x.Text).IsRequired();
 			Property(x => x.Title).IsRequired().HasMaxLength(450);
-			Property(x => x.Status).IsRequired();
 
 			// Relationships
 			HasRequired(x => x.Page)

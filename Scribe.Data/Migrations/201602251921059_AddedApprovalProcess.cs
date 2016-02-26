@@ -15,9 +15,10 @@ namespace Scribe.Data.Migrations
 			DropColumn("dbo.PageHistory", "CreatedOn");
 			DropColumn("dbo.PageHistory", "Title");
 			DropColumn("dbo.PageHistory", "Tags");
-			DropColumn("dbo.PageHistory", "Status");
-			DropColumn("dbo.Pages", "Status");
+			DropColumn("dbo.PageHistory", "ApprovalStatus");
+			DropColumn("dbo.Pages", "IsPublished");
 			DropColumn("dbo.Pages", "IsDeleted");
+			DropColumn("dbo.Pages", "ApprovalStatus");
 			DropColumn("dbo.Users", "ModifiedOn");
 			DropColumn("dbo.Users", "CreatedOn");
 			DropColumn("dbo.Users", "Tags");
@@ -30,9 +31,10 @@ namespace Scribe.Data.Migrations
 			AddColumn("dbo.Users", "Tags", c => c.String(false, 450));
 			AddColumn("dbo.Users", "CreatedOn", c => c.DateTime(false, 7, storeType: "datetime2"));
 			AddColumn("dbo.Users", "ModifiedOn", c => c.DateTime(false, 7, storeType: "datetime2"));
+			AddColumn("dbo.Pages", "ApprovalStatus", c => c.Int(false));
 			AddColumn("dbo.Pages", "IsDeleted", c => c.Boolean(false));
-			AddColumn("dbo.Pages", "Status", c => c.Int(false));
-			AddColumn("dbo.PageHistory", "Status", c => c.Int(false));
+			AddColumn("dbo.Pages", "IsPublished", c => c.Boolean(false));
+			AddColumn("dbo.PageHistory", "ApprovalStatus", c => c.Int(false));
 			AddColumn("dbo.PageHistory", "Tags", c => c.String(false, 450));
 			AddColumn("dbo.PageHistory", "Title", c => c.String(false, 450));
 			AddColumn("dbo.PageHistory", "CreatedOn", c => c.DateTime(false, 7, storeType: "datetime2"));

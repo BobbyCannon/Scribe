@@ -40,6 +40,11 @@ namespace Scribe.Models.Views
 		public int Id { get; set; }
 
 		/// <summary>
+		/// The published status.
+		/// </summary>
+		public bool IsPublished { get; set; }
+
+		/// <summary>
 		/// The lucene.net score for the search result.
 		/// </summary>
 		public float Score { get; set; }
@@ -58,11 +63,6 @@ namespace Scribe.Models.Views
 		/// The page title.
 		/// </summary>
 		public string Title { get; set; }
-
-		/// <summary>
-		/// The page title for a link.
-		/// </summary>
-		public string TitleForLink { get; set; }
 
 		#endregion
 	}

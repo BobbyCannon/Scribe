@@ -74,12 +74,14 @@
     <Compile Include="Models\Data\Credentials.cs" />
     <Compile Include="Models\Data\PagedRequest.cs" />
     <Compile Include="Models\Data\PagedResults.cs" />
+    <Compile Include="Models\Data\PageUpdate.cs" />
+    <Compile Include="Models\Data\PageUpdateType.cs" />
     <Compile Include="Models\Data\RenameValues.cs" />
     <Compile Include="Models\Data\RequestFilter.cs" />
     <Compile Include="Models\Entities\File.cs" />
     <Compile Include="Models\Entities\Page.cs" />
     <Compile Include="Models\Entities\PageHistory.cs" />
-    <Compile Include="Models\Enumerations\PageStatus.cs" />
+    <Compile Include="Models\Enumerations\ApprovalStatus.cs" />
     <Compile Include="Models\Entities\Setting.cs" />
     <Compile Include="Models\Entities\User.cs" />
     <Compile Include="Models\Views\FileView.cs" />

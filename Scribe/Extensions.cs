@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
 using System.Text;
+using System.Web.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -123,6 +124,11 @@ namespace Scribe
 			}
 
 			return response;
+		}
+
+		public static IEnumerable<string> GetTags(this IIdentity identity)
+		{
+			return Roles.GetRolesForUser(identity.Name);
 		}
 
 		public static byte[] ReadEmbeddedBinaryFile(this Assembly assembly, string path)

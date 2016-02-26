@@ -195,6 +195,15 @@ namespace Scribe.Services
 			}
 		}
 
+		public PageView UpdatePage(PageUpdate update)
+		{
+			using (var response = Post($"{_service}UpdatePage", update))
+			{
+				ValidateResponse(response);
+				return Read<PageView>(response);
+			}
+		}
+
 		private void ValidateResponse(HttpResponseMessage post)
 		{
 			if (!post.IsSuccessStatusCode)

@@ -13,7 +13,7 @@ namespace Scribe.Data.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201602251813088_AddedApprovalProcess"; }
+            get { return "201602251921059_AddedApprovalProcess"; }
         }
         
         string IMigrationMetadata.Source

@@ -59,6 +59,8 @@ namespace Scribe.Services
 
 		public PageView BeginEditingPage(int id)
 		{
+			VerifyAccess("You must be authenticate to begin editing page.");
+
 			var page = GetPageQuery(x => x.CreatedBy, x => x.ModifiedBy)
 				.FirstOrDefault(x => x.Id == id);
 
@@ -85,6 +87,8 @@ namespace Scribe.Services
 
 		public void CancelPage(int id)
 		{
+			VerifyAccess("You must be authenticate to cancel editing page.");
+
 			var page = GetPageQuery().FirstOrDefault(x => x.Id == id);
 			if (page == null)
 			{
@@ -98,6 +102,8 @@ namespace Scribe.Services
 
 		public void DeleteFile(int id)
 		{
+			VerifyAccess("You must be authenticate to delete a file.");
+
 			var file = _context.Files.FirstOrDefault(x => x.Id == id);
 			if (file == null)
 			{
@@ -118,6 +124,8 @@ namespace Scribe.Services
 
 		public void DeletePage(int id)
 		{
+			VerifyAccess("You must be authenticate to delete a page.");
+
 			var page = _context.Pages.FirstOrDefault(x => x.Id == id);
 			if (page == null)
 			{
@@ -138,6 +146,8 @@ namespace Scribe.Services
 
 		public void DeleteTag(string tag)
 		{
+			VerifyAccess("You must be authenticate to delete a tag.");
+
 			if (string.IsNullOrWhiteSpace(tag))
 			{
 				throw new ArgumentException("The tag name must be provided.", nameof(tag));
@@ -350,6 +360,8 @@ namespace Scribe.Services
 
 		public void RenameTag(RenameValues values)
 		{
+			VerifyAccess("You must be authenticate to rename the tag.");
+
 			if (string.IsNullOrWhiteSpace(values.OldName))
 			{
 				throw new ArgumentException("The old name must be provided.", nameof(values));
@@ -373,6 +385,8 @@ namespace Scribe.Services
 
 		public int SaveFile(FileView view)
 		{
+			VerifyAccess("You must be authenticate to save the file.");
+
 			var file = _context.Files.FirstOrDefault(x => x.Name == view.Name)
 				?? new File { Name = view.Name, CreatedBy = _user, CreatedOn = DateTime.UtcNow };
 
@@ -395,6 +409,8 @@ namespace Scribe.Services
 
 		public PageView SavePage(PageView view)
 		{
+			VerifyAccess("You must be authenticate to save the page.");
+
 			var page = GetPageQuery().FirstOrDefault(x => x.Id == view.Id)
 				?? new Page { CreatedOn = DateTime.UtcNow, CreatedBy = _user };
 
@@ -415,7 +431,7 @@ namespace Scribe.Services
 					{
 						EditedBy = page.ModifiedBy,
 						EditedOn = page.ModifiedOn,
-						Status = page.Status,
+						ApprovalStatus = page.ApprovalStatus,
 						Tags = page.Tags,
 						Text = page.Text,
 						Title = page.Title
@@ -431,7 +447,7 @@ namespace Scribe.Services
 				page.ModifiedOn = DateTime.UtcNow;
 			}
 
-			page.Status = view.Status;
+			page.ApprovalStatus = view.ApprovalStatus == ApprovalStatus.Pending ? ApprovalStatus.Pending : ApprovalStatus.None;
 			page.EditingById = null;
 			page.EditingOn = SqlDateTime.MinValue.Value;
 
@@ -443,10 +459,7 @@ namespace Scribe.Services
 
 		public UserView SaveUser(UserView view)
 		{
-			if (_user == null || !_user.InRole("Administrator"))
-			{
-				throw new UnauthorizedAccessException("You do not have the permission to be access users.");
-			}
+			VerifyAccess("You do not have the permission to be access users.", "administrator");
 
 			var user = _context.Users.FirstOrDefault(x => x.Id == view.Id);
 			if (user == null)
@@ -462,6 +475,51 @@ namespace Scribe.Services
 			_context.SaveChanges();
 
 			return user.ToView();
+		}
+
+		public PageView UpdatePage(PageUpdate update)
+		{
+			if ((update.Type.HasFlag(PageUpdateType.Approve) || update.Type.HasFlag(PageUpdateType.Reject)) &&
+				_user != null && !_user.InRole("Approver"))
+			{
+				throw new UnauthorizedAccessException("You do not have the permission to update this page.");
+			}
+
+			if ((update.Type == PageUpdateType.Publish || update.Type == PageUpdateType.Unpublish) &&
+				_user != null && !_user.InRole("Publisher"))
+			{
+				throw new UnauthorizedAccessException("You do not have the permission to update this page.");
+			}
+
+			var page = GetPageQuery().FirstOrDefault(x => x.Id == update.Id);
+			if (page == null)
+			{
+				throw new PageNotFoundException("Failed to find the page with that ID.");
+			}
+
+			if (update.Type.HasFlag(PageUpdateType.Pending))
+			{
+				page.ApprovalStatus = ApprovalStatus.Pending;
+			}
+			else if (update.Type.HasFlag(PageUpdateType.Approve))
+			{
+				page.ApprovalStatus = ApprovalStatus.Approved;
+			}
+			else if (update.Type.HasFlag(PageUpdateType.Reject))
+			{
+				page.ApprovalStatus = ApprovalStatus.Rejected;
+			}
+			else if (update.Type.HasFlag(PageUpdateType.Publish))
+			{
+				page.IsPublished = true;
+			}
+			else if (update.Type.HasFlag(PageUpdateType.Unpublish))
+			{
+				page.IsPublished = false;
+			}
+
+			_context.SaveChanges();
+			return page.ToView(_converter);
 		}
 
 		private PagedResults<T2> GetPagedResults<T1, T2>(IQueryable<T1> query, PagedRequest request, Func<T1, object> orderBy, Func<T1, T2> transform)
@@ -490,7 +548,7 @@ namespace Scribe.Services
 
 			if (_user == null && _settingsService.EnablePageApproval)
 			{
-				query = query.Where(x => x.Status == PageStatus.Approved);
+				query = query.Where(x => x.IsPublished);
 			}
 
 			return query;
@@ -523,8 +581,8 @@ namespace Scribe.Services
 				switch (item.Key.ToLower())
 				{
 					case "status":
-						var status = (PageStatus) Enum.Parse(typeof (PageStatus), item.Value);
-						query = query.Where(x => x.Status == status);
+						var status = (ApprovalStatus) Enum.Parse(typeof (ApprovalStatus), item.Value);
+						query = query.Where(x => x.ApprovalStatus == status);
 						break;
 
 					case "tags":
@@ -550,6 +608,14 @@ namespace Scribe.Services
 			}
 
 			page.EditingOn = DateTime.UtcNow;
+		}
+
+		private void VerifyAccess(string message, string role = null)
+		{
+			if (_user == null || (role != null && !_user.InRole(role)))
+			{
+				throw new UnauthorizedAccessException(message);
+			}
 		}
 
 		#endregion

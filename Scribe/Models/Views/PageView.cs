@@ -16,27 +16,32 @@ namespace Scribe.Models.Views
 
 		public PageView()
 		{
-			Id = 0;
+			ApprovalStatus = ApprovalStatus.None;
+			CreatedBy = string.Empty;
+			CreatedOn = DateTime.MinValue;
 			EditingBy = string.Empty;
 			Files = new List<FileView>();
 			Html = string.Empty;
+			Id = 0;
+			IsPublished = false;
 			LastModified = string.Empty;
 			ModifiedBy = string.Empty;
+			ModifiedOn = DateTime.MinValue;
 			Pages = new List<string>();
-			Status = PageStatus.None;
 			Tags = new List<string>();
 			Text = string.Empty;
 			Title = string.Empty;
-			TitleForLink = string.Empty;
 		}
 
 		#endregion
 
 		#region Properties
 
+		public ApprovalStatus ApprovalStatus { get; set; }
+
 		public string CreatedBy { get; set; }
 
-		public string CreatedOn { get; set; }
+		public DateTime CreatedOn { get; set; }
 
 		public string EditingBy { get; set; }
 
@@ -46,9 +51,11 @@ namespace Scribe.Models.Views
 
 		public int Id { get; set; }
 
+		public bool IsPublished { get; set; }
+
 		public string LastModified { get; set; }
 
-		public string Link => $"/Page/{Id}/{TitleForLink}";
+		public string Link => $"/Page/{Id}/{ConvertTitleForLink(Title)}";
 
 		public string ModifiedBy { get; set; }
 
@@ -56,16 +63,12 @@ namespace Scribe.Models.Views
 
 		public List<string> Pages { get; set; }
 
-		public PageStatus Status { get; set; }
-
 		public IEnumerable<string> Tags { get; set; }
 
 		public string Text { get; set; }
 
 		public string Title { get; set; }
-
-		public string TitleForLink { get; set; }
-
+		
 		#endregion
 
 		#region Methods
@@ -73,7 +76,7 @@ namespace Scribe.Models.Views
 		public static string ConvertTitleForLink(string title)
 		{
 			var regex = new Regex("[^a-zA-Z\\d]");
-			return HttpUtility.HtmlEncode(regex.Replace(title, ""));
+			return HttpUtility.HtmlEncode(regex.Replace(title ?? string.Empty, ""));
 		}
 
 		#endregion

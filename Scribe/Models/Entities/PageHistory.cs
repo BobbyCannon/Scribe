@@ -17,6 +17,11 @@ namespace Scribe.Models.Entities
 		#region Properties
 
 		/// <summary>
+		/// Gets or sets the approval status of the page.
+		/// </summary>
+		public ApprovalStatus ApprovalStatus { get; set; }
+
+		/// <summary>
 		/// Gets or sets the user who edited this version of the page.
 		/// </summary>
 		public virtual User EditedBy { get; set; }
@@ -42,11 +47,6 @@ namespace Scribe.Models.Entities
 		public int PageId { get; set; }
 
 		/// <summary>
-		/// Gets or sets the approval status of the page.
-		/// </summary>
-		public PageStatus Status { get; set; }
-
-		/// <summary>
 		/// Gets or sets the tags for the page, in the format ",tag1,tag2,tag3," (no spaces between tags).
 		/// </summary>
 		public string Tags { get; set; }
@@ -70,6 +70,7 @@ namespace Scribe.Models.Entities
 			return new PageHistorySummaryView
 			{
 				Id = Id,
+				ApprovalStatus = ApprovalStatus,
 				LastModified = DateTime.UtcNow.Subtract(EditedOn).ToTimeAgo(),
 				ModifiedBy = EditedBy.DisplayName,
 				Number = number

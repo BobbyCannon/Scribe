@@ -11,17 +11,22 @@
 				This page is currently being edited by {{ model.editingBy }}.
 			</small>
 		</div>
-		<div class="span12 text-right-then-center">
+		<div class="span12 text-right-then-center hideForPrint">
 			@if (Request.IsAuthenticated)
 			{
-				<a id="pageEditingByLink" class="hideForPrint" ng-href="/EditPage/{{ model.id }}/{{ model.titleForLink }}" ng-show="model.editingBy.length === 0 || model.editingBy == currentUser">Edit</a>
+				<a id="pageEditingByLink" ng-href="/EditPage/{{ model.id }}/{{ model.titleForLink }}" ng-show="model.editingBy.length === 0 || model.editingBy == currentUser">Edit</a>
+				<a id="pagePublishLink" class="clickable" ng-click="update('pending')" ng-show="model.approvalStatus === 'none'">Publish</a>
+				<a id="pageApproveLink" class="clickable" ng-click="update('approve')" ng-show="model.approvalStatus === 'pending' && userHasTag('approver')">Approve</a>
+				<a id="pageApproveLink" class="clickable" ng-click="update('reject')" ng-show="model.approvalStatus === 'pending'  && userHasTag('approver')">Reject</a>
+				<a id="pageApproveLink" class="clickable" ng-click="update('publish')" ng-show="model.approvalStatus === 'approved' && userHasTag('publisher') && !model.isPublished">Publish</a>
+				<a id="pageApproveLink" class="clickable" ng-click="update('unpublish')" ng-show="userHasTag('publisher') && model.isPublished">Unpublish</a>
 			}
 		</div>
 	</div>
 	<div id="pageContent">
 		@Html.Raw(Model.Html)
 	</div>
-	<div id="pageFooter" ng-show="model.id > 0">
+	<div id="pageFooter" class="hideForPrint" ng-show="model.id > 0">
 		<div class="darkGray pull-right">
 			<span ng-repeat="$tag in model.tags">
 				<a class="margin-0" ng-attr-id="{{ 'tag-' + $tag }}" ng-href="/PagesWithTag/{{ $tag }}">{{ $tag }}</a><span ng-show="$index < model.tags.length - 1">,</span>
@@ -32,10 +37,25 @@
 		@if (Request.IsAuthenticated)
 		{
 			<a id="pageEditingByLink2" ng-href="/EditPage/{{ model.id }}/{{ model.titleForLink }}" ng-show="model.editingBy.length === 0 || model.editingBy == currentUser">Edit</a>
+			<a id="pagePublishLink2" class="clickable" ng-click="update('pending')" ng-show="model.approvalStatus === 'none'">Publish</a>
+			<a id="pageApproveLink2" class="clickable" ng-click="update('approve')" ng-show="model.approvalStatus === 'pending' && userHasTag('approver')">Approve</a>
+			<a id="pageApproveLink2" class="clickable" ng-click="update('reject')" ng-show="model.approvalStatus === 'pending'  && userHasTag('approver')">Reject</a>
+			<a id="pageApproveLink2" class="clickable" ng-click="update('publish')" ng-show="model.approvalStatus === 'approved' && userHasTag('publisher') && !model.isPublished">Publish</a>
+			<a id="pageApproveLink2" class="clickable" ng-click="update('unpublish')" ng-show="userHasTag('publisher') && model.isPublished">Unpublish</a>
+
+			<span id="pageEditingBySpan" ng-show="model.editingBy.length > 0">
+				<br />This page is currently being edited by <span id="pageEditingBy">{{ model.editingBy }}</span>.
+			</span>
+			<span id="pagePublishPendingSpan" ng-show="model.approvalStatus === 'pending'">
+				<br />This page is currently waiting to be approved for publishing.
+			</span>
+			<span id="pagePublishApprovedSpan" ng-show="model.approvalStatus === 'approved' && !model.isPublished">
+				<br />This page is currently waiting to be approved for publishing.
+			</span>
+			<span id="pagePublishSpan" ng-show="model.isPublished">
+				<br />This page is currently published and viewable by guest.
+			</span>
 		}
-		<span id="pageEditingBySpan" ng-show="model.editingBy.length > 0">
-			<br />This page is currently being edited by <span id="pageEditingBy">{{ model.editingBy }}</span>.
-		</span>
 		<a id="pageUpdatedLink" class="clickable" ng-show="model.hasBeenUpdated" ng-click="reload()">The page has been updated. Click here to reload.</a>
 	</div>
 </div>
@@ -50,6 +70,55 @@
 
 				$scope.model = @(Html.Raw(Model.ToJson()));
 				$scope.currentUser = '@(Request.RequestContext.HttpContext.User.Identity.GetDisplayName())';
+				$scope.currentUserTags = '@(Html.Raw(Request.RequestContext.HttpContext.User.Identity.GetTags().ToJson()))';
+
+				$scope.userHasTag = function (tag) {
+					var index = $scope.currentUserTags.indexOf(tag);
+					return index >= 0;
+				}
+
+				$scope.update = function (status) {
+					var message = 'Are you sure you want to update this page?';
+
+					switch (status) {
+						case 'approve':
+							message = 'Are you sure you want to approve this page?';
+							break;
+
+						case 'reject':
+							message = 'Are you sure you want to reject this page?';
+							break;
+
+						case 'publish':
+							message = 'Are you sure you want to publish this page?';
+							break;
+
+						case 'unpublish':
+							message = 'Are you sure you want to unpublish this page?';
+							break;
+					}
+
+					if (!confirm(message)) {
+						return;
+					}
+
+					var update = {
+						id: $scope.model.id,
+						type: status
+					};
+
+					$http.post('/api/Service/UpdatePage', update)
+						.success(function (model) {
+							$scope.model = model;
+						})
+						.error(function (error) {
+							if (error.message) {
+								toastr.error(error.message);
+							} else {
+								toastr.error('There was issue updating the page.');
+							}
+						});
+				}
 
 				$scope.reload = function () {
 					$window.location.reload();
@@ -67,7 +136,7 @@
 					});
 				};
 
-				service.client.PageLockedForEdit = function (id, editorName) {
+				service.client.pageLockedForEdit = function (id, editorName) {
 					if ($scope.model.id !== id || editorName === $scope.currentUser) {
 						return;
 					}

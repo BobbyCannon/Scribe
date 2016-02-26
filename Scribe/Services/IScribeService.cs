@@ -30,6 +30,7 @@ namespace Scribe.Services
 		int SaveFile(FileView view);
 		PageView SavePage(PageView view);
 		UserView SaveUser(UserView view);
+		PageView UpdatePage(PageUpdate update);
 
 		#endregion
 	}

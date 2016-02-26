@@ -7,6 +7,7 @@ using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Scribe.Data;
+using Scribe.Models.Data;
 using Scribe.Models.Entities;
 using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
@@ -59,10 +60,16 @@ namespace Scribe.UnitTests
 			return context.Files.First(x => x.Id == id);
 		}
 
-		public static Page AddPage(IScribeContext context, string title, string content, User user, PageStatus status, params string[] tags)
+		public static Page AddPage(IScribeContext context, string title, string content, User user, ApprovalStatus status, bool published = false, params string[] tags)
 		{
 			var service = new ScribeService(context, null, null, user);
-			var view = service.SavePage(new PageView { Status = status, Title = title, Text = content, Tags = tags });
+			var view = service.SavePage(new PageView { ApprovalStatus = status, Title = title, Text = content, Tags = tags });
+
+			if (published)
+			{
+				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Publish });
+			}
+
 			return context.Pages.First(x => x.Id == view.Id);
 		}
 

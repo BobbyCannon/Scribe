@@ -64,6 +64,12 @@
 .green-bg {
   background-color: #35aa47; }
 
+.darkGreen {
+  color: #17491e; }
+
+.darkGreen-bg {
+  background-color: #17491e; }
+
 .orange {
   color: #ff9000; }
 
@@ -1606,6 +1612,44 @@ button {
       button.green:disabled:hover {
         background-color: #999;
         color: #f5f5f5; }
+  a.button.darkGreen,
+  input[type=button].darkGreen,
+  input[type=submit].darkGreen,
+  input[type=reset].darkGreen,
+  button.darkGreen {
+    background-color: #17491e;
+    color: #fff;
+    border-color: #17491e; }
+    a.button.darkGreen:hover,
+    input[type=button].darkGreen:hover,
+    input[type=submit].darkGreen:hover,
+    input[type=reset].darkGreen:hover,
+    button.darkGreen:hover {
+      background-color: #081a0b; }
+    a.button.darkGreen.disabled, a.button.darkGreen:disabled,
+    input[type=button].darkGreen.disabled,
+    input[type=button].darkGreen:disabled,
+    input[type=submit].darkGreen.disabled,
+    input[type=submit].darkGreen:disabled,
+    input[type=reset].darkGreen.disabled,
+    input[type=reset].darkGreen:disabled,
+    button.darkGreen.disabled,
+    button.darkGreen:disabled {
+      background-color: #999;
+      border-color: #999;
+      color: #f5f5f5;
+      cursor: not-allowed; }
+      a.button.darkGreen.disabled:hover, a.button.darkGreen:disabled:hover,
+      input[type=button].darkGreen.disabled:hover,
+      input[type=button].darkGreen:disabled:hover,
+      input[type=submit].darkGreen.disabled:hover,
+      input[type=submit].darkGreen:disabled:hover,
+      input[type=reset].darkGreen.disabled:hover,
+      input[type=reset].darkGreen:disabled:hover,
+      button.darkGreen.disabled:hover,
+      button.darkGreen:disabled:hover {
+        background-color: #999;
+        color: #f5f5f5; }
   a.button.orange,
   input[type=button].orange,
   input[type=submit].orange,
@@ -2428,11 +2472,17 @@ div.preview {
   #pageHeader > div:last-of-type {
     padding:  12px;
     padding:  0.75rem; }
+  #pageHeader a {
+    display: inline-block;
+    margin-left: 16px; }
 
 #pageFooter {
-  color: #00385d; }
+  color: #00385d;
+  margin-top:  20px;
+  margin-top:  1.25rem; }
   #pageFooter a {
-    margin-left: 10px; }
+    display: inline-block;
+    margin-left: 16px; }
 
 #pageUpdatedLink {
   background: #f5f5f5;

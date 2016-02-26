@@ -59,34 +59,40 @@ namespace Scribe.Website.Controllers.API
 			_service.DeleteTag(name);
 		}
 
+		[AllowAnonymous]
 		public FileView GetFile(int id, bool includeData = false)
 		{
 			return _service.GetFile(id, includeData);
 		}
 
+		[AllowAnonymous]
 		public FileView GetFile(string name, bool includeData = false)
 		{
 			return _service.GetFile(name, includeData);
 		}
 
 		[HttpPost]
+		[AllowAnonymous]
 		public PagedResults<FileView> GetFiles(PagedRequest request = null)
 		{
 			return _service.GetFiles(request);
 		}
 
+		[AllowAnonymous]
 		public PageView GetPage(int id, bool includeHistory = false)
 		{
 			return _service.GetPage(id, includeHistory);
 		}
 
 		[HttpPost]
+		[AllowAnonymous]
 		public PagedResults<PageView> GetPages(PagedRequest request = null)
 		{
 			return _service.GetPages(request);
 		}
 
 		[HttpPost]
+		[AllowAnonymous]
 		public PagedResults<TagView> GetTags(PagedRequest request = null)
 		{
 			return _service.GetTags(request);
@@ -147,6 +153,12 @@ namespace Scribe.Website.Controllers.API
 		public UserView SaveUser(UserView view)
 		{
 			return _service.SaveUser(view);
+		}
+
+		[HttpPost]
+		public PageView UpdatePage(PageUpdate update)
+		{
+			return _service.UpdatePage(update);
 		}
 
 		#endregion

@@ -98,6 +98,7 @@ namespace Scribe.Website.Services
 			}
 
 			EnsureFieldsExist(document);
+
 			var createdOn = DateTime.UtcNow;
 			if (!DateTime.TryParse(document.GetField("createdon").StringValue, out createdOn))
 			{
@@ -108,16 +109,16 @@ namespace Scribe.Website.Services
 
 			return new SearchResultView
 			{
-				Id = int.Parse(document.GetField("id").StringValue),
-				Title = title,
-				TitleForLink = PageView.ConvertTitleForLink(title),
-				ContentSummary = document.GetField("contentsummary").StringValue,
-				Tags = document.GetField("tags").StringValue.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).Distinct(),
-				CreatedBy = document.GetField("createdby").StringValue,
 				ContentLength = int.Parse(document.GetField("contentlength").StringValue),
+				ContentSummary = document.GetField("contentsummary").StringValue,
+				CreatedBy = document.GetField("createdby").StringValue,
+				CreatedOn = createdOn,
+				Id = int.Parse(document.GetField("id").StringValue),
+				IsPublished = bool.Parse(document.GetField("isPublished").StringValue),
 				Status = document.GetField("status").StringValue,
 				Score = scoreDoc.Score,
-				CreatedOn = createdOn
+				Tags = document.GetField("tags").StringValue.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).Distinct(),
+				Title = title
 			};
 		}
 
@@ -211,7 +212,7 @@ namespace Scribe.Website.Services
 							var document = searcher.Doc(scoreDoc.Doc);
 							var result = Create(document, scoreDoc);
 
-							if (_user == null && _settings.EnablePageApproval && result.Status != "Approved")
+							if (_user == null && _settings.EnablePageApproval && result.IsPublished)
 							{
 								continue;
 							}
@@ -247,15 +248,16 @@ namespace Scribe.Website.Services
 			var tags = string.Join(", ", model.Tags);
 
 			var document = new Document();
-			document.Add(new Field("id", model.Id.ToString(), Field.Store.YES, Field.Index.ANALYZED));
 			document.Add(new Field("content", content, Field.Store.YES, Field.Index.ANALYZED));
-			document.Add(new Field("contentsummary", GetContentSummary(content), Field.Store.YES, Field.Index.NO));
-			document.Add(new Field("title", model.Title, Field.Store.YES, Field.Index.ANALYZED));
-			document.Add(new Field("tags", tags, Field.Store.YES, Field.Index.ANALYZED));
-			document.Add(new Field("status", model.Status.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
-			document.Add(new Field("createdby", model.CreatedBy, Field.Store.YES, Field.Index.NOT_ANALYZED));
-			document.Add(new Field("createdon", model.CreatedOn, Field.Store.YES, Field.Index.NOT_ANALYZED));
 			document.Add(new Field("contentlength", content.Length.ToString(), Field.Store.YES, Field.Index.NO));
+			document.Add(new Field("contentsummary", GetContentSummary(content), Field.Store.YES, Field.Index.NO));
+			document.Add(new Field("createdby", model.CreatedBy, Field.Store.YES, Field.Index.NOT_ANALYZED));
+			document.Add(new Field("createdon", model.CreatedOn.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+			document.Add(new Field("id", model.Id.ToString(), Field.Store.YES, Field.Index.ANALYZED));
+			document.Add(new Field("isPublished", model.IsPublished.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+			document.Add(new Field("status", model.ApprovalStatus.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+			document.Add(new Field("tags", tags, Field.Store.YES, Field.Index.ANALYZED));
+			document.Add(new Field("title", model.Title, Field.Store.YES, Field.Index.ANALYZED));
 
 			writer.AddDocument(document);
 			writer.Optimize();
@@ -280,14 +282,16 @@ namespace Scribe.Website.Services
 		private void EnsureFieldsExist(Document document)
 		{
 			var fields = document.GetFields();
-			EnsureFieldExists(fields, "id");
-			EnsureFieldExists(fields, "title");
-			EnsureFieldExists(fields, "contentsummary");
-			EnsureFieldExists(fields, "tags");
-			EnsureFieldExists(fields, "status");
-			EnsureFieldExists(fields, "createdby");
+			EnsureFieldExists(fields, "content");
 			EnsureFieldExists(fields, "contentlength");
+			EnsureFieldExists(fields, "contentsummary");
+			EnsureFieldExists(fields, "createdby");
 			EnsureFieldExists(fields, "createdon");
+			EnsureFieldExists(fields, "id");
+			EnsureFieldExists(fields, "isPublished");
+			EnsureFieldExists(fields, "status");
+			EnsureFieldExists(fields, "title");
+			EnsureFieldExists(fields, "tags");
 		}
 
 		/// <summary>

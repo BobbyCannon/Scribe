@@ -23,6 +23,7 @@ namespace Scribe.Website
 			routes.MapRoute("Tags", "Tags", new { controller = "Page", action = "Tags" });
 			routes.MapRoute("Setup", "Setup", new { controller = "Page", action = "Setup" });
 			routes.MapRoute("About", "About", new { controller = "Page", action = "About" });
+			routes.MapRoute("Manual", "Manual", new { controller = "Page", action = "Manual" });
 			routes.MapRoute("RenameTag", "RenameTag", new { controller = "Page", action = "RenameTag" });
 			routes.MapRoute("GetPreview", "GetPreview", new { controller = "Page", action = "Preview" });
 			routes.MapRoute("EditPage", "EditPage/{id}/{title}", new { controller = "Page", action = "Edit", id = UrlParameter.Optional, title = UrlParameter.Optional });
