@@ -10,9 +10,9 @@
 <table class="expand striped">
 	<thead>
 		<tr>
-			<th>version</th>
-			<th>modified on</th>
-			<th>modified by</th>
+			<th class="cellSmall">version</th>
+			<th class="cellLarge">modified by</th>
+			<th class="cellMedium">modified on</th>
 			<th>approved</th>
 		</tr>
 	</thead>
@@ -21,8 +21,8 @@
 		{
 			<tr>
 				<td>@Html.ActionLink(version.Number.ToString(), "Difference", new { id = version.Id, title = Model.TitleForLink })</td>
-				<td>@version.LastModified ago</td>
 				<td>@version.ModifiedBy</td>
+				<td>@version.LastModified ago</td>
 				<td>
 					@if (version.ApprovalStatus != ApprovalStatus.None)
 					{

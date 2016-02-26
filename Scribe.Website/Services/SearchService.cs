@@ -212,7 +212,7 @@ namespace Scribe.Website.Services
 							var document = searcher.Doc(scoreDoc.Doc);
 							var result = Create(document, scoreDoc);
 
-							if (_user == null && _settings.EnablePageApproval && result.IsPublished)
+							if (_user == null && _settings.EnablePageApproval && !result.IsPublished)
 							{
 								continue;
 							}

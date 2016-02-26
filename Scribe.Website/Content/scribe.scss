@@ -291,6 +291,26 @@ a {
 	}
 }
 
+.cellTiny {
+	@include rem-units(width, 80);
+	@include rem-units(max-width, 80);
+}
+
+.cellSmall {
+	@include rem-units(width, 120);
+	@include rem-units(max-width, 120);
+}
+
+.cellMedium {
+	@include rem-units(width, 160);
+	@include rem-units(max-width, 160);
+}
+
+.cellLarge {
+	@include rem-units(width, 200);
+	@include rem-units(max-width, 200);
+}
+
 @for $i from 1 through 24 {
 	.cell#{$i} {
 		@include border-box();
@@ -406,7 +426,7 @@ button {
 	border: 1px solid $gray;
 	color: $blackish;
 	cursor: pointer;
-	line-height: 1.2em;
+	line-height: 1em;
 	@include rem-units(padding, 8 12);
 	@include rem-units(font-size, 16);
 	@include rem-units(height, 36);
@@ -531,6 +551,12 @@ table {
 			&.snug {
 				width: 1px;
 				white-space: nowrap;
+			}
+
+			&.noWrap {
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
 			}
 		}
 	}
@@ -869,8 +895,8 @@ div.tag {
 	border: 1px solid $darkBlue;
 	color: $white;
 	cursor: pointer;
-	line-height: 1.2em;
-	@include rem-units(padding, 6 12);
+	line-height: 1em;
+	@include rem-units(padding, 8 12);
 	@include rem-units(font-size, 16);
 	@include rem-units(height, 36);
 	@include rem-units(min-height, 36);

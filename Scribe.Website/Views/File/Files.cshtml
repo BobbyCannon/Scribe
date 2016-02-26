@@ -4,21 +4,23 @@
 	ViewBag.Title = "Files";
 }
 <div ng-controller="controller" ng-cloak>
-	<table class="expand striped files">
+	<input id="filter" ng-model="input.filter" class="pull-right" type="text" title="filter" placeholder="filter" />
+	<h1>All Files</h1>
+	<table class="expand striped">
 		<thead>
 			<tr>
 				<th>name</th>
-				<th>type</th>
-				<th>size</th>
-				<th></th>
+				<th class="cellLarge">type</th>
+				<th class="cellSmall">size</th>
+				<th class="cellSmall"></th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="$file in model.results">
+			<tr ng-repeat="$file in model.results | filter:input.filter">
 				<td>
 					<a href="/file?name={{$file.name}}" target="blank">{{$file.name}}</a>
 				</td>
-				<td>{{$file.type}}</td>
+				<td class="cellLarge noWrap" title="{{$file.type}}">{{$file.type}}</td>
 				<td>{{$file.size}}</td>
 				<td>
 					<a href="#" ng-validation-message="Are you sure you want to remove the file ({{$file.name}})?" ng-validated-click="delete($index, $file)">delete</a>

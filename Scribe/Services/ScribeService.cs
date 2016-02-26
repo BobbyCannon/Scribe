@@ -194,7 +194,7 @@ namespace Scribe.Services
 				query = query.Where(x => x.Name.Contains(request.Filter));
 			}
 
-			return GetPagedResults(query, request, x => x.Id, x => new FileView
+			return GetPagedResults(query, request, x => x.Name, x => new FileView
 			{
 				Id = x.Id,
 				Name = x.Name,
