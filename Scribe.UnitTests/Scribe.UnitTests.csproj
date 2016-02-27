@@ -48,8 +48,8 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Interop.UIAutomationClient, Version=12.0.21213.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\TestR.PowerShell.0.8.5901.23188\lib\net40\Interop.UIAutomationClient.dll</HintPath>
+    <Reference Include="Interop.UIAutomationClient, Version=10.0.0.0, Culture=neutral, PublicKeyToken=365143bb27e7ac8b, processorArchitecture=MSIL">
+      <HintPath>..\packages\TestR.PowerShell.0.8.5901.31996\lib\net40\Interop.UIAutomationClient.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="KellermanSoftware.Compare-NET-Objects, Version=3.3.0.0, Culture=neutral, PublicKeyToken=d970ace04cc85217, processorArchitecture=MSIL">
@@ -89,12 +89,12 @@
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="TestR, Version=0.8.5901.23188, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\TestR.PowerShell.0.8.5901.23188\lib\net40\TestR.dll</HintPath>
+    <Reference Include="TestR, Version=0.8.5901.31996, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TestR.PowerShell.0.8.5901.31996\lib\net40\TestR.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="TestR.PowerShell, Version=0.8.5901.23188, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\TestR.PowerShell.0.8.5901.23188\lib\net40\TestR.PowerShell.dll</HintPath>
+    <Reference Include="TestR.PowerShell, Version=0.8.5901.31996, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TestR.PowerShell.0.8.5901.31996\lib\net40\TestR.PowerShell.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>

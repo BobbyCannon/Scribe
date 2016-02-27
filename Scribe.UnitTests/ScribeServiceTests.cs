@@ -763,7 +763,7 @@ namespace Scribe.UnitTests
 				Assert.AreEqual(1, actual.Page);
 				Assert.AreEqual(1, actual.TotalCount);
 				Assert.AreEqual(1, actual.Results.Count());
-				Assert.AreEqual("John Doe", actual.Results.First().UserName);
+				Assert.AreEqual("JohnDoe", actual.Results.First().UserName);
 			}
 		}
 
@@ -785,7 +785,7 @@ namespace Scribe.UnitTests
 				Assert.AreEqual(1, actual.Page);
 				Assert.AreEqual(1, actual.TotalCount);
 				Assert.AreEqual(1, actual.Results.Count());
-				Assert.AreEqual("Jane Smith", actual.Results.First().UserName);
+				Assert.AreEqual("JaneSmith", actual.Results.First().UserName);
 			}
 		}
 
