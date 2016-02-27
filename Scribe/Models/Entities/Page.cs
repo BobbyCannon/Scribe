@@ -133,7 +133,8 @@ namespace Scribe.Models.Entities
 				ModifiedBy = ModifiedBy.DisplayName,
 				ModifiedOn = ModifiedOn,
 				Tags = Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().OrderBy(x => x),
-				Title = Title
+				Title = Title,
+				TitleForLink = PageView.ConvertTitleForLink(Title)
 			};
 		}
 
@@ -156,6 +157,7 @@ namespace Scribe.Models.Entities
 				Tags = Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().OrderBy(x => x),
 				Text = Text,
 				Title = Title,
+				TitleForLink = PageView.ConvertTitleForLink(Title)
 			};
 		}
 

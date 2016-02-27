@@ -293,7 +293,7 @@ namespace Scribe.UnitTests
 		{
 			using (var context = TestHelper.GetContext())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
 				TestHelper.AddSettings(context, user, new SettingsView { EnablePageApproval = true });
 				TestHelper.AddPage(context, "Front Page1", "Hello World1", user, ApprovalStatus.None, false, "homepage");
 				var page2 = TestHelper.AddPage(context, "Front Page2", "Hello World2", user, ApprovalStatus.Approved, true, "homepage");
@@ -354,6 +354,85 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
+		public void GetPagesFilterUsingStatusOfApproved()
+		{
+			var provider = TestHelper.GetContextProvider();
+
+			using (var context = provider.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver");
+				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				TestHelper.AddPage(context, "Page1", "Hello World", user, ApprovalStatus.None, false, "Tag1", "Tag2", "Tag3");
+				TestHelper.AddPage(context, "Page2", "Hello World", user, ApprovalStatus.Pending, false, "Tag1", "Tag2");
+				TestHelper.AddPage(context, "Page3", "Hello World", user, ApprovalStatus.Approved, false, "Tag1", "Tag3");
+				context.SaveChanges();
+
+				var path = Path.GetTempPath() + "ScribeTests";
+				var searchService = new SearchService(context, path, john);
+				var service = new ScribeService(context, null, searchService, john);
+				var actual = service.GetPages(new PagedRequest("Status=Approved"));
+
+				Assert.AreEqual("Status=Approved", actual.Filter);
+				Assert.AreEqual(1, actual.Results.Count());
+				Assert.AreEqual("Page3", actual.Results.First().Title);
+			}
+		}
+
+		[TestMethod]
+		public void GetPagesFilterUsingStatusOfPending()
+		{
+			var provider = TestHelper.GetContextProvider();
+
+			using (var context = provider.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver");
+				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				TestHelper.AddPage(context, "Page1", "Hello World", user, ApprovalStatus.None, false, "Tag1", "Tag2", "Tag3");
+				TestHelper.AddPage(context, "Page2", "Hello World", user, ApprovalStatus.Pending, false, "Tag1", "Tag2");
+				TestHelper.AddPage(context, "Page3", "Hello World", user, ApprovalStatus.Approved, false, "Tag1", "Tag3");
+				context.SaveChanges();
+
+				var path = Path.GetTempPath() + "ScribeTests";
+				var searchService = new SearchService(context, path, john);
+				var service = new ScribeService(context, null, searchService, john);
+				var actual = service.GetPages(new PagedRequest("Status=Pending"));
+
+				Assert.AreEqual("Status=Pending", actual.Filter);
+				Assert.AreEqual(1, actual.Results.Count());
+				Assert.AreEqual("Page2", actual.Results.First().Title);
+			}
+		}
+
+		[TestMethod]
+		public void GetPagesFilterUsingTag()
+		{
+			var provider = TestHelper.GetContextProvider();
+
+			using (var context = provider.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				TestHelper.AddPage(context, "Page1", "Hello World", john, ApprovalStatus.None, false, "Tag1", "Tag2", "Tag3");
+				TestHelper.AddPage(context, "Page2", "Hello World", john, ApprovalStatus.None, false, "Tag1", "Tag2");
+				TestHelper.AddPage(context, "Page3", "Hello World", john, ApprovalStatus.None, false, "Tag1", "Tag3");
+				context.SaveChanges();
+
+				var path = Path.GetTempPath() + "ScribeTests";
+				var searchService = new SearchService(context, path, john);
+				var service = new ScribeService(context, null, searchService, john);
+				var actual = service.GetPages(new PagedRequest("Tags=Tag3"));
+
+				Assert.AreEqual("Tags=Tag3", actual.Filter);
+				Assert.AreEqual(2, actual.Results.Count());
+				Assert.AreEqual("Page1", actual.Results.First().Title);
+				Assert.AreEqual("Page3", actual.Results.Last().Title);
+			}
+		}
+
+		[TestMethod]
 		public void GetPagesShouldNotReturnDeletedPages()
 		{
 			using (var context = TestHelper.GetContext())
@@ -379,7 +458,7 @@ namespace Scribe.UnitTests
 		{
 			using (var context = TestHelper.GetContext())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
 				var settings = new SettingsView { EnablePageApproval = true, LdapConnectionString = string.Empty };
 				TestHelper.AddSettings(context, user, settings);
 				TestHelper.AddPage(context, "Hello Page", "Hello World", user, ApprovalStatus.None, false, "myTag");
@@ -647,29 +726,66 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
-		public void PagesWithTag()
+		public void GetUsers()
 		{
 			var provider = TestHelper.GetContextProvider();
 
 			using (var context = provider.GetContext())
 			{
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", john, ApprovalStatus.None, false, "Tag1", "Tag2", "Tag3");
-				TestHelper.AddPage(context, "Page2", "Hello World", john, ApprovalStatus.None, false, "Tag1", "Tag2");
-				TestHelper.AddPage(context, "Page3", "Hello World", john, ApprovalStatus.None, false, "Tag1", "Tag3");
 				context.SaveChanges();
 
-				var path = Path.GetTempPath() + "ScribeTests";
-				var searchService = new SearchService(context, path, john);
-				var service = new ScribeService(context, null, searchService, john);
-				var actual = service.GetPages(new PagedRequest("Tags=Tag3"));
+				var service = new ScribeService(context, null, null, user);
+				var actual = service.GetUsers();
 
-				Assert.AreEqual("Tags=Tag3", actual.Filter);
-				Assert.AreEqual(2, actual.Results.Count());
-				Assert.AreEqual("Page1", actual.Results.First().Title);
-				Assert.AreEqual("Page3", actual.Results.Last().Title);
+				Assert.AreEqual(1, actual.Page);
+				Assert.AreEqual(1, actual.TotalCount);
+				Assert.AreEqual(1, actual.Results.Count());
+				Assert.AreEqual("Administrator", actual.Results.First().UserName);
+			}
+		}
+
+		[TestMethod]
+		public void GetUsersFilterUsingTag()
+		{
+			var provider = TestHelper.GetContextProvider();
+
+			using (var context = provider.GetContext())
+			{
+				var user1 = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddUser(context, "John Doe", "Password1", "foo");
+				TestHelper.AddUser(context, "Jane Smith", "Password2", "bar");
+				context.SaveChanges();
+
+				var service = new ScribeService(context, null, null, user1);
+				var actual = service.GetUsers(new PagedRequest("Tags=foo"));
+
+				Assert.AreEqual(1, actual.Page);
+				Assert.AreEqual(1, actual.TotalCount);
+				Assert.AreEqual(1, actual.Results.Count());
+				Assert.AreEqual("John Doe", actual.Results.First().UserName);
+			}
+		}
+
+		[TestMethod]
+		public void GetUsersFilterUsingUserName()
+		{
+			var provider = TestHelper.GetContextProvider();
+
+			using (var context = provider.GetContext())
+			{
+				var user1 = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddUser(context, "John Doe", "Password1", "foo");
+				TestHelper.AddUser(context, "Jane Smith", "Password2", "bar");
+				context.SaveChanges();
+
+				var service = new ScribeService(context, null, null, user1);
+				var actual = service.GetUsers(new PagedRequest("UserName=Jane"));
+
+				Assert.AreEqual(1, actual.Page);
+				Assert.AreEqual(1, actual.TotalCount);
+				Assert.AreEqual(1, actual.Results.Count());
+				Assert.AreEqual("Jane Smith", actual.Results.First().UserName);
 			}
 		}
 
@@ -695,6 +811,86 @@ namespace Scribe.UnitTests
 				var actual = service.GetTags().Results.Select(x => x.Tag).ToArray();
 				Assert.AreEqual(3, actual.Length);
 				TestHelper.AreEqual(new[] { "Tag1", "Tag3", "TagTwo" }, actual);
+			}
+		}
+
+		[TestMethod]
+		public void SavePage()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "John Doe", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				context.SaveChanges();
+
+				var input = new PageView { Text = "The quick brown fox jumped over the lazy dogs back.", Title = "Title" };
+				var service = new ScribeService(context, null, null, user);
+				var actualView = service.SavePage(input);
+
+				Assert.AreEqual(input.Title, actualView.Title);
+				Assert.AreEqual(input.Text, actualView.Text);
+
+				var actualEntity = context.Pages.First();
+				Assert.AreEqual(input.Title, actualEntity.Title);
+				Assert.AreEqual(input.Text, actualEntity.Text);
+			}
+		}
+
+		[TestMethod]
+		public void SavePageForHistory()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "John Doe", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				context.SaveChanges();
+
+				var input = new PageView { Text = "The quick brown fox jumped over the lazy dogs back.", Title = "Title" };
+				var service = new ScribeService(context, null, null, user);
+				var actualView = service.SavePage(input);
+
+				Assert.AreEqual(input.Title, actualView.Title);
+				Assert.AreEqual(input.Text, actualView.Text);
+
+				var actualEntity = context.Pages.First();
+				Assert.AreEqual(input.Title, actualEntity.Title);
+				Assert.AreEqual(input.Text, actualEntity.Text);
+				Assert.AreEqual(0, actualEntity.History.Count);
+
+				input.Id = actualEntity.Id;
+				input.Text = "Boom, nope.";
+
+				actualView = service.SavePage(input);
+				Assert.AreEqual(input.Title, actualView.Title);
+				Assert.AreEqual(input.Text, actualView.Text);
+				Assert.AreEqual(1, actualEntity.History.Count);
+			}
+		}
+
+		[TestMethod]
+		public void SaveUser()
+		{
+			var provider = TestHelper.GetContextProvider();
+
+			using (var context = provider.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "John Doe", "Password!", "administrator");
+				context.SaveChanges();
+
+				var service = new ScribeService(context, null, null, user);
+				var view = service.GetUser(user.Id);
+
+				view.DisplayName = "Jane Smith";
+				view.UserName = "JaneSmith";
+				view.Tags = new[] { "approver", "publisher" };
+
+				var actual = service.SaveUser(view);
+
+				Assert.AreEqual("Jane Smith", actual.DisplayName);
+				Assert.AreEqual("JaneSmith", actual.UserName);
+				Assert.AreEqual(2, actual.Tags.Count());
+				Assert.AreEqual("approver", actual.Tags.First());
+				Assert.AreEqual("publisher", actual.Tags.Last());
 			}
 		}
 

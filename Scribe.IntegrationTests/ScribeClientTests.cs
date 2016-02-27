@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Scribe.Models.Data;
+using Scribe.Models.Enumerations;
 using Scribe.Services;
 
 #endregion
@@ -55,7 +56,7 @@ namespace Scribe.IntegrationTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				context.SaveChanges();
 
 				var client = new ScribeClient(TestSite, TestService);
@@ -80,7 +81,7 @@ namespace Scribe.IntegrationTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				context.SaveChanges();
 
 				var client = new ScribeClient(TestSite, TestService);
@@ -98,7 +99,7 @@ namespace Scribe.IntegrationTests
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
 				TestHelper.AddDefaultSettings(context, user);
 				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Hello Page", "Hello World", john, "myTag");
+				TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				context.SaveChanges();
 			}
 
@@ -107,6 +108,26 @@ namespace Scribe.IntegrationTests
 			var pages = client.GetPages().Results.ToList();
 			Assert.AreEqual(1, pages.Count);
 			Assert.AreEqual("Hello Page", pages[0].Title);
+		}
+
+		[TestMethod]
+		public void GetPagesUsingFilter()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				TestHelper.AddPage(context, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
+				context.SaveChanges();
+			}
+
+			var client = new ScribeClient(TestSite, TestService);
+			client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
+			var pages = client.GetPages(new PagedRequest("Tags=anotherTag")).Results.ToList();
+			Assert.AreEqual(1, pages.Count);
+			Assert.AreEqual("Another Page 2", pages[0].Title);
 		}
 
 		#endregion

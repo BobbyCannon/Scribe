@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -12,6 +13,7 @@ namespace Scribe.Web
 	/// <summary>
 	/// This class is used for making GET and POST calls to an HTTP endpoint.
 	/// </summary>
+	[ExcludeFromCodeCoverage]
 	public class HttpHelper
 	{
 		#region Constructors

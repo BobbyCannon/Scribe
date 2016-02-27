@@ -4,10 +4,10 @@
 	ViewBag.Title = "All Pages";
 }
 <div ng-controller="controller" ng-cloak>
-	<input id="pageFilter" ng-model="input.pageFilter" class="pull-right" type="text" title="filter" placeholder="filter" />
+	<input id="filter" ng-model="input.filter" class="pull-right" type="text" title="filter" placeholder="filter" />
 	<h1>All Pages</h1>
-	<table class="expand striped">
-		<thead>
+	<table id="pages" class="expand striped">
+		<thead id="pagesHead">
 			<tr>
 				<th>
 					<a href="#" ng-click="predicate='title'; reverse=!reverse">name</a>
@@ -44,8 +44,8 @@
 				}
 			</tr>
 		</thead>
-		<tbody>
-			<tr ng-repeat="$item in model.results | filter:input.pageFilter | orderBy:predicate:reverse">
+		<tbody id="pagesBody">
+			<tr ng-repeat="$item in model.results | filter:input.filter | orderBy:predicate:reverse">
 				<td>
 					<a ng-href="/Page/{{$item.id}}/{{$item.titleForLink}}">{{$item.title}}</a>
 				</td>

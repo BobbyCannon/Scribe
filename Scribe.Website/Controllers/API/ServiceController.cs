@@ -60,40 +60,40 @@ namespace Scribe.Website.Controllers.API
 		}
 
 		[AllowAnonymous]
-		public FileView GetFile(int id, bool includeData = false)
+		public FileView GetFile(int id, bool includeData)
 		{
 			return _service.GetFile(id, includeData);
 		}
 
 		[AllowAnonymous]
-		public FileView GetFile(string name, bool includeData = false)
+		public FileView GetFile(string name, bool includeData)
 		{
 			return _service.GetFile(name, includeData);
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
-		public PagedResults<FileView> GetFiles(PagedRequest request = null)
+		public PagedResults<FileView> GetFiles(PagedRequest request)
 		{
 			return _service.GetFiles(request);
 		}
 
 		[AllowAnonymous]
-		public PageView GetPage(int id, bool includeHistory = false)
+		public PageView GetPage(int id, bool includeHistory)
 		{
 			return _service.GetPage(id, includeHistory);
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
-		public PagedResults<PageView> GetPages(PagedRequest request = null)
+		public PagedResults<PageView> GetPages(PagedRequest request)
 		{
 			return _service.GetPages(request);
 		}
 
 		[HttpPost]
 		[AllowAnonymous]
-		public PagedResults<TagView> GetTags(PagedRequest request = null)
+		public PagedResults<TagView> GetTags(PagedRequest request)
 		{
 			return _service.GetTags(request);
 		}
@@ -106,7 +106,7 @@ namespace Scribe.Website.Controllers.API
 
 		[HttpPost]
 		[Authorize(Roles = "Administrator")]
-		public PagedResults<UserView> GetUsers(PagedRequest request = null)
+		public PagedResults<UserView> GetUsers(PagedRequest request)
 		{
 			return _service.GetUsers(request);
 		}

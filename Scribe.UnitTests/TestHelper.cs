@@ -65,6 +65,17 @@ namespace Scribe.UnitTests
 			var service = new ScribeService(context, null, null, user);
 			var view = service.SavePage(new PageView { ApprovalStatus = status, Title = title, Text = content, Tags = tags });
 
+			switch (status)
+			{
+				case ApprovalStatus.Approved:
+					service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Approve });
+					break;
+
+				case ApprovalStatus.Rejected:
+					service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Reject });
+					break;
+			}
+
 			if (published)
 			{
 				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Publish });
@@ -84,7 +95,7 @@ namespace Scribe.UnitTests
 			var user = new User
 			{
 				DisplayName = userName,
-				UserName = userName,
+				UserName = userName.Replace(" ", ""),
 				EmailAddress = $"{userName}@domain.com",
 				Tags = $",{string.Join(",", roles)},"
 			};

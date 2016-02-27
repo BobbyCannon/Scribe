@@ -55,8 +55,6 @@ namespace Scribe.Models.Views
 
 		public string LastModified { get; set; }
 
-		public string Link => $"/Page/{Id}/{ConvertTitleForLink(Title)}";
-
 		public string ModifiedBy { get; set; }
 
 		public DateTime ModifiedOn { get; set; }
@@ -68,7 +66,9 @@ namespace Scribe.Models.Views
 		public string Text { get; set; }
 
 		public string Title { get; set; }
-		
+
+		public string TitleForLink { get; set; }
+
 		#endregion
 
 		#region Methods

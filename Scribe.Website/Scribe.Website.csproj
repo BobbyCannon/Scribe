@@ -214,8 +214,7 @@
     </None>
     <None Include="Properties\PublishProfiles\deployment.pubxml" />
     <None Include="Properties\PublishProfiles\localhost.pubxml" />
-    <None Include="Scripts\jquery-2.2.0.intellisense.js" />
-    <Content Include="Scripts\jquery-2.2.0.js" />
+    <Content Include="Scripts\jquery-2.2.1.js" />
     <Content Include="Scripts\jquery.fieldSelection.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.js" />
     <Content Include="Scripts\scribe.js" />

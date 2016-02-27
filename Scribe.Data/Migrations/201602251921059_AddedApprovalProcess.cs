@@ -43,6 +43,7 @@ namespace Scribe.Data.Migrations
 			AddColumn("dbo.Settings", "ModifiedOn", c => c.DateTime(false, 7, storeType: "datetime2"));
 			AlterColumn("dbo.Pages", "Text", c => c.String(false));
 			Sql("UPDATE [Users] SET [Tags] = [Roles]");
+			Sql("UPDATE [Users] SET Tags = REPLACE(Tags, ',Administrator,', ',administrator,')");
 			DropColumn("dbo.Users", "Roles");
 			DropColumn("dbo.Pages", "IsLocked");
 			DropAllConstraints();

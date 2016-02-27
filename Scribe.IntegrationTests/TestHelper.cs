@@ -7,7 +7,9 @@ using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Scribe.Data;
 using Scribe.IntegrationTests.Properties;
+using Scribe.Models.Data;
 using Scribe.Models.Entities;
+using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
 using Scribe.Services;
 using TestR.Desktop;
@@ -37,7 +39,9 @@ namespace Scribe.IntegrationTests
 				EnablePageApproval = false,
 				LdapConnectionString = string.Empty,
 				OverwriteFilesOnUpload = false,
-				SoftDelete = false
+				SoftDelete = false,
+				ViewCss = string.Empty,
+				PrintCss = string.Empty
 			};
 
 			service.Save(settings);
@@ -50,10 +54,27 @@ namespace Scribe.IntegrationTests
 			return context.Files.First(x => x.Id == id);
 		}
 
-		public static Page AddPage(IScribeContext context, string title, string content, User user, params string[] tags)
+		public static Page AddPage(IScribeContext context, string title, string content, User user, ApprovalStatus status, bool published = false, params string[] tags)
 		{
 			var service = new ScribeService(context, null, null, user);
-			var view = service.SavePage(new PageView { Title = title, Text = content, Tags = tags });
+			var view = service.SavePage(new PageView { ApprovalStatus = status, Title = title, Text = content, Tags = tags });
+
+			switch (status)
+			{
+				case ApprovalStatus.Approved:
+					service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Approve });
+					break;
+
+				case ApprovalStatus.Rejected:
+					service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Reject });
+					break;
+			}
+
+			if (published)
+			{
+				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Publish });
+			}
+
 			return context.Pages.First(x => x.Id == view.Id);
 		}
 

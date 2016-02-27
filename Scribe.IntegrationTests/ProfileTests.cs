@@ -10,32 +10,37 @@ namespace Scribe.IntegrationTests
 	[TestClass]
 	public class ProfileTests : BrowserTestCmdlet
 	{
+		#region Constants
+
+		private const string TestSite = "http://localhost";
+
+		#endregion
+
 		#region Methods
 
 		[TestMethod]
 		public void Login()
 		{
-			using (var context = TestHelper.GetContext())
+			ForEachBrowser(browser =>
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				context.SaveChanges();
+				using (var context = TestHelper.GetContext())
+				{
+					browser.NavigateTo($"{TestSite}");
 
-				ForEachBrowser(x => x.NavigateTo("http://localhost/login"));
-				TestHelper.AddUser(context, "John Doe", "Password!");
-				context.SaveChanges();
-			}
+					var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+					TestHelper.AddDefaultSettings(context, user);
+					TestHelper.AddUser(context, "John Doe", "Password!");
+					context.SaveChanges();
+				}
 
-			ForEachBrowser(x =>
-			{
-				x.NavigateTo("http://localhost/login");
-				x.Elements.TextInputs["userName"].Text = "John Doe";
-				x.Elements.TextInputs["password"].Text = "Password!";
-				x.Elements.Buttons["submit"].Click();
-				x.WaitForNavigation();
+				browser.NavigateTo($"{TestSite}/Login");
+				browser.Elements.TextInputs["userName"].Text = "John Doe";
+				browser.Elements.TextInputs["password"].Text = "Password!";
+				browser.Elements.Buttons["submit"].Click();
+				browser.WaitForNavigation();
 
-				Assert.AreEqual("http://localhost/", x.Uri);
-				Assert.AreEqual("John Doe", x.Elements.Links["profileLink"].Text);
+				Assert.AreEqual($"{TestSite}/", browser.Uri);
+				Assert.AreEqual("John Doe", browser.Elements.Links["profileLink"].Text);
 			});
 		}
 
