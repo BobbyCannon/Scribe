@@ -30,12 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EasyDataFramework, Version=1.2.5884.38968, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
-      <HintPath>..\packages\EasyDataFramework.1.2.5884.38968\lib\net40\EasyDataFramework.dll</HintPath>
+    <Reference Include="EasyDataFramework, Version=1.2.5901.27030, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyDataFramework.1.2.5901.27030\lib\net45\EasyDataFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="EasyDataFramework.EntityFramework, Version=1.2.5884.38968, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
-      <HintPath>..\packages\EasyDataFramework.EntityFramework.1.2.5884.38968\lib\net40\EasyDataFramework.EntityFramework.dll</HintPath>
+    <Reference Include="EasyDataFramework.EntityFramework, Version=1.2.5901.27030, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyDataFramework.EntityFramework.1.2.5901.27030\lib\net45\EasyDataFramework.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">

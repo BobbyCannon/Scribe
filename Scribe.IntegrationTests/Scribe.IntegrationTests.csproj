@@ -35,12 +35,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EasyDataFramework, Version=1.2.5884.38968, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
-      <HintPath>..\packages\EasyDataFramework.1.2.5884.38968\lib\net40\EasyDataFramework.dll</HintPath>
+    <Reference Include="EasyDataFramework, Version=1.2.5901.27030, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyDataFramework.1.2.5901.27030\lib\net45\EasyDataFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="EasyDataFramework.EntityFramework, Version=1.2.5884.38968, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
-      <HintPath>..\packages\EasyDataFramework.EntityFramework.1.2.5884.38968\lib\net40\EasyDataFramework.EntityFramework.dll</HintPath>
+    <Reference Include="EasyDataFramework.EntityFramework, Version=1.2.5901.27030, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyDataFramework.EntityFramework.1.2.5901.27030\lib\net45\EasyDataFramework.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -52,7 +52,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Interop.UIAutomationClient, Version=10.0.0.0, Culture=neutral, PublicKeyToken=365143bb27e7ac8b, processorArchitecture=MSIL">
-      <HintPath>..\packages\TestR.PowerShell.0.8.5901.31996\lib\net40\Interop.UIAutomationClient.dll</HintPath>
+      <HintPath>..\packages\TestR.PowerShell.0.8.5901.33014\lib\net40\Interop.UIAutomationClient.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="KellermanSoftware.Compare-NET-Objects, Version=3.3.0.0, Culture=neutral, PublicKeyToken=d970ace04cc85217, processorArchitecture=MSIL">
@@ -79,12 +79,12 @@
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="TestR, Version=0.8.5901.31996, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\TestR.PowerShell.0.8.5901.31996\lib\net40\TestR.dll</HintPath>
+    <Reference Include="TestR, Version=0.8.5901.33014, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TestR.PowerShell.0.8.5901.33014\lib\net40\TestR.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="TestR.PowerShell, Version=0.8.5901.31996, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\TestR.PowerShell.0.8.5901.31996\lib\net40\TestR.PowerShell.dll</HintPath>
+    <Reference Include="TestR.PowerShell, Version=0.8.5901.33014, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TestR.PowerShell.0.8.5901.33014\lib\net40\TestR.PowerShell.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>

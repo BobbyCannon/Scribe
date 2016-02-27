@@ -36,12 +36,12 @@
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EasyDataFramework, Version=1.2.5884.38968, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
-      <HintPath>..\packages\EasyDataFramework.1.2.5884.38968\lib\net40\EasyDataFramework.dll</HintPath>
+    <Reference Include="EasyDataFramework, Version=1.2.5901.27030, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
+      <HintPath>..\packages\EasyDataFramework.1.2.5901.27030\lib\net45\EasyDataFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MarkR, Version=1.16.5898.35368, Culture=neutral, PublicKeyToken=030ab3e7881eeaab, processorArchitecture=MSIL">
-      <HintPath>..\packages\MarkR.1.16.5898.35368\lib\net40\MarkR.dll</HintPath>
+    <Reference Include="MarkR, Version=1.16.5901.26396, Culture=neutral, PublicKeyToken=030ab3e7881eeaab, processorArchitecture=MSIL">
+      <HintPath>..\packages\MarkR.1.16.5901.26396\lib\net45\MarkR.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">

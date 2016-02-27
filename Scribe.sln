@@ -5,9 +5,13 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C5467EA8-C818-4782-A960-8021F88085F9}"
 	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
 		LICENSE.md = LICENSE.md
 		README.md = README.md
+		Scribe.ico = Scribe.ico
 		Scribe.nuspec = Scribe.nuspec
+		Scribe.png = Scribe.png
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scribe", "Scribe\Scribe.csproj", "{09412E66-5135-4BE9-B674-D0A6F97FAD0C}"
@@ -19,6 +23,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scribe.UnitTests", "Scribe.UnitTests\Scribe.UnitTests.csproj", "{834EF183-00BE-4C9C-A26D-E8025365B050}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scribe.Data", "Scribe.Data\Scribe.Data.csproj", "{E6C85046-F696-4798-BB97-E8E308FB95D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{46F2333A-C1BC-46BD-94CB-7570E93CF75A}"
+	ProjectSection(SolutionItems) = preProject
+		Build.ps1 = Build.ps1
+		IncrementVersion.ps1 = IncrementVersion.ps1
+		Publish.ps1 = Publish.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
