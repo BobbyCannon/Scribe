@@ -109,6 +109,7 @@
     <Compile Include="ScribeServiceTests.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="RequestFilterTests.cs" />
+    <Compile Include="PagedResultsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Scribe.Data\Scribe.Data.csproj">

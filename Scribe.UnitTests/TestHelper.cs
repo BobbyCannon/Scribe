@@ -1,12 +1,14 @@
 ﻿#region References
 
 using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Http;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Scribe.Data;
+using Scribe.Data.Migrations;
 using Scribe.Models.Data;
 using Scribe.Models.Entities;
 using Scribe.Models.Enumerations;
@@ -22,6 +24,15 @@ namespace Scribe.UnitTests
 {
 	public static class TestHelper
 	{
+		#region Constructors
+
+		static TestHelper()
+		{
+			Database.SetInitializer(new MigrateDatabaseToLatestVersion<ScribeContext, Configuration>(true));
+		}
+
+		#endregion
+
 		#region Properties
 
 		public static bool RunUnitTestAgainstDatabase => false;
@@ -43,7 +54,7 @@ namespace Scribe.UnitTests
 			var service = new SettingsService(context, administrator);
 			var settings = new SettingsView
 			{
-				EnablePageApproval = false,
+				EnableGuestMode = false,
 				LdapConnectionString = string.Empty,
 				OverwriteFilesOnUpload = false,
 				PrintCss = string.Empty,
@@ -60,9 +71,9 @@ namespace Scribe.UnitTests
 			return context.Files.First(x => x.Id == id);
 		}
 
-		public static Page AddPage(IScribeContext context, string title, string content, User user, ApprovalStatus status, bool published = false, params string[] tags)
+		public static Page AddPage(IScribeContext context, string title, string content, User user, ApprovalStatus status = ApprovalStatus.None, bool published = false, bool homepage = false, params string[] tags)
 		{
-			var service = new ScribeService(context, null, null, user);
+			var service = new ScribeService(context, null, GetSearchService(), user);
 			var view = service.SavePage(new PageView { ApprovalStatus = status, Title = title, Text = content, Tags = tags });
 
 			switch (status)
@@ -79,6 +90,11 @@ namespace Scribe.UnitTests
 			if (published)
 			{
 				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Publish });
+			}
+
+			if (homepage)
+			{
+				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.SetHomepage });
 			}
 
 			return context.Pages.First(x => x.Id == view.Id);
@@ -190,6 +206,12 @@ namespace Scribe.UnitTests
 			return provider.Object;
 		}
 
+		public static ISearchService GetSearchService()
+		{
+			var service = new Mock<ISearchService>();
+			return service.Object;
+		}
+
 		public static void PrintChildren(Element parent, string prefix = "")
 		{
 			var element = parent;
@@ -203,6 +225,35 @@ namespace Scribe.UnitTests
 			{
 				PrintChildren(child, prefix);
 			}
+		}
+
+		public static Page UpdatePage(IScribeContext context, User user, PageView view, Action<PageView> action, ApprovalStatus status = ApprovalStatus.None, bool published = false)
+		{
+			var service = new ScribeService(context, null, GetSearchService(), user);
+			action(view);
+
+			var page = service.SavePage(view);
+			context.SaveChanges();
+
+			switch (status)
+			{
+				case ApprovalStatus.Approved:
+					service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Approve });
+					break;
+
+				case ApprovalStatus.Rejected:
+					service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Reject });
+					break;
+			}
+
+			if (published)
+			{
+				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Publish });
+			}
+
+			context.SaveChanges();
+
+			return context.Pages.First(x => x.Id == page.Id);
 		}
 
 		#endregion

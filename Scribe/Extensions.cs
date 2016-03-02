@@ -74,6 +74,12 @@ namespace Scribe
 			return !int.TryParse(input, out response) ? defaultValue : response;
 		}
 
+		public static T DeepClone<T>(this T item)
+		{
+			var data = JsonConvert.SerializeObject(item, GetSerializerSettings());
+			return JsonConvert.DeserializeObject<T>(data);
+		}
+
 		/// <summary>
 		/// Loop through collection and run action on each item.
 		/// </summary>

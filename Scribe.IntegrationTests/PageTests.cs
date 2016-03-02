@@ -98,7 +98,7 @@ namespace Scribe.IntegrationTests
 					browser.NavigateTo($"{TestSite}");
 
 					var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-					TestHelper.AddSettings(context, user, new SettingsView { EnablePageApproval = true });
+					TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
 					TestHelper.AddUser(context, "John Doe", "Password!");
 					TestHelper.AddPage(context, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
 					TestHelper.AddPage(context, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
@@ -123,7 +123,7 @@ namespace Scribe.IntegrationTests
 					browser.NavigateTo($"{TestSite}");
 
 					var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-					TestHelper.AddSettings(context, user, new SettingsView { EnablePageApproval = false });
+					TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = false });
 					TestHelper.AddUser(context, "John Doe", "Password!");
 					TestHelper.AddPage(context, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
 					TestHelper.AddPage(context, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
@@ -149,7 +149,7 @@ namespace Scribe.IntegrationTests
 					browser.NavigateTo($"{TestSite}");
 
 					var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-					TestHelper.AddSettings(context, user, new SettingsView { EnablePageApproval = true });
+					TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
 					TestHelper.AddUser(context, "John Doe", "Password!");
 					TestHelper.AddPage(context, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
 					TestHelper.AddPage(context, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");

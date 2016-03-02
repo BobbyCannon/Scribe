@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Linq.Expressions;
@@ -36,7 +37,7 @@ namespace Scribe.Services
 			_context = context;
 			_accountService = accountService;
 			_converter = new MarkupConverter();
-			_converter.LinkParsed += (title, title2) => _context.Pages.OrderBy(x => x.Id).Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.Id, Title = x.Title }).FirstOrDefault();
+			_converter.LinkParsed += (title, title2) => GetCurrentPagesQuery().Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.Id, Title = x.Title }).FirstOrDefault();
 			_searchService = searchService;
 			_settingsService = new SettingsService(context, user);
 			_user = user;
@@ -53,6 +54,8 @@ namespace Scribe.Services
 
 		public static TimeSpan EditingTimeout { get; }
 
+		public bool IsGuestRequest => _user == null && _settingsService.EnableGuestMode;
+
 		#endregion
 
 		#region Methods
@@ -61,8 +64,8 @@ namespace Scribe.Services
 		{
 			VerifyAccess("You must be authenticate to begin editing page.");
 
-			var page = GetPageQuery(x => x.CreatedBy, x => x.ModifiedBy)
-				.FirstOrDefault(x => x.Id == id);
+			var page = GetCurrentPagesQuery()
+				.FirstOrDefault(x => x.ParentId == id);
 
 			if (page == null)
 			{
@@ -89,12 +92,13 @@ namespace Scribe.Services
 		{
 			VerifyAccess("You must be authenticate to cancel editing page.");
 
-			var page = GetPageQuery().FirstOrDefault(x => x.Id == id);
+			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.ParentId == id);
 			if (page == null)
 			{
 				throw new ArgumentException("The page could not be found.", nameof(id));
 			}
 
+			page.EditingBy = null;
 			page.EditingById = null;
 			page.EditingOn = SqlDateTime.MinValue.Value;
 			_context.SaveChanges();
@@ -126,19 +130,13 @@ namespace Scribe.Services
 		{
 			VerifyAccess("You must be authenticate to delete a page.");
 
-			var page = _context.Pages.FirstOrDefault(x => x.Id == id);
-			if (page == null)
-			{
-				throw new ArgumentException("Failed to find the page with the provided ID.", nameof(id));
-			}
-
 			if (_settingsService.SoftDelete)
 			{
-				page.IsDeleted = true;
+				_context.Pages.Where(x => x.ParentId == id).ForEach(x => x.IsDeleted = true);
 			}
 			else
 			{
-				_context.Pages.Remove(page);
+				_context.Pages.RemoveRange(x => x.ParentId == id);
 			}
 
 			_context.SaveChanges();
@@ -154,12 +152,12 @@ namespace Scribe.Services
 			}
 
 			var name1 = "," + tag + ",";
-			var pagesToUpdate = GetPageQuery().Where(x => x.Tags.Contains(name1)).ToList();
+			var pagesToUpdate = GetCurrentPagesQuery().Where(x => x.Tags.Contains(name1)).ToList();
 			pagesToUpdate.ForEach(page => page.Tags = page.Tags.Replace(name1, ","));
 
 			_context.SaveChanges();
 
-			pagesToUpdate.ForEach(page => _searchService.Update(page.ToView(_converter)));
+			pagesToUpdate.ForEach(page => _searchService.Add(page.ToView(_converter)));
 		}
 
 		public FileView GetFile(int id, bool includeData = false)
@@ -205,25 +203,22 @@ namespace Scribe.Services
 
 		public PageView GetFrontPage()
 		{
-			var page = GetPageQuery()
-				.Where(x => x.Tags.Contains(",homepage,"))
-				.OrderBy(x => x.Id)
-				.FirstOrDefault();
+			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.IsHomePage);
 
 			return page != null
 				? page.ToView(_converter)
 				: new PageView
 				{
-					Html = "Please set a home page. Just add a new page and give it the tag \"homepage\".",
-					Text = "Please set a home page. Just add a new page and give it the tag \"homepage\".",
-					Title = "Missing Home Page"
+					Html = "A home page has not been set. Please see an administrator to have one set.",
+					Text = "A home page has not been set. Please see an administrator to have one set.",
+					Title = "Home Page Not Set"
 				};
 		}
 
 		public PageView GetPage(int id, bool includeHistory = false)
 		{
-			var page = GetPageQuery(x => x.CreatedBy, x => x.ModifiedBy)
-				.FirstOrDefault(x => x.Id == id);
+			var page = GetCurrentPagesQuery()
+				.FirstOrDefault(x => x.ParentId == id);
 
 			if (page == null)
 			{
@@ -235,21 +230,31 @@ namespace Scribe.Services
 
 		public PageDifferenceView GetPageDifference(int id)
 		{
-			var version = _context.PageVersions
-				.Including(x => x.Page, x => x.EditedBy)
-				.First(x => x.Id == id);
-
+			var version = GetAllPagesQuery().FirstOrDefault(x => x.Id == id);
 			if (version == null)
 			{
 				throw new PageNotFoundException("Failed to find the page with that version ID.");
 			}
 
-			var previous = _context.PageVersions.FirstOrDefault(x => x.PageId == version.PageId && x.Id < version.Id);
+			if (IsGuestRequest && (version.ApprovalStatus != ApprovalStatus.Approved || !version.IsPublished))
+			{
+				throw new PageNotFoundException("Failed to find the page with that version ID.");
+			}
+
+			var versions = IsGuestRequest
+				? version.Parent.Versions.Where(x => x.IsPublished && x.ApprovalStatus == ApprovalStatus.Approved)
+				: version.Parent.Versions;
+
+			var previous = versions
+				.Where(x => x.Id < version.Id)
+				.OrderByDescending(x => x.Id)
+				.FirstOrDefault();
+
 			var response = new PageDifferenceView
 			{
-				Id = version.PageId,
-				LastModified = DateTime.UtcNow.Subtract(version.EditedOn).ToTimeAgo(),
-				ModifiedBy = version.EditedBy.DisplayName
+				Id = version.ParentId ?? version.Id,
+				LastModified = DateTime.UtcNow.Subtract(version.ModifiedOn).ToTimeAgo(),
+				CreatedBy = version.CreatedBy.DisplayName
 			};
 
 			if (previous == null)
@@ -257,13 +262,14 @@ namespace Scribe.Services
 				response.Html = _converter.ToHtml(version.Text);
 				response.Title = version.Title;
 				response.TitleForLink = PageView.ConvertTitleForLink(version.Title);
+				response.Tags = string.Join(", ", Page.SplitTags(version.Tags));
 			}
 			else
 			{
-				var service = new HtmlDiff(_converter.ToHtml(previous.Text), _converter.ToHtml(version.Text));
-				response.Html = service.Build();
-				response.Title = previous.Title;
+				response.Html = HtmlDiff.Process(_converter.ToHtml(previous.Text), _converter.ToHtml(version.Text));
+				response.Title = HtmlDiff.Process(_converter.ToHtml(previous.Title), _converter.ToHtml(version.Title));
 				response.TitleForLink = PageView.ConvertTitleForLink(previous.Title);
+				response.Tags = HtmlDiff.Process(_converter.ToHtml(string.Join(", ", Page.SplitTags(previous.Tags))), _converter.ToHtml(string.Join(", ", Page.SplitTags(version.Tags))));
 			}
 
 			return response;
@@ -271,18 +277,18 @@ namespace Scribe.Services
 
 		public PageHistoryView GetPageHistory(int id)
 		{
-			var page = GetPageQuery().FirstOrDefault(x => x.Id == id);
+			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.ParentId == id);
 			if (page == null)
 			{
 				throw new PageNotFoundException("Failed to find the page with that ID.");
 			}
 
-			return page.ToHistoryView();
+			return page.ToHistoryView(IsGuestRequest);
 		}
 
 		public PagedResults<PageView> GetPages(PagedRequest request = null)
 		{
-			var query = GetPageQuery(x => x.ModifiedBy);
+			var query = GetCurrentPagesQuery();
 			request = request ?? new PagedRequest();
 
 			if (!string.IsNullOrWhiteSpace(request.Filter))
@@ -291,14 +297,43 @@ namespace Scribe.Services
 				query = ProcessFilter(query, filter);
 			}
 
-			return GetPagedResults(query, request, x => x.Title, x => x.ToSummaryView());
+			return GetPagedResults(query.Select(x => new
+			{
+				x.ApprovalStatus,
+				CreatedBy = x.CreatedBy.DisplayName,
+				x.CreatedOn,
+				EditingBy = x.EditingBy != null ? x.EditingBy.DisplayName : string.Empty,
+				Id = x.ParentId ?? x.Id,
+				x.IsHomePage,
+				x.IsPublished,
+				x.Tags,
+				x.Text,
+				x.Title,
+			}), request, x => x.Title, x => new PageView
+			{
+				ApprovalStatus = x.ApprovalStatus,
+				Id = x.Id,
+				CreatedBy = x.CreatedBy,
+				CreatedOn = x.CreatedOn,
+				EditingBy = x.EditingBy,
+				Files = new List<FileView>(),
+				Html = request.IncludeDetails ? _converter.ToHtml(x.Text) : string.Empty,
+				IsHomePage = x.IsHomePage,
+				IsPublished = x.IsPublished,
+				LastModified = DateTime.UtcNow.Subtract(x.CreatedOn).ToTimeAgo(),
+				Pages = new List<string>(),
+				Tags = Page.SplitTags(x.Tags),
+				Text = request.IncludeDetails ? x.Text : string.Empty,
+				Title = x.Title,
+				TitleForLink = PageView.ConvertTitleForLink(x.Title)
+			});
 		}
 
 		public PagedResults<TagView> GetTags(PagedRequest request = null)
 		{
 			request = request ?? new PagedRequest();
 
-			var query = GetPageQuery()
+			var query = GetCurrentPagesQuery()
 				.Select(x => new { x.Title, x.Tags })
 				.ToList()
 				.SelectMany(x => x.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -374,13 +409,14 @@ namespace Scribe.Services
 
 			var name1 = "," + values.OldName + ",";
 			var name2 = "," + values.NewName + ",";
-			var pagesToUpdate = GetPageQuery().Where(x => x.Tags.Contains(name1)).ToList();
+			var pagesToUpdate = GetCurrentPagesQuery()
+				.Where(x => x.Tags.Contains(name1)).ToList();
 
 			pagesToUpdate.ForEach(page => page.Tags = page.Tags.Replace(name1, name2));
 
 			_context.SaveChanges();
 
-			pagesToUpdate.ForEach(page => _searchService.Update(page.ToView(_converter)));
+			pagesToUpdate.ForEach(page => _searchService.Add(page.ToView(_converter)));
 		}
 
 		public int SaveFile(FileView view)
@@ -411,50 +447,75 @@ namespace Scribe.Services
 		{
 			VerifyAccess("You must be authenticate to save the page.");
 
-			var page = GetPageQuery().FirstOrDefault(x => x.Id == view.Id)
-				?? new Page { CreatedOn = DateTime.UtcNow, CreatedBy = _user };
+			if (view.Id == 0 && GetCurrentPagesQuery().Any(x => x.Title == view.Title))
+			{
+				throw new InvalidOperationException("This page title is already used.");
+			}
+
+			Page version = null;
+			var currentTime = DateTime.UtcNow;
+			var tags = $",{string.Join(",", view.Tags.Select(x => x.Trim()).Distinct().OrderBy(x => x))},";
+
+			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.ParentId == view.Id) ?? new Page
+			{
+				ApprovalStatus = view.ApprovalStatus == ApprovalStatus.Pending ? ApprovalStatus.Pending : ApprovalStatus.None,
+				CreatedOn = currentTime,
+				CreatedBy = _user,
+				ModifiedOn = currentTime,
+				EditingById = null,
+				EditingOn = SqlDateTime.MinValue.Value,
+				IsDeleted = false,
+				IsHomePage = false,
+				IsPublished = false,
+				Tags = tags,
+				Text = view.Text,
+				Title = view.Title
+			};
 
 			if (page.EditingById != null && page.EditingById != _user?.Id)
 			{
 				throw new InvalidOperationException("This page is currently being edited by another user.");
 			}
 
-			var tags = $",{string.Join(",", view.Tags.Select(x => x.Trim()).Distinct().OrderBy(x => x))},";
-
-			// Only create history on changes for Tags, Text, and/or Title.
+			// Only add a new version if there was an existing page.
 			if (tags != page.Tags || page.Text != view.Text || page.Title != view.Title)
 			{
-				// Only create version when editing existing page.
-				if (view.Id > 0)
+				version = new Page
 				{
-					var version = new PageHistory
-					{
-						EditedBy = page.ModifiedBy,
-						EditedOn = page.ModifiedOn,
-						ApprovalStatus = page.ApprovalStatus,
-						Tags = page.Tags,
-						Text = page.Text,
-						Title = page.Title
-					};
+					ApprovalStatus = view.ApprovalStatus == ApprovalStatus.Pending ? ApprovalStatus.Pending : ApprovalStatus.None,
+					CreatedOn = currentTime,
+					CreatedBy = _user,
+					ModifiedOn = currentTime,
+					EditingById = null,
+					EditingOn = SqlDateTime.MinValue.Value,
+					IsDeleted = false,
+					IsHomePage = page.Parent.IsHomePage,
+					IsPublished = false,
+					Tags = tags,
+					Text = view.Text,
+					Title = view.Title
+				};
 
-					page.History.Add(version);
-				}
-
-				page.Tags = tags;
-				page.Text = view.Text;
-				page.Title = view.Title;
-				page.ModifiedBy = _user;
-				page.ModifiedOn = DateTime.UtcNow;
+				page.Parent.Versions.Add(version);
 			}
 
-			page.ApprovalStatus = view.ApprovalStatus == ApprovalStatus.Pending ? ApprovalStatus.Pending : ApprovalStatus.None;
 			page.EditingById = null;
 			page.EditingOn = SqlDateTime.MinValue.Value;
 
 			_context.Pages.AddOrUpdate(page);
 			_context.SaveChanges();
 
-			return page.ToView(_converter);
+			if (page.Parent == null && page.ParentId == null)
+			{
+				page.ParentId = page.Id;
+				_context.SaveChanges();
+			}
+
+			// Return the new version or the current unchanged version.
+			var result = (version ?? page).ToView(_converter);
+			_searchService.Add(result);
+
+			return result;
 		}
 
 		public UserView SaveUser(UserView view)
@@ -480,18 +541,23 @@ namespace Scribe.Services
 		public PageView UpdatePage(PageUpdate update)
 		{
 			if ((update.Type.HasFlag(PageUpdateType.Approve) || update.Type.HasFlag(PageUpdateType.Reject)) &&
-				_user != null && !_user.InRole("Approver"))
+				_user != null && !_user.InRole("approver"))
 			{
 				throw new UnauthorizedAccessException("You do not have the permission to update this page.");
 			}
 
-			if ((update.Type == PageUpdateType.Publish || update.Type == PageUpdateType.Unpublish) &&
-				_user != null && !_user.InRole("Publisher"))
+			if ((update.Type.HasFlag(PageUpdateType.Publish) || update.Type.HasFlag(PageUpdateType.Unpublish)) &&
+				_user != null && !_user.InRole("publisher"))
 			{
 				throw new UnauthorizedAccessException("You do not have the permission to update this page.");
 			}
 
-			var page = GetPageQuery().FirstOrDefault(x => x.Id == update.Id);
+			if (update.Type.HasFlag(PageUpdateType.SetHomepage) && _user != null && !_user.InRole("administrator"))
+			{
+				throw new UnauthorizedAccessException("You do not have the permission to update this page.");
+			}
+
+			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.ParentId == update.Id);
 			if (page == null)
 			{
 				throw new PageNotFoundException("Failed to find the page with that ID.");
@@ -509,7 +575,8 @@ namespace Scribe.Services
 			{
 				page.ApprovalStatus = ApprovalStatus.Rejected;
 			}
-			else if (update.Type.HasFlag(PageUpdateType.Publish))
+
+			if (update.Type.HasFlag(PageUpdateType.Publish))
 			{
 				page.IsPublished = true;
 			}
@@ -518,8 +585,35 @@ namespace Scribe.Services
 				page.IsPublished = false;
 			}
 
+			if (update.Type.HasFlag(PageUpdateType.SetHomepage))
+			{
+				_context.Pages.Where(x => x.IsHomePage).ForEach(x => x.IsHomePage = false);
+				page.Parent.Versions.ForEach(x => x.IsHomePage = true);
+			}
+
 			_context.SaveChanges();
 			return page.ToView(_converter);
+		}
+
+		private IQueryable<Page> GetAllPagesQuery(params Expression<Func<Page, object>>[] includes)
+		{
+			var query = includes != null ? _context.Pages.Including(includes) : _context.Pages;
+			query = query.Where(x => !x.IsDeleted);
+
+			if (IsGuestRequest)
+			{
+				query = query.Where(x => x.IsPublished && x.ApprovalStatus == ApprovalStatus.Approved);
+			}
+
+			query = query.OrderByDescending(x => x.Id);
+			return query;
+		}
+
+		private IQueryable<Page> GetCurrentPagesQuery()
+		{
+			return GetAllPagesQuery()
+				.GroupBy(x => x.ParentId)
+				.Select(x => x.OrderByDescending(y => y.Id).FirstOrDefault());
 		}
 
 		private PagedResults<T2> GetPagedResults<T1, T2>(IQueryable<T1> query, PagedRequest request, Func<T1, object> orderBy, Func<T1, T2> transform)
@@ -528,7 +622,6 @@ namespace Scribe.Services
 			response.Filter = request.Filter;
 			response.TotalCount = query.Count();
 			response.PerPage = request.PerPage;
-			response.TotalPages = response.TotalCount / response.PerPage + (response.TotalCount % response.PerPage > 0 ? 1 : 0);
 			response.Page = response.TotalPages < request.Page ? response.TotalPages : request.Page;
 			response.Results = query
 				.OrderBy(orderBy)
@@ -539,19 +632,6 @@ namespace Scribe.Services
 				.ToList();
 
 			return response;
-		}
-
-		private IQueryable<Page> GetPageQuery(params Expression<Func<Page, object>>[] includes)
-		{
-			var query = includes != null ? _context.Pages.Including(includes) : _context.Pages;
-			query = query.Where(x => !x.IsDeleted);
-
-			if (_user == null && _settingsService.EnablePageApproval)
-			{
-				query = query.Where(x => x.IsPublished);
-			}
-
-			return query;
 		}
 
 		private static IQueryable<User> ProcessFilter(IQueryable<User> query, RequestFilter filter)
@@ -601,7 +681,7 @@ namespace Scribe.Services
 
 		private void UpdateEditingPage(PageView model)
 		{
-			var page = GetPageQuery().FirstOrDefault(x => x.Id == model.Id);
+			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.ParentId == model.Id);
 			if (page == null)
 			{
 				throw new ArgumentException("The page could not be found.", nameof(model));

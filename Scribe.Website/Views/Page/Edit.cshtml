@@ -101,7 +101,7 @@
 	<div id="editorFormControls" class="row" ng-hide="!isCurrentEditor()">
 		<div class="span24">
 			<div class="pull-right">
-				<button id="saveAndPublishButton" class="green margin-left-20" ng-disabled="editorForm.$invalid" ng-click="save(true)" title="Save and Publish">Publish</button>
+				<button id="saveAndPublishButton" class="green margin-left-20" ng-disabled="editorForm.$invalid" ng-click="save(true)" title="Save and request this page to be published as public content.">Publish</button>
 				<button id="saveButton" class="blue" ng-disabled="editorForm.$invalid" ng-click="save()">Save</button>
 				<button id="cancelButton" ng-click="cancel()">Cancel</button>
 			</div>
@@ -285,7 +285,7 @@
 				}
 
 				$scope.save = function (publish) {
-					if (publish && !confirm('Are you sure you want to publish this page?')) {
+					if (publish && !confirm('Are you sure you want to request this page to be publish as public content?')) {
 						return;
 					}
 

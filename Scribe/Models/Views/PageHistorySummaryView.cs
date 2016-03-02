@@ -12,11 +12,13 @@ namespace Scribe.Models.Views
 
 		public ApprovalStatus ApprovalStatus { get; set; }
 
+		public string CreatedBy { get; set; }
+
 		public int Id { get; set; }
 
-		public string LastModified { get; set; }
+		public bool IsPublished { get; set; }
 
-		public string ModifiedBy { get; set; }
+		public string LastModified { get; set; }
 
 		public int Number { get; set; }
 

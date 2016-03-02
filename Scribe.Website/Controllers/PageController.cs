@@ -32,8 +32,8 @@ namespace Scribe.Website.Controllers
 			: base(dataContext, authenticationService)
 		{
 			_notificationHub = notificationHub;
-			SearchService.SearchPath = HostingEnvironment.MapPath("~/App_Data/Indexes");
-			_searchService = new SearchService(DataContext, SearchService.SearchPath, GetCurrentUser(false));
+			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
+			_searchService = new SearchService(DataContext, path, GetCurrentUser(false));
 			var accountService = new AccountService(dataContext, authenticationService);
 			_service = new ScribeService(DataContext, accountService, _searchService, GetCurrentUser(false));
 		}
@@ -106,7 +106,8 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult Pages()
 		{
-			return View(_service.GetPages(new PagedRequest(perPage: int.MaxValue)));
+			var pages = _service.GetPages(new PagedRequest(perPage: int.MaxValue));
+			return View(pages);
 		}
 
 		[AllowAnonymous]

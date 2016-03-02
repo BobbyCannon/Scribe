@@ -14,11 +14,12 @@
 						<input class="x-large" type="text" ng-model="model.ldapConnectionString" />
 					</dd>
 					<dt>
-						Enable Page Approval
+						Enable Guest Mode
 					</dt>
 					<dd class="padding-top-4">
-						<input id="enablePageApproval" type="checkbox" ng-model="model.enablePageApproval" />
-						<label for="enablePageApproval">Only show pages that have been approved to guest users</label>
+						<input id="enableGuestMode" type="checkbox" ng-model="model.enableGuestMode" />
+						<label for="enableGuestMode">Only show approved pages guest users</label><br />
+						<small class="padding-left-8">You search indexes will be rebuilt if this is changed.</small>
 					</dd>
 					<dt>
 						Overwrite Files

@@ -25,8 +25,8 @@ namespace Scribe.Website.Controllers.API
 		public ServiceController(IScribeContext dataContext, IAuthenticationService authenticationService)
 			: base(dataContext, authenticationService)
 		{
-			SearchService.SearchPath = HostingEnvironment.MapPath("~/App_Data/Indexes");
-			var searchService = new SearchService(DataContext, SearchService.SearchPath, GetCurrentUser(false));
+			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
+			var searchService = new SearchService(DataContext, path, GetCurrentUser(false));
 			var accountService = new AccountService(dataContext, authenticationService);
 			_service = new ScribeService(dataContext, accountService, searchService, GetCurrentUser(false));
 		}

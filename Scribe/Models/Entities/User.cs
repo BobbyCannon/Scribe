@@ -27,7 +27,6 @@ namespace Scribe.Models.Entities
 			CreatedFiles = new Collection<File>();
 			CreatedPages = new Collection<Page>();
 			ModifiedFiles = new Collection<File>();
-			ModifiedPages = new Collection<Page>();
 			PagesBeingEdited = new Collection<Page>();
 		}
 
@@ -69,16 +68,6 @@ namespace Scribe.Models.Entities
 		/// Gets the files modified by this user.
 		/// </summary>
 		public virtual ICollection<File> ModifiedFiles { get; set; }
-
-		/// <summary>
-		/// Gets the list of pages edited by this users.
-		/// </summary>
-		public virtual ICollection<Page> ModifiedPages { get; set; }
-
-		/// <summary>
-		/// Gets the list of page version for this user.
-		/// </summary>
-		public virtual ICollection<PageHistory> PageHistories { get; set; }
 
 		/// <summary>
 		/// Gets the list of pages being edited by this users.

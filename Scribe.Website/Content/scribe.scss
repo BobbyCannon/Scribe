@@ -999,11 +999,13 @@ div.preview {
 	@include rem-units(margin, 10);
 }
 
+del.diffdel,
 del.diffmod {
     background-color: #FEC8C8;
     color: #999;
 }
 
+ins.diffins,
 ins.diffmod {
     background-color: #cfc;
     text-decoration: inherit;

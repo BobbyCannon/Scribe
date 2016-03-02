@@ -25,7 +25,6 @@ namespace Scribe.Data
 
 		public IRepository<File> Files => GetRepository<File>();
 		public IRepository<Page> Pages => GetRepository<Page>();
-		public IRepository<PageHistory> PageVersions => GetRepository<PageHistory>();
 		public IRepository<Setting> Settings => GetRepository<Setting>();
 		public IRepository<User> Users => GetRepository<User>();
 
@@ -36,7 +35,6 @@ namespace Scribe.Data
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
 			modelBuilder.Configurations.Add(new FileMap());
-			modelBuilder.Configurations.Add(new PageHistoryMap());
 			modelBuilder.Configurations.Add(new PageMap());
 			modelBuilder.Configurations.Add(new SettingsMap());
 			modelBuilder.Configurations.Add(new UserMap());

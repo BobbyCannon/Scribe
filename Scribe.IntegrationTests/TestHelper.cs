@@ -36,7 +36,7 @@ namespace Scribe.IntegrationTests
 			var service = new SettingsService(context, administrator);
 			var settings = new SettingsView
 			{
-				EnablePageApproval = false,
+				EnableGuestMode = false,
 				LdapConnectionString = string.Empty,
 				OverwriteFilesOnUpload = false,
 				SoftDelete = false,

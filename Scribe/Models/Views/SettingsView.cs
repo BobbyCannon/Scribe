@@ -6,7 +6,7 @@
 
 		public SettingsView()
 		{
-			EnablePageApproval = false;
+			EnableGuestMode = false;
 			LdapConnectionString = string.Empty;
 			OverwriteFilesOnUpload = false;
 			PrintCss = string.Empty;
@@ -18,7 +18,7 @@
 
 		#region Properties
 
-		public bool EnablePageApproval { get; set; }
+		public bool EnableGuestMode { get; set; }
 
 		public string LdapConnectionString { get; set; }
 

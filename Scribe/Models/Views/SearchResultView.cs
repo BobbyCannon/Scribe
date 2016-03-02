@@ -40,19 +40,9 @@ namespace Scribe.Models.Views
 		public int Id { get; set; }
 
 		/// <summary>
-		/// The published status.
-		/// </summary>
-		public bool IsPublished { get; set; }
-
-		/// <summary>
 		/// The lucene.net score for the search result.
 		/// </summary>
 		public float Score { get; set; }
-
-		/// <summary>
-		/// The page status.
-		/// </summary>
-		public string Status { get; set; }
 
 		/// <summary>
 		/// The tags for the page, in space delimited format.

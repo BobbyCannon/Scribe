@@ -36,17 +36,22 @@ namespace Scribe.Converters
 		/// </summary>
 		/// <param name="oldText"> The old text. </param>
 		/// <param name="newText"> The new text. </param>
-		public HtmlDiff(string oldText, string newText)
+		private HtmlDiff(string oldText, string newText)
 		{
 			_oldText = oldText;
 			_newText = newText;
-
 			_content = new StringBuilder();
 		}
 
 		#endregion
 
 		#region Methods
+
+		public static string Process(string oldText, string newText)
+		{
+			var service = new HtmlDiff(oldText, newText);
+			return service.Build();
+		}
 
 		/// <summary>
 		/// Builds the HTML difference output
@@ -148,6 +153,7 @@ namespace Scribe.Converters
 						break;
 				}
 			}
+
 			if (currentWord != string.Empty)
 			{
 				words.Add(currentWord);

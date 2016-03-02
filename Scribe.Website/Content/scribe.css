@@ -2523,10 +2523,12 @@ div.preview {
   margin:  10px;
   margin:  0.625rem; }
 
+del.diffdel,
 del.diffmod {
   background-color: #FEC8C8;
   color: #999; }
 
+ins.diffins,
 ins.diffmod {
   background-color: #cfc;
   text-decoration: inherit; }

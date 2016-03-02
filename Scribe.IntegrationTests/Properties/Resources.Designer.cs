@@ -62,7 +62,6 @@ namespace Scribe.IntegrationTests.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to DELETE FROM [Files];
-        ///DELETE FROM [PageHistory];
         ///DELETE FROM [Pages];
         ///DELETE FROM [Settings];
         ///DELETE FROM [Users];

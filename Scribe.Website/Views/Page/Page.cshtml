@@ -15,11 +15,12 @@
 			@if (Request.IsAuthenticated)
 			{
 				<a id="pageEditingByLink" ng-href="/EditPage/{{ model.id }}/{{ model.titleForLink }}" ng-show="model.editingBy.length === 0 || model.editingBy == currentUser">Edit</a>
-				<a id="pagePublishLink" class="clickable" ng-click="update('pending')" ng-show="model.approvalStatus === 'none'">Publish</a>
-				<a id="pageApproveLink" class="clickable" ng-click="update('approve')" ng-show="model.approvalStatus === 'pending' && userHasTag('approver')">Approve</a>
-				<a id="pageApproveLink" class="clickable" ng-click="update('reject')" ng-show="model.approvalStatus === 'pending'  && userHasTag('approver')">Reject</a>
-				<a id="pageApproveLink" class="clickable" ng-click="update('publish')" ng-show="model.approvalStatus === 'approved' && userHasTag('publisher') && !model.isPublished">Publish</a>
-				<a id="pageApproveLink" class="clickable" ng-click="update('unpublish')" ng-show="userHasTag('publisher') && model.isPublished">Unpublish</a>
+				<a id="pagePublishLink" class="clickable" ng-click="update('pending')" ng-show="model.approvalStatus === 'none'" Title="Request this page to be published as public content.">Publish</a>
+				<a id="pageApproveLink" class="clickable" ng-click="update('approve')" ng-show="model.approvalStatus === 'pending' && userHasTag('approver')" Title="Approve this page to be published as public content.">Approve</a>
+				<a id="pageApproveLink" class="clickable" ng-click="update('reject')" ng-show="model.approvalStatus === 'pending'  && userHasTag('approver')" Title="Reject this page be be published as public content.">Reject</a>
+				<a id="pageApproveLink" class="clickable" ng-click="update('publish')" ng-show="model.approvalStatus === 'approved' && userHasTag('publisher') && !model.isPublished" Title="Published as public content.">Publish</a>
+				<a id="pageApproveLink" class="clickable" ng-click="update('unpublish')" ng-show="model.approvalStatus === 'approved' && userHasTag('publisher') && model.isPublished" Title="Unpublished as public content.">Unpublish</a>
+				<a id="pageApproveLink" class="clickable" ng-click="update('sethomepage')" ng-show="userHasTag('administrator') && !model.isHomePage" Title="Make this page the homepage.">Homepage</a>
 			}
 		</div>
 	</div>
@@ -32,27 +33,28 @@
 				<a class="margin-0" ng-attr-id="{{ 'tag-' + $tag }}" ng-href="/PagesWithTag/{{ $tag }}">{{ $tag }}</a><span ng-show="$index < model.tags.length - 1">,</span>
 			</span>
 		</div>
-		This page was last updated <span id="pageLastModified">{{ model.lastModified }}</span> ago by <span id="pageModifiedBy">{{ model.modifiedBy }}</span>.
+		This page was last updated <span id="pageLastModified">{{ model.lastModified }}</span> ago by <span id="pageCreatedBy">{{ model.createdBy }}</span>.
 		<a id="pageHistoryLink" ng-href="/PageHistory/{{ model.id }}/{{ model.titleForLink }}">History</a>
 		@if (Request.IsAuthenticated)
 		{
 			<a id="pageEditingByLink2" ng-href="/EditPage/{{ model.id }}/{{ model.titleForLink }}" ng-show="model.editingBy.length === 0 || model.editingBy == currentUser">Edit</a>
-			<a id="pagePublishLink2" class="clickable" ng-click="update('pending')" ng-show="model.approvalStatus === 'none'">Publish</a>
-			<a id="pageApproveLink2" class="clickable" ng-click="update('approve')" ng-show="model.approvalStatus === 'pending' && userHasTag('approver')">Approve</a>
-			<a id="pageApproveLink2" class="clickable" ng-click="update('reject')" ng-show="model.approvalStatus === 'pending'  && userHasTag('approver')">Reject</a>
-			<a id="pageApproveLink2" class="clickable" ng-click="update('publish')" ng-show="model.approvalStatus === 'approved' && userHasTag('publisher') && !model.isPublished">Publish</a>
-			<a id="pageApproveLink2" class="clickable" ng-click="update('unpublish')" ng-show="userHasTag('publisher') && model.isPublished">Unpublish</a>
+			<a id="pagePublishLink2" class="clickable" ng-click="update('pending')" ng-show="model.approvalStatus === 'none'" Title="Request this page to be published as public content.">Publish</a>
+			<a id="pageApproveLink2" class="clickable" ng-click="update('approve')" ng-show="model.approvalStatus === 'pending' && userHasTag('approver')" Title="Approve this page to be published as public content.">Approve</a>
+			<a id="pageApproveLink2" class="clickable" ng-click="update('reject')" ng-show="model.approvalStatus === 'pending'  && userHasTag('approver')" Title="Reject this page be be published as public content.">Reject</a>
+			<a id="pageApproveLink2" class="clickable" ng-click="update('publish')" ng-show="model.approvalStatus === 'approved' && userHasTag('publisher') && !model.isPublished" Title="Published as public content.">Publish</a>
+			<a id="pageApproveLink2" class="clickable" ng-click="update('unpublish')" ng-show="model.approvalStatus === 'approved' && userHasTag('publisher') && model.isPublished" Title="Unpublished as public content.">Unpublish</a>
+			<a id="pageApproveLink2" class="clickable" ng-click="update('sethomepage')" ng-show="userHasTag('administrator') && !model.isHomePage" Title="Make this page the homepage.">Homepage</a>
 
 			<span id="pageEditingBySpan" ng-show="model.editingBy.length > 0">
 				<br />This page is currently being edited by <span id="pageEditingBy">{{ model.editingBy }}</span>.
 			</span>
 			<span id="pagePublishPendingSpan" ng-show="model.approvalStatus === 'pending'">
-				<br />This page is currently waiting to be approved for publishing.
+				<br />This page is currently waiting to be approved.
 			</span>
 			<span id="pagePublishApprovedSpan" ng-show="model.approvalStatus === 'approved' && !model.isPublished">
-				<br />This page is currently waiting to be approved for publishing.
+				<br />This page is currently waiting to be publishing.
 			</span>
-			<span id="pagePublishSpan" ng-show="model.isPublished">
+			<span id="pagePublishApprovedSpan" ng-show="model.approvalStatus === 'approved' && model.isPublished">
 				<br />This page is currently published and viewable by guest.
 			</span>
 		}
@@ -95,6 +97,10 @@
 
 						case 'unpublish':
 							message = 'Are you sure you want to unpublish this page?';
+							break;
+						
+						case 'sethomepage':
+							message = 'Are you sure you want to set this page as the homepage?';
 							break;
 					}
 

@@ -3,12 +3,14 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
+using System.Diagnostics.CodeAnalysis;
 using Scribe.Models.Entities;
 
 #endregion
 
 namespace Scribe.Data.Mapping
 {
+	[ExcludeFromCodeCoverage]
 	public class UserMap : EntityTypeConfiguration<User>
 	{
 		#region Constructors

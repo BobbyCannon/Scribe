@@ -16,10 +16,10 @@
 					<i ng-show="predicate !== 'title'" class="fa fa-sort"></i>
 				</th>
 				<th class="cellLarge">
-					<a href="#" ng-click="predicate='modifiedBy'; reverse=!reverse">modified by</a>
-					<i ng-show="predicate === 'modifiedBy' && reverse === false" class="fa fa-sort-asc"></i>
-					<i ng-show="predicate === 'modifiedBy' && reverse === true" class="fa fa-sort-desc"></i>
-					<i ng-show="predicate !== 'modifiedBy'" class="fa fa-sort"></i>
+					<a href="#" ng-click="predicate='createdBy'; reverse=!reverse">created by</a>
+					<i ng-show="predicate === 'createdBy' && reverse === false" class="fa fa-sort-asc"></i>
+					<i ng-show="predicate === 'createdBy' && reverse === true" class="fa fa-sort-desc"></i>
+					<i ng-show="predicate !== 'createdBy'" class="fa fa-sort"></i>
 				</th>
 				<th class="cellMedium">
 					<a href="#" ng-click="predicate='modifiedOn'; reverse=!reverse">last modified</a>
@@ -50,7 +50,7 @@
 					<a ng-href="/Page/{{$item.id}}/{{$item.titleForLink}}">{{$item.title}}</a>
 				</td>
 				<td>
-					{{$item.modifiedBy}}
+					{{$item.createdBy}}
 				</td>
 				<td>
 					{{$item.lastModified}} ago

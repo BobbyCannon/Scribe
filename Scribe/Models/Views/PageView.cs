@@ -23,10 +23,9 @@ namespace Scribe.Models.Views
 			Files = new List<FileView>();
 			Html = string.Empty;
 			Id = 0;
+			IsHomePage = false;
 			IsPublished = false;
 			LastModified = string.Empty;
-			ModifiedBy = string.Empty;
-			ModifiedOn = DateTime.MinValue;
 			Pages = new List<string>();
 			Tags = new List<string>();
 			Text = string.Empty;
@@ -51,13 +50,11 @@ namespace Scribe.Models.Views
 
 		public int Id { get; set; }
 
+		public bool IsHomePage { get; set; }
+
 		public bool IsPublished { get; set; }
 
 		public string LastModified { get; set; }
-
-		public string ModifiedBy { get; set; }
-
-		public DateTime ModifiedOn { get; set; }
 
 		public List<string> Pages { get; set; }
 

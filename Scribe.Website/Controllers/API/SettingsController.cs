@@ -1,5 +1,7 @@
 ﻿#region References
 
+using System.IO;
+using System.Web.Hosting;
 using System.Web.Http;
 using Scribe.Data;
 using Scribe.Models.Views;
@@ -28,10 +30,18 @@ namespace Scribe.Website.Controllers.API
 		public SettingsView Save(SettingsView settings)
 		{
 			var service = new SettingsService(DataContext, GetCurrentUser());
+			var deleteIndex = service.EnableGuestMode != settings.EnableGuestMode;
 			service.Save(settings);
 			DataContext.SaveChanges();
 			MvcApplication.PrintCss = settings.PrintCss;
 			MvcApplication.ViewCss = settings.ViewCss;
+
+			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
+			if (deleteIndex && path != null && Directory.Exists(path))
+			{
+				Directory.Delete(path, true);
+			}
+
 			return settings;
 		}
 

@@ -119,7 +119,6 @@
   </resheader>
   <data name="ClearDatabase" xml:space="preserve">
     <value>DELETE FROM [Files];
-DELETE FROM [PageHistory];
 DELETE FROM [Pages];
 DELETE FROM [Settings];
 DELETE FROM [Users];

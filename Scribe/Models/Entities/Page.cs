@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EasyDataFramework;
@@ -25,7 +26,7 @@ namespace Scribe.Models.Entities
 		[SuppressMessage("ReSharper", "DoNotCallOverridableMethodsInConstructor")]
 		public Page()
 		{
-			History = new Collection<PageHistory>();
+			Versions = new Collection<Page>();
 		}
 
 		#endregion
@@ -63,11 +64,6 @@ namespace Scribe.Models.Entities
 		public DateTime EditingOn { get; set; }
 
 		/// <summary>
-		/// The versions of the pages.
-		/// </summary>
-		public virtual ICollection<PageHistory> History { get; set; }
-
-		/// <summary>
 		/// Gets or sets a flag to indicated this pages has been "soft" deleted.
 		/// </summary>
 		public bool IsDeleted { get; set; }
@@ -78,14 +74,15 @@ namespace Scribe.Models.Entities
 		public bool IsPublished { get; set; }
 
 		/// <summary>
-		/// Gets or sets the user who last modified the page.
+		/// Gets or sets the parent page.
 		/// </summary>
-		public virtual User ModifiedBy { get; set; }
+		public virtual Page Parent { get; set; }
 
 		/// <summary>
-		/// Gets or sets the user ID of who last modified the page.
+		/// Gets or sets the ID of the parent page. If the parent ID is set this means that the page
+		/// is a history page.
 		/// </summary>
-		public int ModifiedById { get; set; }
+		public int? ParentId { get; set; }
 
 		/// <summary>
 		/// Gets or sets the tags for the page, in the format ",tag1,tag2,tag3," (no spaces between tags).
@@ -102,60 +99,77 @@ namespace Scribe.Models.Entities
 		/// </summary>
 		public string Title { get; set; }
 
+		/// <summary>
+		/// The versions of the pages.
+		/// </summary>
+		public virtual ICollection<Page> Versions { get; set; }
+
+		/// <summary>
+		/// Determines if this page is the home page.
+		/// </summary>
+		public bool IsHomePage { get; set; }
+
 		#endregion
 
 		#region Methods
 
-		public PageHistoryView ToHistoryView()
+		public static IEnumerable<string> SplitTags(string tags)
 		{
-			var index = History.Count;
+			return tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().OrderBy(x => x).ToArray();
+		}
+
+		public PageHistorySummaryView ToHistorySummaryView(int number)
+		{
+			return new PageHistorySummaryView
+			{
+				Id = Id,
+				ApprovalStatus = ApprovalStatus,
+				CreatedBy = CreatedBy.DisplayName,
+				IsPublished = IsPublished,
+				LastModified = DateTime.UtcNow.Subtract(ModifiedOn).ToTimeAgo(),
+				Number = number
+			};
+		}
+
+		public PageHistoryView ToHistoryView(bool guestView)
+		{
+			var versionQuery = Parent.Versions.Where(x => x.Id <= Id);
+			
+			if (guestView)
+			{
+				versionQuery = versionQuery.Where(x => x.IsPublished && x.ApprovalStatus == ApprovalStatus.Approved);
+			}
+
+			var versions = versionQuery.OrderByDescending(x => x.Id).ToList();
+			var index = versions.Count;
+			var history = versions.Select(x => x.ToHistorySummaryView(index--)).ToList();
 
 			return new PageHistoryView
 			{
-				Id = Id,
+				Id = ParentId ?? Id,
 				Title = Title,
 				TitleForLink = PageView.ConvertTitleForLink(Title),
-				Versions = History
-					.OrderByDescending(x => x.Id)
-					.Select(x => x.ToView(index--))
-					.ToList()
+				Versions = history
 			};
 		}
 
-		public PageView ToSummaryView()
+		public PageView ToView(MarkupConverter converter = null, bool includeDetails = true)
 		{
 			return new PageView
 			{
 				ApprovalStatus = ApprovalStatus,
-				Id = Id,
-				IsPublished = IsPublished,
-				LastModified = DateTime.UtcNow.Subtract(ModifiedOn).ToTimeAgo(),
-				ModifiedBy = ModifiedBy.DisplayName,
-				ModifiedOn = ModifiedOn,
-				Tags = Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().OrderBy(x => x),
-				Title = Title,
-				TitleForLink = PageView.ConvertTitleForLink(Title)
-			};
-		}
-
-		public PageView ToView(MarkupConverter converter)
-		{
-			return new PageView
-			{
-				ApprovalStatus = ApprovalStatus,
-				Id = Id,
+				Id = ParentId ?? Id,
 				CreatedBy = CreatedBy.DisplayName,
 				CreatedOn = CreatedOn,
 				EditingBy = EditingOn > DateTime.UtcNow.Subtract(ScribeService.EditingTimeout) ? (EditingBy?.DisplayName ?? string.Empty) : string.Empty,
 				Files = new List<FileView>(),
-				Html = converter.ToHtml(Text),
+				Html = includeDetails ? converter?.ToHtml(Text) ?? string.Empty : string.Empty,
+				IsHomePage = IsHomePage,
 				IsPublished = IsPublished,
 				LastModified = DateTime.UtcNow.Subtract(ModifiedOn).ToTimeAgo(),
-				ModifiedBy = ModifiedBy.DisplayName,
-				ModifiedOn = ModifiedOn,
 				Pages = new List<string>(),
-				Tags = Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().OrderBy(x => x),
-				Text = Text,
+				Tags = SplitTags(Tags),
+				Text = includeDetails ? Text : string.Empty,
 				Title = Title,
 				TitleForLink = PageView.ConvertTitleForLink(Title)
 			};

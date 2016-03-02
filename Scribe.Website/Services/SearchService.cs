@@ -13,6 +13,7 @@ using Lucene.Net.Search;
 using Lucene.Net.Store;
 using Scribe.Converters;
 using Scribe.Data;
+using Scribe.Models.Data;
 using Scribe.Models.Entities;
 using Scribe.Models.Views;
 using Scribe.Services;
@@ -32,7 +33,7 @@ namespace Scribe.Website.Services
 
 		private readonly IScribeContext _context;
 		private readonly MarkupConverter _converter;
-		private readonly string _indexPath;
+		private readonly string _indexPath2;
 		private static readonly LuceneVersion _luceneversion = LuceneVersion.LUCENE_30;
 		private static readonly Regex _removeTagsRegex = new Regex("<(.|\n)*?>");
 		private readonly SettingsService _settings;
@@ -46,9 +47,10 @@ namespace Scribe.Website.Services
 		{
 			_context = context;
 			_converter = new MarkupConverter();
+			// bug: this will link to invalid pages? for public users?
 			_converter.LinkParsed += (title, title2) => _context.Pages.OrderBy(x => x.Id).Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.Id, Title = x.Title }).FirstOrDefault();
 			_settings = new SettingsService(context, user);
-			_indexPath = path;
+			_indexPath2 = path;
 			_user = user;
 		}
 
@@ -56,7 +58,9 @@ namespace Scribe.Website.Services
 
 		#region Properties
 
-		public static string SearchPath { get; set; }
+		public string PrivateSearchPath => _indexPath2 + "\\Private";
+
+		public string PublicSearchPath => _indexPath2 + "\\Public";
 
 		#endregion
 
@@ -71,71 +75,13 @@ namespace Scribe.Website.Services
 			try
 			{
 				EnsureDirectoryExists();
-
-				var analyzer = new StandardAnalyzer(_luceneversion);
-				using (var writer = new IndexWriter(FSDirectory.Open(new DirectoryInfo(_indexPath)), analyzer, false, IndexWriter.MaxFieldLength.UNLIMITED))
-				{
-					AddIndex(page, writer);
-				}
+				AddIndex(PublicSearchPath, false, page);
+				AddIndex(PrivateSearchPath, false, page);
 			}
 			catch (FileNotFoundException)
 			{
-				CreateIndex();
+				Initialize();
 				Add(page);
-			}
-		}
-
-		public SearchResultView Create(Document document, ScoreDoc scoreDoc)
-		{
-			if (document == null)
-			{
-				throw new ArgumentNullException(nameof(document));
-			}
-
-			if (scoreDoc == null)
-			{
-				throw new ArgumentNullException(nameof(scoreDoc));
-			}
-
-			EnsureFieldsExist(document);
-
-			var createdOn = DateTime.UtcNow;
-			if (!DateTime.TryParse(document.GetField("createdon").StringValue, out createdOn))
-			{
-				createdOn = DateTime.UtcNow;
-			}
-
-			var title = document.GetField("title").StringValue;
-
-			return new SearchResultView
-			{
-				ContentLength = int.Parse(document.GetField("contentlength").StringValue),
-				ContentSummary = document.GetField("contentsummary").StringValue,
-				CreatedBy = document.GetField("createdby").StringValue,
-				CreatedOn = createdOn,
-				Id = int.Parse(document.GetField("id").StringValue),
-				IsPublished = bool.Parse(document.GetField("isPublished").StringValue),
-				Status = document.GetField("status").StringValue,
-				Score = scoreDoc.Score,
-				Tags = document.GetField("tags").StringValue.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).Distinct(),
-				Title = title
-			};
-		}
-
-		/// <summary>
-		/// Creates the initial search index based on all pages in the system.
-		/// </summary>
-		public virtual void CreateIndex()
-		{
-			EnsureDirectoryExists();
-
-			var analyzer = new StandardAnalyzer(_luceneversion);
-			using (var writer = new IndexWriter(FSDirectory.Open(new DirectoryInfo(_indexPath)), analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED))
-			{
-				foreach (var page in _context.Pages.ToList())
-				{
-					AddIndex(page.ToView(_converter), writer);
-				}
 			}
 		}
 
@@ -148,19 +94,29 @@ namespace Scribe.Website.Services
 			try
 			{
 				EnsureDirectoryExists();
-
-				var count = 0;
-				using (var reader = IndexReader.Open(FSDirectory.Open(new DirectoryInfo(_indexPath)), false))
-				{
-					count += reader.DeleteDocuments(new Term("id", page.Id.ToString()));
-				}
-
-				return count;
+				DeleteIndex(PrivateSearchPath, page);
+				DeleteIndex(PublicSearchPath, page);
+				return 1;
 			}
 			catch (FileNotFoundException)
 			{
 				return 0;
 			}
+		}
+
+		/// <summary>
+		/// Creates the initial search index based on all pages in the system.
+		/// </summary>
+		public virtual void Initialize()
+		{
+			EnsureDirectoryExists();
+
+			var user = _context.Users.First();
+			var privateService = new ScribeService(_context, null, null, user);
+			AddIndex(PrivateSearchPath, true, privateService.GetPages(new PagedRequest(perPage: int.MaxValue, includeDetails: true)).Results.ToArray());
+
+			var publicService = new ScribeService(_context, null, null, null);
+			AddIndex(PublicSearchPath, true, publicService.GetPages(new PagedRequest(perPage: int.MaxValue, includeDetails: true)).Results.ToArray());
 		}
 
 		/// <summary>
@@ -170,9 +126,10 @@ namespace Scribe.Website.Services
 		public virtual SearchView Search(string searchText)
 		{
 			// This check is for the benefit of the CI builds
-			if (!Directory.Exists(_indexPath))
+			var path = _settings.EnableGuestMode && _user == null ? PublicSearchPath : PrivateSearchPath;
+			if (!Directory.Exists(path))
 			{
-				CreateIndex();
+				Initialize();
 			}
 
 			var response = new SearchView(searchText);
@@ -203,7 +160,7 @@ namespace Scribe.Website.Services
 				{
 					EnsureDirectoryExists();
 
-					using (var searcher = new IndexSearcher(FSDirectory.Open(new DirectoryInfo(_indexPath)), true))
+					using (var searcher = new IndexSearcher(FSDirectory.Open(new DirectoryInfo(path)), true))
 					{
 						var topDocs = searcher.Search(query, 1000);
 
@@ -211,12 +168,6 @@ namespace Scribe.Website.Services
 						{
 							var document = searcher.Doc(scoreDoc.Doc);
 							var result = Create(document, scoreDoc);
-
-							if (_user == null && _settings.EnablePageApproval && !result.IsPublished)
-							{
-								continue;
-							}
-
 							response.Results.Add(result);
 						}
 					}
@@ -224,28 +175,30 @@ namespace Scribe.Website.Services
 				catch (FileNotFoundException)
 				{
 					// For 1.7's change to the Lucene search path.
-					CreateIndex();
+					Initialize();
 				}
 			}
 
 			return response;
 		}
 
-		/// <summary>
-		/// Updates the <see cref="Page" /> in the search index, by removing it and re-adding it.
-		/// </summary>
-		/// <param name="model"> The page to update </param>
-		public virtual void Update(PageView model)
+		private void AddIndex(string path, bool newIndex = false, params PageView[] pages)
 		{
-			EnsureDirectoryExists();
-			Delete(model);
-			Add(model);
+			var analyzer = new StandardAnalyzer(_luceneversion);
+			using (var writer = new IndexWriter(FSDirectory.Open(new DirectoryInfo(path)), analyzer, newIndex, IndexWriter.MaxFieldLength.UNLIMITED))
+			{
+				foreach (var page in pages)
+				{
+					DeleteIndex(page, writer);
+					AddIndex(page, writer);
+				}
+			}
 		}
 
 		private void AddIndex(PageView model, IndexWriter writer)
 		{
 			var content = model.Html;
-			var tags = string.Join(", ", model.Tags);
+			var tags = string.Join(",", model.Tags);
 
 			var document = new Document();
 			document.Add(new Field("content", content, Field.Store.YES, Field.Index.ANALYZED));
@@ -254,8 +207,6 @@ namespace Scribe.Website.Services
 			document.Add(new Field("createdby", model.CreatedBy, Field.Store.YES, Field.Index.NOT_ANALYZED));
 			document.Add(new Field("createdon", model.CreatedOn.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
 			document.Add(new Field("id", model.Id.ToString(), Field.Store.YES, Field.Index.ANALYZED));
-			document.Add(new Field("isPublished", model.IsPublished.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
-			document.Add(new Field("status", model.ApprovalStatus.ToString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
 			document.Add(new Field("tags", tags, Field.Store.YES, Field.Index.ANALYZED));
 			document.Add(new Field("title", model.Title, Field.Store.YES, Field.Index.ANALYZED));
 
@@ -263,11 +214,68 @@ namespace Scribe.Website.Services
 			writer.Optimize();
 		}
 
+		private SearchResultView Create(Document document, ScoreDoc scoreDoc)
+		{
+			if (document == null)
+			{
+				throw new ArgumentNullException(nameof(document));
+			}
+
+			if (scoreDoc == null)
+			{
+				throw new ArgumentNullException(nameof(scoreDoc));
+			}
+
+			EnsureFieldsExist(document);
+
+			var createdOn = DateTime.UtcNow;
+			if (!DateTime.TryParse(document.GetField("createdon").StringValue, out createdOn))
+			{
+				createdOn = DateTime.UtcNow;
+			}
+
+			var title = document.GetField("title").StringValue;
+
+			return new SearchResultView
+			{
+				ContentLength = int.Parse(document.GetField("contentlength").StringValue),
+				ContentSummary = document.GetField("contentsummary").StringValue,
+				CreatedBy = document.GetField("createdby").StringValue,
+				CreatedOn = createdOn,
+				Id = int.Parse(document.GetField("id").StringValue),
+				Score = scoreDoc.Score,
+				Tags = Page.SplitTags(document.GetField("tags").StringValue),
+				Title = title
+			};
+		}
+
+		private void DeleteIndex(string path, params PageView[] pages)
+		{
+			var analyzer = new StandardAnalyzer(_luceneversion);
+			using (var writer = new IndexWriter(FSDirectory.Open(new DirectoryInfo(path)), analyzer, false, IndexWriter.MaxFieldLength.UNLIMITED))
+			{
+				foreach (var page in pages)
+				{
+					DeleteIndex(page, writer);
+				}
+			}
+		}
+
+		private void DeleteIndex(PageView page, IndexWriter writer)
+		{
+			writer.DeleteDocuments(new Term("id", page.Id.ToString()));
+		}
+
 		private void EnsureDirectoryExists()
 		{
-			if (!Directory.Exists(_indexPath))
+			if (!Directory.Exists(PrivateSearchPath))
 			{
-				Directory.CreateDirectory(_indexPath);
+				Directory.CreateDirectory(PrivateSearchPath);
+			}
+
+			if (!Directory.Exists(PublicSearchPath))
+			{
+				Directory.CreateDirectory(PublicSearchPath);
 			}
 		}
 
@@ -288,8 +296,6 @@ namespace Scribe.Website.Services
 			EnsureFieldExists(fields, "createdby");
 			EnsureFieldExists(fields, "createdon");
 			EnsureFieldExists(fields, "id");
-			EnsureFieldExists(fields, "isPublished");
-			EnsureFieldExists(fields, "status");
 			EnsureFieldExists(fields, "title");
 			EnsureFieldExists(fields, "tags");
 		}
@@ -299,7 +305,7 @@ namespace Scribe.Website.Services
 		/// </summary>
 		private string GetContentSummary(string html)
 		{
-			// Turn the contents into HTML, then strip the tags for the mini summary. This needs some works
+			// Turn the contents into HTML, then strip the tags for the mini summary. This needs some work.
 			var modelHtml = _removeTagsRegex.Replace(html, "");
 
 			if (modelHtml.Length > 400)

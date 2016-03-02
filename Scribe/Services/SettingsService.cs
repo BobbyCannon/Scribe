@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Scribe.Data;
 using Scribe.Models.Entities;
@@ -14,6 +15,7 @@ namespace Scribe.Services
 	{
 		#region Fields
 
+		private static readonly Dictionary<string, string> _cache;
 		private readonly IScribeContext _dataContext;
 		private readonly User _user;
 
@@ -27,14 +29,19 @@ namespace Scribe.Services
 			_user = user;
 		}
 
+		static SettingsService()
+		{
+			_cache = new Dictionary<string, string>();
+		}
+
 		#endregion
 
 		#region Properties
 
-		public bool EnablePageApproval
+		public bool EnableGuestMode
 		{
-			get { return GetSetting("Enable Page Approval", false); }
-			set { AddOrUpdateSetting("Enable Page Approval", value.ToString()); }
+			get { return GetSetting("Enable Guest Mode", false); }
+			set { AddOrUpdateSetting("Enable Guest Mode", value.ToString()); }
 		}
 
 		public string LdapConnectionString
@@ -80,7 +87,7 @@ namespace Scribe.Services
 
 			return new SettingsView
 			{
-				EnablePageApproval = EnablePageApproval,
+				EnableGuestMode = EnableGuestMode,
 				LdapConnectionString = LdapConnectionString,
 				OverwriteFilesOnUpload = OverwriteFilesOnUpload,
 				PrintCss = PrintCss,
@@ -96,7 +103,7 @@ namespace Scribe.Services
 				throw new UnauthorizedAccessException("You do not have the permission to be able to save settings.");
 			}
 
-			EnablePageApproval = settings.EnablePageApproval;
+			EnableGuestMode = settings.EnableGuestMode;
 			LdapConnectionString = settings.LdapConnectionString ?? string.Empty;
 			OverwriteFilesOnUpload = settings.OverwriteFilesOnUpload;
 			PrintCss = settings.PrintCss;
@@ -119,19 +126,63 @@ namespace Scribe.Services
 			}
 
 			setting.Value = value;
+
+			UpdateCache(name, value);
 		}
 
 		private string GetSetting(string name, string defaultValue = null)
 		{
-			return _dataContext.Settings.FirstOrDefault(x => x.Name == name)?.Value ?? defaultValue;
+			if (_cache.ContainsKey(name))
+			{
+				return (string) _cache[name];
+			}
+
+			var response = _dataContext.Settings.FirstOrDefault(x => x.Name == name)?.Value;
+			if (response != null)
+			{
+				UpdateCache(name, response);
+			}
+
+			return response ?? defaultValue;
 		}
 
 		private bool GetSetting(string name, bool defaultValue = false)
 		{
-			var value = _dataContext.Settings.FirstOrDefault(x => x.Name == name)?.Value ?? defaultValue.ToString();
-			var response = defaultValue;
-			bool.TryParse(value, out response);
+			if (_cache.ContainsKey(name))
+			{
+				return bool.Parse(_cache[name]);
+			}
+
+			var value = _dataContext.Settings.FirstOrDefault(x => x.Name == name)?.Value;
+			if (value == null)
+			{
+				return defaultValue;
+			}
+
+			bool response;
+
+			if (!bool.TryParse(value, out response))
+			{
+				return defaultValue;
+			}
+
+			UpdateCache(name, value);
 			return response;
+		}
+
+		private void UpdateCache(string key, string value)
+		{
+			lock (_cache)
+			{
+				if (_cache.ContainsKey(key))
+				{
+					_cache[key] = value;
+				}
+				else
+				{
+					_cache.Add(key, value);
+				}
+			}
 		}
 
 		#endregion
