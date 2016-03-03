@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Mapping\FileMap.cs" />
     <Compile Include="Mapping\PageMap.cs" />
+    <Compile Include="Mapping\PageVersionMap.cs" />
     <Compile Include="Mapping\SettingsMap.cs" />
     <Compile Include="Mapping\UserMap.cs" />
     <Compile Include="Migrations\201601262112144_InitialMigration.cs" />
@@ -68,6 +69,10 @@
     <Compile Include="Migrations\201602291555452_AddedApprovalProcess.cs" />
     <Compile Include="Migrations\201602291555452_AddedApprovalProcess.Designer.cs">
       <DependentUpon>201602291555452_AddedApprovalProcess.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201603031757051_AddedPageVersions.cs" />
+    <Compile Include="Migrations\201603031757051_AddedPageVersions.Designer.cs">
+      <DependentUpon>201603031757051_AddedPageVersions.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\BaseDbMigration.cs" />
     <Compile Include="Migrations\Configuration.cs" />
@@ -81,6 +86,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201602291555452_AddedApprovalProcess.resx">
       <DependentUpon>201602291555452_AddedApprovalProcess.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603031757051_AddedPageVersions.resx">
+      <DependentUpon>201603031757051_AddedPageVersions.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,7 @@ namespace Scribe.Data
 
 		IRepository<File> Files { get; }
 		IRepository<Page> Pages { get; }
+		IRepository<PageVersion> PageVersions { get; }
 		IRepository<Setting> Settings { get; }
 		IRepository<User> Users { get; }
 

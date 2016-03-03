@@ -32,7 +32,6 @@ namespace Scribe.Website.Services
 		#region Fields
 
 		private readonly IScribeContext _context;
-		private readonly MarkupConverter _converter;
 		private readonly string _indexPath2;
 		private static readonly LuceneVersion _luceneversion = LuceneVersion.LUCENE_30;
 		private static readonly Regex _removeTagsRegex = new Regex("<(.|\n)*?>");
@@ -46,9 +45,6 @@ namespace Scribe.Website.Services
 		public SearchService(IScribeContext context, string path, User user)
 		{
 			_context = context;
-			_converter = new MarkupConverter();
-			// bug: this will link to invalid pages? for public users?
-			_converter.LinkParsed += (title, title2) => _context.Pages.OrderBy(x => x.Id).Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.Id, Title = x.Title }).FirstOrDefault();
 			_settings = new SettingsService(context, user);
 			_indexPath2 = path;
 			_user = user;
@@ -244,7 +240,7 @@ namespace Scribe.Website.Services
 				CreatedOn = createdOn,
 				Id = int.Parse(document.GetField("id").StringValue),
 				Score = scoreDoc.Score,
-				Tags = Page.SplitTags(document.GetField("tags").StringValue),
+				Tags = PageVersion.SplitTags(document.GetField("tags").StringValue),
 				Title = title
 			};
 		}

@@ -25,9 +25,9 @@ namespace Scribe.Models.Entities
 		public User()
 		{
 			CreatedFiles = new Collection<File>();
-			CreatedPages = new Collection<Page>();
+			CreatedPages = new Collection<PageVersion>();
 			ModifiedFiles = new Collection<File>();
-			PagesBeingEdited = new Collection<Page>();
+			PagesBeingEdited = new Collection<PageVersion>();
 		}
 
 		#endregion
@@ -42,7 +42,7 @@ namespace Scribe.Models.Entities
 		/// <summary>
 		/// Gets the pages created by this user.
 		/// </summary>
-		public virtual ICollection<Page> CreatedPages { get; set; }
+		public virtual ICollection<PageVersion> CreatedPages { get; set; }
 
 		/// <summary>
 		/// Gets or sets the display name of the user.
@@ -72,7 +72,7 @@ namespace Scribe.Models.Entities
 		/// <summary>
 		/// Gets the list of pages being edited by this users.
 		/// </summary>
-		public virtual ICollection<Page> PagesBeingEdited { get; set; }
+		public virtual ICollection<PageVersion> PagesBeingEdited { get; set; }
 
 		/// <summary>
 		/// Gets the hashed password for the user.

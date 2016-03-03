@@ -35,7 +35,7 @@ namespace Scribe.UnitTests
 
 		#region Properties
 
-		public static bool RunUnitTestAgainstDatabase => false;
+		public static bool RunUnitTestAgainstDatabase => true;
 
 		#endregion
 
@@ -71,7 +71,7 @@ namespace Scribe.UnitTests
 			return context.Files.First(x => x.Id == id);
 		}
 
-		public static Page AddPage(IScribeContext context, string title, string content, User user, ApprovalStatus status = ApprovalStatus.None, bool published = false, bool homepage = false, params string[] tags)
+		public static PageVersion AddPage(IScribeContext context, string title, string content, User user, ApprovalStatus status = ApprovalStatus.None, bool published = false, bool homepage = false, params string[] tags)
 		{
 			var service = new ScribeService(context, null, GetSearchService(), user);
 			var view = service.SavePage(new PageView { ApprovalStatus = status, Title = title, Text = content, Tags = tags });
@@ -97,7 +97,7 @@ namespace Scribe.UnitTests
 				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.SetHomepage });
 			}
 
-			return context.Pages.First(x => x.Id == view.Id);
+			return context.PageVersions.OrderByDescending(x => x.PageId == view.Id).First();
 		}
 
 		public static void AddSettings(IScribeContext context, User administrator, SettingsView settings)
@@ -227,7 +227,7 @@ namespace Scribe.UnitTests
 			}
 		}
 
-		public static Page UpdatePage(IScribeContext context, User user, PageView view, Action<PageView> action, ApprovalStatus status = ApprovalStatus.None, bool published = false)
+		public static PageVersion UpdatePage(IScribeContext context, User user, PageView view, Action<PageView> action, ApprovalStatus status = ApprovalStatus.None, bool published = false)
 		{
 			var service = new ScribeService(context, null, GetSearchService(), user);
 			action(view);
@@ -253,7 +253,7 @@ namespace Scribe.UnitTests
 
 			context.SaveChanges();
 
-			return context.Pages.First(x => x.Id == page.Id);
+			return context.PageVersions.OrderByDescending(x => x.PageId == view.Id).First();
 		}
 
 		#endregion

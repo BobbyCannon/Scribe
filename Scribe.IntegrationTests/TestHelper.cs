@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web.Http;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Scribe.Data;
 using Scribe.IntegrationTests.Properties;
 using Scribe.Models.Data;
@@ -49,14 +50,14 @@ namespace Scribe.IntegrationTests
 
 		public static File AddFile(IScribeContext context, User user, string name, string type, byte[] data)
 		{
-			var service = new ScribeService(context, null, null, user);
+			var service = new ScribeService(context, null, GetSearchService(), user);
 			var id = service.SaveFile(new FileView { Name = name, Data = data, Type = type });
 			return context.Files.First(x => x.Id == id);
 		}
 
-		public static Page AddPage(IScribeContext context, string title, string content, User user, ApprovalStatus status, bool published = false, params string[] tags)
+		public static PageVersion AddPage(IScribeContext context, string title, string content, User user, ApprovalStatus status, bool published = false, params string[] tags)
 		{
-			var service = new ScribeService(context, null, null, user);
+			var service = new ScribeService(context, null, GetSearchService(), user);
 			var view = service.SavePage(new PageView { ApprovalStatus = status, Title = title, Text = content, Tags = tags });
 
 			switch (status)
@@ -75,7 +76,7 @@ namespace Scribe.IntegrationTests
 				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Publish });
 			}
 
-			return context.Pages.First(x => x.Id == view.Id);
+			return context.PageVersions.First(x => x.Id == view.Id);
 		}
 
 		public static void AddSettings(IScribeContext context, User administrator, SettingsView settings)
@@ -143,6 +144,12 @@ namespace Scribe.IntegrationTests
 			}
 
 			return context;
+		}
+
+		public static ISearchService GetSearchService()
+		{
+			var service = new Mock<ISearchService>();
+			return service.Object;
 		}
 
 		public static void PrintChildren(Element parent, string prefix = "")

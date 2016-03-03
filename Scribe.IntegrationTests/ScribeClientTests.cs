@@ -44,7 +44,7 @@ namespace Scribe.IntegrationTests
 					Assert.AreEqual("Hello Page", result.Title);
 				}, "Bad Request");
 
-				Assert.AreEqual(0, context.Pages.Count());
+				Assert.AreEqual(0, context.PageVersions.Count());
 			}
 		}
 
@@ -69,7 +69,7 @@ namespace Scribe.IntegrationTests
 					Assert.AreEqual("Hello Page", result.Title);
 				}, "Bad Request");
 
-				Assert.AreEqual(0, context.Pages.Count());
+				Assert.AreEqual(0, context.PageVersions.Count());
 			}
 		}
 

@@ -30,6 +30,7 @@ namespace Scribe.Data
 
 		public IRepository<File> Files => GetRepository<File>();
 		public IRepository<Page> Pages => GetRepository<Page>();
+		public IRepository<PageVersion> PageVersions => GetRepository<PageVersion>();
 		public IRepository<Setting> Settings => GetRepository<Setting>();
 		public IRepository<User> Users => GetRepository<User>();
 
@@ -41,6 +42,7 @@ namespace Scribe.Data
 		{
 			modelBuilder.Configurations.Add(new FileMap());
 			modelBuilder.Configurations.Add(new PageMap());
+			modelBuilder.Configurations.Add(new PageVersionMap());
 			modelBuilder.Configurations.Add(new SettingsMap());
 			modelBuilder.Configurations.Add(new UserMap());
 		}
