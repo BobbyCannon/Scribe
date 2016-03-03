@@ -15,7 +15,12 @@ namespace Scribe.Data
 		#region Constructors
 
 		public ScribeContext()
-			: base("Name=DefaultConnection")
+			: this("Name=DefaultConnection")
+		{
+		}
+
+		public ScribeContext(string connectionString)
+			: base(connectionString)
 		{
 		}
 

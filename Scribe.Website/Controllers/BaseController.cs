@@ -15,6 +15,8 @@ namespace Scribe.Website.Controllers
 {
 	public class BaseController : Controller
 	{
+		private User _user;
+
 		#region Constructors
 
 		public BaseController(IScribeContext dataContext, IAuthenticationService authenticationService)
@@ -44,6 +46,11 @@ namespace Scribe.Website.Controllers
 		/// <returns> The user of the logged in user. </returns>
 		public User GetCurrentUser(bool throwException = true)
 		{
+			if (_user != null)
+			{
+				return _user;
+			}
+
 			// Make sure we are authenticated.
 			var identity = Thread.CurrentPrincipal?.Identity;
 			if (identity?.IsAuthenticated != true)
@@ -57,8 +64,8 @@ namespace Scribe.Website.Controllers
 			}
 
 			var userId = identity.GetId();
-			var user = DataContext.Users.FirstOrDefault(u => u.Id == userId);
-			if (user == null)
+			_user = DataContext.Users.FirstOrDefault(u => u.Id == userId);
+			if (_user == null)
 			{
 				// Log the user out because we cannot find the user account.
 				AuthenticationService.LogOut();
@@ -69,7 +76,7 @@ namespace Scribe.Website.Controllers
 				}
 			}
 
-			return user;
+			return _user;
 		}
 
 		/// <summary>

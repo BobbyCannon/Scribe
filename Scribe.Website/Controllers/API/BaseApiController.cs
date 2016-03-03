@@ -15,6 +15,12 @@ namespace Scribe.Website.Controllers.API
 {
 	public class BaseApiController : ApiController
 	{
+		#region Fields
+
+		private User _user;
+
+		#endregion
+
 		#region Constructors
 
 		public BaseApiController(IScribeContext dataContext, IAuthenticationService authenticationService)
@@ -61,6 +67,11 @@ namespace Scribe.Website.Controllers.API
 		/// <returns> The user of the logged in user. </returns>
 		protected User GetCurrentUser(bool throwException = true)
 		{
+			if (_user != null)
+			{
+				return _user;
+			}
+
 			// Make sure we are authenticated.
 			var identity = Thread.CurrentPrincipal?.Identity;
 			if (identity?.IsAuthenticated != true)
@@ -74,8 +85,8 @@ namespace Scribe.Website.Controllers.API
 			}
 
 			var userId = identity.GetId();
-			var user = DataContext.Users.FirstOrDefault(u => u.Id == userId);
-			if (user == null)
+			_user = DataContext.Users.FirstOrDefault(u => u.Id == userId);
+			if (_user == null)
 			{
 				// Log the user out because we cannot find the user account.
 				AuthenticationService.LogOut();
@@ -86,7 +97,7 @@ namespace Scribe.Website.Controllers.API
 				}
 			}
 
-			return user;
+			return _user;
 		}
 
 		#endregion
