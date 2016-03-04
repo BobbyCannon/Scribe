@@ -43,6 +43,14 @@ namespace Scribe.Converters
 		#region Methods
 
 		/// <summary>
+		/// Clears all subscribers to all events.
+		/// </summary>
+		public void ClearEvents()
+		{
+			LinkParsed = null;
+		}
+
+		/// <summary>
 		/// Turns the markdown text provided into HTML.
 		/// </summary>
 		/// <param name="text"> A markdown text string. </param>

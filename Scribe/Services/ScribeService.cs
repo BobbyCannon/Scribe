@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Linq.Expressions;
@@ -23,7 +22,6 @@ namespace Scribe.Services
 
 		private readonly AccountService _accountService;
 		private readonly IScribeContext _context;
-		private readonly MarkupConverter _converter;
 		private readonly ISearchService _searchService;
 		private readonly SettingsService _settingsService;
 		private readonly User _user;
@@ -36,11 +34,12 @@ namespace Scribe.Services
 		{
 			_context = context;
 			_accountService = accountService;
-			_converter = new MarkupConverter();
-			_converter.LinkParsed += (title, title2) => GetCurrentPagesQuery().Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.PageId, Title = x.Title }).FirstOrDefault();
 			_searchService = searchService;
 			_settingsService = new SettingsService(context, user);
 			_user = user;
+
+			Converter = new MarkupConverter();
+			Converter.LinkParsed += (title, title2) => GetCurrentPagesQuery().Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.PageId, Title = x.Title }).FirstOrDefault();
 		}
 
 		static ScribeService()
@@ -51,6 +50,8 @@ namespace Scribe.Services
 		#endregion
 
 		#region Properties
+
+		public MarkupConverter Converter { get; }
 
 		public static TimeSpan EditingTimeout { get; }
 
@@ -80,7 +81,7 @@ namespace Scribe.Services
 				_context.SaveChanges();
 			}
 
-			var response = page.ToView(_converter);
+			var response = page.ToView(Converter);
 
 			response.Files = GetFiles(new PagedRequest { PerPage = int.MaxValue, IncludeDetails = false }).Results;
 			response.Pages = GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => x.Title).ToList();
@@ -167,7 +168,7 @@ namespace Scribe.Services
 
 			_context.SaveChanges();
 
-			pagesToUpdate.ForEach(page => _searchService.Add(page.ToView(_converter)));
+			pagesToUpdate.ForEach(page => _searchService.Add(page.ToView(Converter)));
 		}
 
 		public FileView GetFile(int id, bool includeData = false)
@@ -216,7 +217,7 @@ namespace Scribe.Services
 			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.Page.IsHomePage);
 
 			return page != null
-				? page.ToView(_converter)
+				? page.ToView(Converter)
 				: new PageView
 				{
 					Html = "A home page has not been set. Please see an administrator to have one set.",
@@ -235,7 +236,7 @@ namespace Scribe.Services
 				throw new PageNotFoundException("Failed to find the page with that ID.");
 			}
 
-			return page.ToView(_converter);
+			return page.ToView(Converter);
 		}
 
 		public PageDifferenceView GetPageDifference(int id)
@@ -269,17 +270,17 @@ namespace Scribe.Services
 
 			if (previous == null)
 			{
-				response.Html = _converter.ToHtml(version.Text);
+				response.Html = Converter.ToHtml(version.Text);
 				response.Title = version.Title;
 				response.TitleForLink = PageView.ConvertTitleForLink(version.Title);
 				response.Tags = string.Join(", ", PageVersion.SplitTags(version.Tags));
 			}
 			else
 			{
-				response.Html = HtmlDiff.Process(_converter.ToHtml(previous.Text), _converter.ToHtml(version.Text));
-				response.Title = HtmlDiff.Process(_converter.ToHtml(previous.Title), _converter.ToHtml(version.Title));
+				response.Html = HtmlDiff.Process(Converter.ToHtml(previous.Text), Converter.ToHtml(version.Text));
+				response.Title = HtmlDiff.Process(Converter.ToHtml(previous.Title), Converter.ToHtml(version.Title));
 				response.TitleForLink = PageView.ConvertTitleForLink(previous.Title);
-				response.Tags = HtmlDiff.Process(_converter.ToHtml(string.Join(", ", PageVersion.SplitTags(previous.Tags))), _converter.ToHtml(string.Join(", ", PageVersion.SplitTags(version.Tags))));
+				response.Tags = HtmlDiff.Process(Converter.ToHtml(string.Join(", ", PageVersion.SplitTags(previous.Tags))), Converter.ToHtml(string.Join(", ", PageVersion.SplitTags(version.Tags))));
 			}
 
 			return response;
@@ -307,7 +308,7 @@ namespace Scribe.Services
 				query = ProcessFilter(query, filter);
 			}
 
-			return GetPagedResults(query, request, x => x.Title, x => x.ToView(_converter, request.IncludeDetails));
+			return GetPagedResults(query, request, x => x.Title, x => x.ToView(Converter, request.IncludeDetails));
 		}
 
 		public PagedResults<TagView> GetTags(PagedRequest request = null)
@@ -371,7 +372,7 @@ namespace Scribe.Services
 				_context.SaveChanges();
 			}
 
-			return _converter.ToHtml(model.Text);
+			return Converter.ToHtml(model.Text);
 		}
 
 		public void RenameTag(RenameValues values)
@@ -397,7 +398,7 @@ namespace Scribe.Services
 
 			_context.SaveChanges();
 
-			pagesToUpdate.ForEach(page => _searchService.Add(page.ToView(_converter)));
+			pagesToUpdate.ForEach(page => _searchService.Add(page.ToView(Converter)));
 		}
 
 		public int SaveFile(FileView view)
@@ -479,11 +480,11 @@ namespace Scribe.Services
 			{
 				pageVersion.Page = page;
 			}
-			
+
 			_context.PageVersions.AddOrUpdate(pageVersion);
 			_context.SaveChanges();
 
-			var result = pageVersion.ToView(_converter);
+			var result = pageVersion.ToView(Converter);
 			_searchService.Add(result);
 
 			return result;
@@ -568,7 +569,7 @@ namespace Scribe.Services
 			}
 
 			_context.SaveChanges();
-			return pageVersion.ToView(_converter);
+			return pageVersion.ToView(Converter);
 		}
 
 		private IQueryable<PageVersion> GetAllPagesQuery(params Expression<Func<PageVersion, object>>[] includes)
