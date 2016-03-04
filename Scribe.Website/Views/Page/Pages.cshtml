@@ -22,10 +22,10 @@
 					<i ng-show="predicate !== 'createdBy'" class="fa fa-sort"></i>
 				</th>
 				<th class="cellMedium">
-					<a href="#" ng-click="predicate='modifiedOn'; reverse=!reverse">last modified</a>
-					<i ng-show="predicate === 'modifiedOn' && reverse === false" class="fa fa-sort-asc"></i>
-					<i ng-show="predicate === 'modifiedOn' && reverse === true" class="fa fa-sort-desc"></i>
-					<i ng-show="predicate !== 'modifiedOn'" class="fa fa-sort"></i>
+					<a href="#" ng-click="predicate='createdOn'; reverse=!reverse">last modified</a>
+					<i ng-show="predicate === 'createdOn' && reverse === false" class="fa fa-sort-asc"></i>
+					<i ng-show="predicate === 'createdOn' && reverse === true" class="fa fa-sort-desc"></i>
+					<i ng-show="predicate !== 'createdOn'" class="fa fa-sort"></i>
 				</th>
 				@if (Request.IsAuthenticated)
 				{

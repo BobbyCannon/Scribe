@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using Scribe.Models.Enumerations;
 
 #endregion
@@ -13,6 +14,8 @@ namespace Scribe.Models.Views
 		public ApprovalStatus ApprovalStatus { get; set; }
 
 		public string CreatedBy { get; set; }
+
+		public DateTime CreatedOn { get; set; }
 
 		public int Id { get; set; }
 

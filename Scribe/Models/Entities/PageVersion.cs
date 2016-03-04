@@ -98,6 +98,7 @@ namespace Scribe.Models.Entities
 				Id = Id,
 				ApprovalStatus = ApprovalStatus,
 				CreatedBy = CreatedBy.DisplayName,
+				CreatedOn = CreatedOn,
 				IsPublished = IsPublished,
 				LastModified = DateTime.UtcNow.Subtract(ModifiedOn).ToTimeAgo(),
 				Number = number
@@ -139,7 +140,7 @@ namespace Scribe.Models.Entities
 				Html = includeDetails ? converter?.ToHtml(Text) ?? string.Empty : string.Empty,
 				IsHomePage = Page.IsHomePage,
 				IsPublished = IsPublished,
-				LastModified = DateTime.UtcNow.Subtract(ModifiedOn).ToTimeAgo(),
+				LastModified = DateTime.UtcNow.Subtract(CreatedOn).ToTimeAgo(),
 				Pages = new List<string>(),
 				Tags = SplitTags(Tags),
 				Text = includeDetails ? Text : string.Empty,
