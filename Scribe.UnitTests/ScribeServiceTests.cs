@@ -62,7 +62,7 @@ namespace Scribe.UnitTests
 				Assert.AreEqual(SqlDateTime.MinValue, actualEntity.EditingOn);
 
 				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
-				var actual = service.Preview(page.ToView());
+				var actual = service.GetPagePreview(page.ToView());
 				actualEntity = context.PageVersions.First(x => x.Id == page.Id);
 
 				Assert.AreEqual("<p>Hello World</p>\n", actual);
@@ -86,7 +86,7 @@ namespace Scribe.UnitTests
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
-				service.CancelPage(page.Id);
+				service.CancelEditingPage(page.Id);
 
 				entity = context.PageVersions.First(x => x.Id == page.Id);
 				Assert.AreEqual(null, entity.EditingBy);

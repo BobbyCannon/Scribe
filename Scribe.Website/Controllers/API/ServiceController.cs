@@ -35,10 +35,15 @@ namespace Scribe.Website.Controllers.API
 
 		#region Methods
 
-		[HttpPost]
-		public void CancelPage(int id)
+		public PageView BeginEditingPage(int id)
 		{
-			_service.CancelPage(id);
+			return _service.BeginEditingPage(id);
+		}
+
+		[HttpPost]
+		public void CancelEditingPage(int id)
+		{
+			_service.CancelEditingPage(id);
 		}
 
 		[HttpPost]
@@ -85,6 +90,12 @@ namespace Scribe.Website.Controllers.API
 		}
 
 		[HttpPost]
+		public string GetPagePreview(PageView model)
+		{
+			return _service.GetPagePreview(model);
+		}
+
+		[HttpPost]
 		[AllowAnonymous]
 		public PagedResults<PageView> GetPages(PagedRequest request)
 		{
@@ -122,12 +133,6 @@ namespace Scribe.Website.Controllers.API
 		public void LogOut()
 		{
 			_service.LogOut();
-		}
-
-		[HttpPost]
-		public string Preview(PageView model)
-		{
-			return _service.Preview(model);
 		}
 
 		[HttpPost]

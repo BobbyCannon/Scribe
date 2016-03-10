@@ -63,7 +63,7 @@ namespace Scribe.Services
 
 		public PageView BeginEditingPage(int id)
 		{
-			VerifyAccess("You must be authenticate to begin editing page.");
+			VerifyAccess("You must be authenticated to begin editing page.");
 
 			var page = GetCurrentPagesQuery()
 				.FirstOrDefault(x => x.PageId == id);
@@ -89,9 +89,9 @@ namespace Scribe.Services
 			return response;
 		}
 
-		public void CancelPage(int id)
+		public void CancelEditingPage(int id)
 		{
-			VerifyAccess("You must be authenticate to cancel editing page.");
+			VerifyAccess("You must be authenticated to cancel editing page.");
 
 			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.PageId == id);
 			if (page == null)
@@ -107,7 +107,7 @@ namespace Scribe.Services
 
 		public void DeleteFile(int id)
 		{
-			VerifyAccess("You must be authenticate to delete a file.");
+			VerifyAccess("You must be authenticated to delete a file.");
 
 			var file = _context.Files.FirstOrDefault(x => x.Id == id);
 			if (file == null)
@@ -129,7 +129,7 @@ namespace Scribe.Services
 
 		public void DeletePage(int id)
 		{
-			VerifyAccess("You must be authenticate to delete a page.");
+			VerifyAccess("You must be authenticated to delete a page.");
 
 			var page = _context.Pages.FirstOrDefault(x => x.Id == id);
 			if (page == null)
@@ -155,7 +155,7 @@ namespace Scribe.Services
 
 		public void DeleteTag(string tag)
 		{
-			VerifyAccess("You must be authenticate to delete a tag.");
+			VerifyAccess("You must be authenticated to delete a tag.");
 
 			if (string.IsNullOrWhiteSpace(tag))
 			{
@@ -297,6 +297,17 @@ namespace Scribe.Services
 			return page.ToHistoryView(IsGuestRequest);
 		}
 
+		public string GetPagePreview(PageView model)
+		{
+			if (model.Id > 0)
+			{
+				UpdateEditingPage(model);
+				_context.SaveChanges();
+			}
+
+			return Converter.ToHtml(model.Text);
+		}
+
 		public PagedResults<PageView> GetPages(PagedRequest request = null)
 		{
 			var query = GetCurrentPagesQuery(x => x.CreatedBy);
@@ -364,20 +375,9 @@ namespace Scribe.Services
 			_accountService.LogOut();
 		}
 
-		public string Preview(PageView model)
-		{
-			if (model.Id > 0)
-			{
-				UpdateEditingPage(model);
-				_context.SaveChanges();
-			}
-
-			return Converter.ToHtml(model.Text);
-		}
-
 		public void RenameTag(RenameValues values)
 		{
-			VerifyAccess("You must be authenticate to rename the tag.");
+			VerifyAccess("You must be authenticated to rename the tag.");
 
 			if (string.IsNullOrWhiteSpace(values.OldName))
 			{
@@ -403,7 +403,7 @@ namespace Scribe.Services
 
 		public int SaveFile(FileView view)
 		{
-			VerifyAccess("You must be authenticate to save the file.");
+			VerifyAccess("You must be authenticated to save the file.");
 
 			var file = _context.Files.FirstOrDefault(x => x.Name == view.Name)
 				?? new File { Name = view.Name, CreatedBy = _user, CreatedOn = DateTime.UtcNow };
@@ -427,7 +427,7 @@ namespace Scribe.Services
 
 		public PageView SavePage(PageView view)
 		{
-			VerifyAccess("You must be authenticate to save the page.");
+			VerifyAccess("You must be authenticated to save the page.");
 
 			if (view.Id == 0 && GetCurrentPagesQuery().Any(x => x.Title == view.Title))
 			{

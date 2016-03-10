@@ -30,9 +30,18 @@ namespace Scribe.Services
 
 		#region Methods
 
-		public void CancelPage(int id)
+		public PageView BeginEditingPage(int id)
 		{
-			using (var response = Post($"{_service}CancelPage/{id}"))
+			using (var response = Post($"{_service}BeginEditingPage/{id}"))
+			{
+				ValidateResponse(response);
+				return Read<PageView>(response);
+			}
+		}
+
+		public void CancelEditingPage(int id)
+		{
+			using (var response = Post($"{_service}CancelEditingPage/{id}"))
 			{
 				ValidateResponse(response);
 			}
@@ -99,6 +108,15 @@ namespace Scribe.Services
 			}
 		}
 
+		public string GetPagePreview(PageView page)
+		{
+			using (var response = Post($"{_service}GetPagePreview", page))
+			{
+				ValidateResponse(response);
+				return Read<string>(response);
+			}
+		}
+
 		public PagedResults<PageView> GetPages(PagedRequest request = null)
 		{
 			using (var response = Post($"{_service}GetPages", request))
@@ -148,15 +166,6 @@ namespace Scribe.Services
 			using (var response = Post($"{_service}LogOut"))
 			{
 				ValidateResponse(response);
-			}
-		}
-
-		public string Preview(PageView page)
-		{
-			using (var response = Post($"{_service}Preview", page))
-			{
-				ValidateResponse(response);
-				return response.Content.ReadAsStringAsync().Result;
 			}
 		}
 

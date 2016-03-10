@@ -60,7 +60,11 @@ namespace Scribe.IntegrationTests
 				context.SaveChanges();
 
 				var client = new ScribeClient(TestSite, TestService);
+				Assert.IsFalse(client.IsAuthenticated);
+
 				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
+				Assert.IsTrue(client.IsAuthenticated);
+
 				client.DeletePage(page.Id);
 
 				TestHelper.ExpectedException<Exception>(() =>
@@ -88,6 +92,67 @@ namespace Scribe.IntegrationTests
 				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
 				var result = client.GetPage(page.Id);
 				Assert.AreEqual("Hello Page", result.Title);
+			}
+		}
+
+		[TestMethod]
+		public void CancelEditingPage()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				context.PageVersions.First().EditingById = john.Id;
+				context.SaveChanges();
+
+				var client = new ScribeClient(TestSite, TestService);
+				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
+				Assert.AreEqual(john.Id, context.PageVersions.First().EditingById);
+				client.CancelEditingPage(page.Id);
+			}
+
+			using (var context = TestHelper.GetContext(false))
+			{
+				Assert.IsNull(context.PageVersions.First().EditingById);
+			}
+		}
+
+		[TestMethod]
+		public void BeginEditingPage()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				context.SaveChanges();
+
+				var client = new ScribeClient(TestSite, TestService);
+				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
+				var result = client.BeginEditingPage(page.Id);
+				Assert.AreEqual("Hello Page", result.Title);
+				Assert.AreEqual("John Doe", result.EditingBy);
+			}
+		}
+
+		[TestMethod]
+		public void GetPagePreview()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				context.SaveChanges();
+
+				var client = new ScribeClient(TestSite, TestService);
+				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
+				var result = client.GetPagePreview(page.ToView());
+				Assert.AreEqual("<p>Hello World</p>\n", result);
 			}
 		}
 
