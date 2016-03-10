@@ -299,6 +299,8 @@ namespace Scribe.Services
 
 		public string GetPagePreview(PageView model)
 		{
+			VerifyAccess("You must be authenticated to get a page preview.");
+
 			if (model.Id > 0)
 			{
 				UpdateEditingPage(model);
@@ -664,7 +666,7 @@ namespace Scribe.Services
 
 		private void UpdateEditingPage(PageView model)
 		{
-			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.PageId == model.Id);
+			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.PageId == model.Id && x.EditingById == _user.Id);
 			if (page == null)
 			{
 				throw new ArgumentException("The page could not be found.", nameof(model));

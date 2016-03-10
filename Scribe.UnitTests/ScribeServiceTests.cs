@@ -48,29 +48,6 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
-		public void Preview()
-		{
-			using (var context = TestHelper.GetContext())
-			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
-
-				var expectedEditingOn = DateTime.UtcNow;
-				var actualEntity = context.PageVersions.First(x => x.Id == page.Id);
-				Assert.AreEqual(SqlDateTime.MinValue, actualEntity.EditingOn);
-
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
-				var actual = service.GetPagePreview(page.ToView());
-				actualEntity = context.PageVersions.First(x => x.Id == page.Id);
-
-				Assert.AreEqual("<p>Hello World</p>\n", actual);
-				Assert.IsTrue(actualEntity.EditingOn >= expectedEditingOn);
-			}
-		}
-
-		[TestMethod]
 		public void CancelEditingPage()
 		{
 			using (var context = TestHelper.GetContext())
@@ -196,7 +173,7 @@ namespace Scribe.UnitTests
 				Assert.AreEqual(0, context.PageVersions.Count(x => x.Page.IsDeleted));
 				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
 				service.DeletePage(page.Id);
-			
+
 				Assert.AreEqual(1, context.Pages.Count());
 				Assert.AreEqual(1, context.PageVersions.Count());
 				Assert.AreEqual(0, context.Pages.Count(x => x.Id == page.Id));
@@ -683,6 +660,31 @@ namespace Scribe.UnitTests
 
 				Assert.AreEqual("Page1", actual.Title);
 				Assert.AreEqual("<p>Hello, <a href=\"/NewPage?suggestedTitle=Page2\" class=\"missing-page-link\">Page2</a></p>\n", actual.Html);
+			}
+		}
+
+		[TestMethod]
+		public void GetPagePreview()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
+				page.EditingById = john.Id;
+				context.SaveChanges();
+
+				var expectedEditingOn = DateTime.UtcNow;
+				var actualEntity = context.PageVersions.First(x => x.Id == page.Id);
+				Assert.AreEqual(SqlDateTime.MinValue, actualEntity.EditingOn);
+
+				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var actual = service.GetPagePreview(page.ToView());
+				actualEntity = context.PageVersions.First(x => x.Id == page.Id);
+
+				Assert.AreEqual("<p>Hello World</p>\n", actual);
+				Assert.IsTrue(actualEntity.EditingOn >= expectedEditingOn);
 			}
 		}
 
