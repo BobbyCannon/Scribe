@@ -189,6 +189,7 @@ namespace Scribe.Services
 		{
 			var query = _context.Files.Where(x => !x.IsDeleted);
 			request = request ?? new PagedRequest();
+			request.Cleanup();
 
 			if (!string.IsNullOrWhiteSpace(request.Filter))
 			{
@@ -308,6 +309,7 @@ namespace Scribe.Services
 		{
 			var query = GetCurrentPagesQuery(x => x.CreatedBy);
 			request = request ?? new PagedRequest();
+			request.Cleanup();
 
 			if (!string.IsNullOrWhiteSpace(request.Filter))
 			{
@@ -322,6 +324,7 @@ namespace Scribe.Services
 		public PagedResults<TagView> GetTags(PagedRequest request = null)
 		{
 			request = request ?? new PagedRequest();
+			request.Cleanup();
 
 			var query = GetCurrentPagesQuery()
 				.Select(x => new { x.Title, x.Tags })
@@ -353,6 +356,7 @@ namespace Scribe.Services
 
 			var query = _context.Users.OrderBy(x => x.DisplayName).AsQueryable();
 			request = request ?? new PagedRequest();
+			request.Cleanup();
 
 			if (!string.IsNullOrWhiteSpace(request.Filter))
 			{

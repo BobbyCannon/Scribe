@@ -1,4 +1,10 @@
-﻿namespace Scribe.Models.Data
+﻿#region References
+
+using System;
+
+#endregion
+
+namespace Scribe.Models.Data
 {
 	public class PagedRequest
 	{
@@ -34,7 +40,28 @@
 		public string Order { get; set; }
 
 		public int Page { get; set; }
+
 		public int PerPage { get; set; }
+
+		#endregion
+
+		#region Methods
+
+		public void Cleanup()
+		{
+			Cleanup(Filter, x => x == null, () => Filter = string.Empty);
+			Cleanup(Order, x => x == null, () => Order = string.Empty);
+			Cleanup(Page, x => x <= 0, () => Page = 1);
+			Cleanup(PerPage, x => x <= 0, () => PerPage = 20);
+		}
+
+		private static void Cleanup<T>(T item, Func<T, bool> test, Action set)
+		{
+			if (test(item))
+			{
+				set();
+			}
+		}
 
 		#endregion
 	}
