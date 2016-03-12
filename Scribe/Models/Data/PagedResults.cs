@@ -18,7 +18,7 @@ namespace Scribe.Models.Data
 		public int PerPage { get; set; }
 		public IEnumerable<T> Results { get; set; }
 		public int TotalCount { get; set; }
-		public int TotalPages => TotalCount / PerPage + (TotalCount % PerPage > 0 ? 1 : 0);
+		public int TotalPages => TotalCount > 0 ? TotalCount / PerPage + ((TotalCount % PerPage) > 0 ? 1 : 0) : 1;
 
 		#endregion
 	}

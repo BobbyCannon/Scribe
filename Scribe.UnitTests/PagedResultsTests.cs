@@ -94,7 +94,7 @@ namespace Scribe.UnitTests
 		public void TotalPagesWithNoData()
 		{
 			var result = new PagedResults<string> { PerPage = 4, TotalCount = 0 };
-			Assert.AreEqual(0, result.TotalPages);
+			Assert.AreEqual(1, result.TotalPages);
 		}
 
 		#endregion

@@ -605,9 +605,7 @@ namespace Scribe.Services
 		private PagedResults<T2> GetPagedResults<T1, T2>(IQueryable<T1> query, PagedRequest request, IDictionary<Expression<Func<T1, object>>, bool> orderingBy, Func<T1, T2> transform)
 		{
 			var orderedQuery = orderingBy.Aggregate<KeyValuePair<Expression<Func<T1, object>>, bool>,
-				IOrderedQueryable<T1>>(null, (current, orderBy) => orderBy.Value
-					? current?.ThenByDescending(orderBy.Key) ?? query.OrderByDescending(orderBy.Key)
-					: current?.ThenBy(orderBy.Key) ?? query.OrderBy(orderBy.Key));
+				IOrderedQueryable<T1>>(null, (current, orderBy) => ObjectSort(current, query, orderBy.Key, orderBy.Value));
 
 			var response = new PagedResults<T2>();
 			response.Filter = request.Filter;
@@ -623,6 +621,38 @@ namespace Scribe.Services
 				.ToList();
 
 			return response;
+		}
+
+		private static IOrderedQueryable<T1> ObjectSort<T1>(IOrderedQueryable<T1> current, IQueryable<T1> query, Expression<Func<T1, object>> orderBy, bool descending)
+		{
+			var unaryExpression = orderBy.Body as UnaryExpression;
+			if (unaryExpression != null)
+			{
+				var propertyExpression = (MemberExpression) unaryExpression.Operand;
+				var parameters = orderBy.Parameters;
+
+				if (propertyExpression.Type == typeof (DateTime))
+				{
+					var newExpression = Expression.Lambda<Func<T1, DateTime>>(propertyExpression, parameters);
+					return descending
+						? current?.ThenByDescending(newExpression) ?? query.OrderByDescending(newExpression)
+						: current?.ThenBy(newExpression) ?? query.OrderBy(newExpression);
+				}
+
+				if (propertyExpression.Type == typeof (int))
+				{
+					var newExpression = Expression.Lambda<Func<T1, int>>(propertyExpression, parameters);
+					return descending
+						? current?.ThenByDescending(newExpression) ?? query.OrderByDescending(newExpression)
+						: current?.ThenBy(newExpression) ?? query.OrderBy(newExpression);
+				}
+
+				throw new NotSupportedException("Object type resolution not implemented for this type");
+			}
+
+			return descending
+				? current?.ThenByDescending(orderBy) ?? query.OrderByDescending(orderBy)
+				: current?.ThenBy(orderBy) ?? query.OrderBy(orderBy);
 		}
 
 		private static IQueryable<User> ProcessFilter(IQueryable<User> query, RequestOptions options)
@@ -714,6 +744,10 @@ namespace Scribe.Services
 				{
 					case "createdon":
 						response.Add(x => x.CreatedOn, descend);
+						break;
+
+					case "id":
+						response.Add(x => x.Id, descend);
 						break;
 
 					case "modifiedon":

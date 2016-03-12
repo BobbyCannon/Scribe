@@ -35,7 +35,7 @@ namespace Scribe.UnitTests
 
 		#region Properties
 
-		public static bool RunUnitTestAgainstDatabase => false;
+		public static bool RunUnitTestAgainstDatabase => true;
 
 		#endregion
 
