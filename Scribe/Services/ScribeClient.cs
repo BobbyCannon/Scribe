@@ -80,16 +80,6 @@ namespace Scribe.Services
 			}
 		}
 
-		public FileView GetFile(string name, bool includeData = false)
-		{
-			var encoded = HttpUtility.UrlEncode(name);
-			using (var response = Get($"{_service}GetFile?name={encoded}&includeData={includeData}"))
-			{
-				ValidateResponse(response);
-				return Read<FileView>(response);
-			}
-		}
-
 		public PagedResults<FileView> GetFiles(PagedRequest request = null)
 		{
 			using (var response = Post($"{_service}GetFiles", request))

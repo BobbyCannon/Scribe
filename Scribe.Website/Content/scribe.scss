@@ -1060,10 +1060,6 @@ ins.diffmod {
 
 @media screen and (max-width: 960px) {
 
-}
-
-@media screen and (max-width: 640px) {	
-	
 	[class*="span"] {
 		width: 100%;
 	}
@@ -1082,5 +1078,9 @@ ins.diffmod {
 
 	.text-right-then-center {
 		text-align: center;
+	}
+
+	div.preview {
+		padding-left: 0;
 	}
 }

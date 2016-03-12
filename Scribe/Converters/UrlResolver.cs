@@ -12,6 +12,17 @@ namespace Scribe.Converters
 		#region Methods
 
 		/// <summary>
+		/// Gets the internal URL of a page based on the file name.
+		/// </summary>
+		/// <param name="id"> The file id. </param>
+		/// <param name="name"> The name of the file. </param>
+		/// <returns> An absolute path to the page. </returns>
+		public virtual string GetInternalUrlForFileName(int id, string name)
+		{
+			return $"/File/{id}/{PageView.ConvertTitleForLink(name)}";
+		}
+
+		/// <summary>
 		/// Gets the internal URL of a page based on the page title.
 		/// </summary>
 		/// <param name="id"> The page id </param>

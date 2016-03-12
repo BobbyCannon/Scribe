@@ -17,7 +17,6 @@ namespace Scribe.Services
 		void DeletePage(int id);
 		void DeleteTag(string name);
 		FileView GetFile(int id, bool includeData = false);
-		FileView GetFile(string name, bool includeData = false);
 		PagedResults<FileView> GetFiles(PagedRequest request = null);
 		PageView GetPage(int id, bool includeHistory = false);
 		string GetPagePreview(PageView view);

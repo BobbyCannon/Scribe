@@ -4,12 +4,13 @@
 	{
 		#region Constructors
 
-		public PagedRequest(string filter = "", int page = 1, int perPage = 20, bool includeDetails = false)
+		public PagedRequest(string filter = "", int page = 1, int perPage = 20, bool includeDetails = false, string order = "")
 		{
 			Filter = filter;
 			Page = page;
 			PerPage = perPage;
 			IncludeDetails = includeDetails;
+			Order = order;
 		}
 
 		#endregion
@@ -24,6 +25,14 @@
 		public string Filter { get; set; }
 
 		public bool IncludeDetails { get; set; }
+
+		/// <summary>
+		/// Request order should be in the follow format.
+		/// Item1;Item2=Ascending;Item3=Descending;
+		/// Example: CreatedOn;Title=Descending;
+		/// </summary>
+		public string Order { get; set; }
+
 		public int Page { get; set; }
 		public int PerPage { get; set; }
 

@@ -28,20 +28,14 @@ namespace Scribe.Website.Controllers
 		#region Methods
 
 		[AllowAnonymous]
-		public FileResult File(string name)
+		public FileResult File(int id)
 		{
 			var service = new ScribeService(DataContext, null, null, GetCurrentUser(false));
-			var file = service.GetFile(name, true);
+			var file = service.GetFile(id, true);
 			if (file != null)
 			{
 				Response.AddHeader("Content-Disposition", "inline; filename=" + file.Name);
 				return new FileContentResult(file.Data, file.Type);
-			}
-
-			var contentType = MimeMapping.GetMimeMapping(name);
-			if (!contentType.StartsWith("image"))
-			{
-				throw new HttpException(404, "Failed to find the file requested.");
 			}
 
 			Response.AddHeader("Content-Disposition", "inline; filename=404.png");

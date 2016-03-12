@@ -2570,7 +2570,7 @@ ins.diffmod {
   .input-inner-button.disabled, .input-inner-button:disabled {
     color: #999 !important; }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 960px) {
   [class*="span"] {
     width: 100%; }
   .span1 {
@@ -2668,5 +2668,7 @@ ins.diffmod {
   .offset23 {
     margin-left: 0; }
   .text-right-then-center {
-    text-align: center; } }
+    text-align: center; }
+  div.preview {
+    padding-left: 0; } }
 

@@ -67,6 +67,7 @@ namespace Scribe.Models.Entities
 			{
 				Id = Id,
 				Name = Name,
+				NameForLink = PageView.ConvertTitleForLink(Name),
 				Size = Size / 1024 + " kb",
 				Type = Type
 			};

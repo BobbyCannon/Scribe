@@ -17,7 +17,7 @@ namespace Scribe.UnitTests
 		public void DualFilters()
 		{
 			var input = "Item1=Value1;Item2=Value2;";
-			var actual = RequestFilter.Parse(input);
+			var actual = RequestOptions.Parse(input);
 
 			Assert.AreEqual(2, actual.Count);
 			Assert.AreEqual("Item1", actual.First().Key);
@@ -30,7 +30,7 @@ namespace Scribe.UnitTests
 		public void DualFiltersWithoutTermination()
 		{
 			var input = "Item1=Value1;Item2=Value2";
-			var actual = RequestFilter.Parse(input);
+			var actual = RequestOptions.Parse(input);
 
 			Assert.AreEqual(2, actual.Count);
 			Assert.AreEqual("Item1", actual.First().Key);
@@ -40,21 +40,10 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
-		public void FilterKeyShouldTrimButValueShouldNot()
-		{
-			var input = "Item = Value;";
-			var actual = RequestFilter.Parse(input);
-
-			Assert.AreEqual(1, actual.Count);
-			Assert.AreEqual("Item", actual.First().Key);
-			Assert.AreEqual(" Value", actual.First().Value);
-		}
-
-		[TestMethod]
 		public void SingleFilter()
 		{
 			var input = "Item1=Value2;";
-			var actual = RequestFilter.Parse(input);
+			var actual = RequestOptions.Parse(input);
 
 			Assert.AreEqual(1, actual.Count);
 			Assert.AreEqual("Item1", actual.First().Key);
@@ -65,7 +54,7 @@ namespace Scribe.UnitTests
 		public void SingleFilterWithoutTermination()
 		{
 			var input = "Item1=Value";
-			var actual = RequestFilter.Parse(input);
+			var actual = RequestOptions.Parse(input);
 
 			Assert.AreEqual(1, actual.Count);
 			Assert.AreEqual("Item1", actual.First().Key);

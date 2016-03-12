@@ -18,7 +18,7 @@
 		<tbody>
 			<tr ng-repeat="$file in model.results | filter:input.filter">
 				<td>
-					<a href="/file?name={{$file.name}}" target="blank">{{$file.name}}</a>
+					<a ng-href="/file/{{$file.id}}/{{$file.nameForLink}}" target="blank">{{$file.name}}</a>
 				</td>
 				<td class="cellLarge noWrap" title="{{$file.type}}">{{$file.type}}</td>
 				<td>{{$file.size}}</td>

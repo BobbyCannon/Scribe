@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using MarkR;
 using Scribe.Models.Views;
 
@@ -47,6 +46,7 @@ namespace Scribe.Converters
 		/// </summary>
 		public void ClearEvents()
 		{
+			ImagedParsed = null;
 			LinkParsed = null;
 		}
 
@@ -62,6 +62,11 @@ namespace Scribe.Converters
 			return tokenParser.ReplaceTokensAfterParse(html);
 		}
 
+		protected virtual FileView OnImagedParsed(string arg)
+		{
+			return ImagedParsed?.Invoke(arg);
+		}
+
 		protected virtual PageView OnLinkParsed(string arg1, string arg2)
 		{
 			return LinkParsed?.Invoke(arg1, arg2);
@@ -72,10 +77,22 @@ namespace Scribe.Converters
 		/// </summary>
 		private void OnImageParsed(object sender, ImageEventArgs e)
 		{
-			if (!e.OriginalSrc.StartsWith("http://") && !e.OriginalSrc.StartsWith("https://"))
+			if (_externalLinkPrefixes.Any(x => e.OriginalSrc.StartsWith(x)))
 			{
-				e.Src = "/file?name=" + HttpUtility.HtmlEncode(e.OriginalSrc);
+				return;
 			}
+
+			// Parse internal images.
+			var source = e.OriginalSrc;
+
+			// Find the image, or if it doesn't exist point to the original source.
+			var file = OnImagedParsed(e.OriginalSrc);
+			if (file != null)
+			{
+				source = _urlResolver.GetInternalUrlForFileName(file.Id, file.Name);
+			}
+
+			e.Src = source;
 		}
 
 		/// <summary>
@@ -122,6 +139,7 @@ namespace Scribe.Converters
 
 		#region Events
 
+		public event Func<string, FileView> ImagedParsed;
 		public event Func<string, string, PageView> LinkParsed;
 
 		#endregion

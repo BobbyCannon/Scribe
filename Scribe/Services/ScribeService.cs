@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Linq.Expressions;
@@ -39,6 +40,7 @@ namespace Scribe.Services
 			_user = user;
 
 			Converter = new MarkupConverter();
+			Converter.ImagedParsed += title => _context.Files.Where(x => x.Name == title).Select(x => new FileView { Id = x.Id, Name = x.Name }).FirstOrDefault();
 			Converter.LinkParsed += (title, title2) => GetCurrentPagesQuery().Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.PageId, Title = x.Title }).FirstOrDefault();
 		}
 
@@ -83,6 +85,7 @@ namespace Scribe.Services
 
 			var response = page.ToView(Converter);
 
+			response.Html = Converter.ToHtml(response.Text);
 			response.Files = GetFiles(new PagedRequest { PerPage = int.MaxValue, IncludeDetails = false }).Results;
 			response.Pages = GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => x.Title).ToList();
 
@@ -182,17 +185,6 @@ namespace Scribe.Services
 			return file.ToView(includeData);
 		}
 
-		public FileView GetFile(string name, bool includeData = false)
-		{
-			var file = _context.Files.FirstOrDefault(x => x.Name == name && !x.IsDeleted);
-			if (file == null)
-			{
-				throw new ArgumentException("The file could not be found.", nameof(name));
-			}
-
-			return file.ToView(includeData);
-		}
-
 		public PagedResults<FileView> GetFiles(PagedRequest request = null)
 		{
 			var query = _context.Files.Where(x => !x.IsDeleted);
@@ -203,12 +195,14 @@ namespace Scribe.Services
 				query = query.Where(x => x.Name.Contains(request.Filter));
 			}
 
-			return GetPagedResults(query, request, x => x.Name, x => new FileView
+			var order = ProcessOrderForFile(request, x => x.Name);
+			return GetPagedResults(query, request, order, x => new FileView
 			{
 				Id = x.Id,
 				Name = x.Name,
+				NameForLink = PageView.ConvertTitleForLink(x.Name),
 				Size = x.Size / 1024 + " kb",
-				Type = x.Type
+				Type = x.Type,
 			});
 		}
 
@@ -317,11 +311,12 @@ namespace Scribe.Services
 
 			if (!string.IsNullOrWhiteSpace(request.Filter))
 			{
-				var filter = RequestFilter.Parse(request.Filter);
+				var filter = RequestOptions.Parse(request.Filter);
 				query = ProcessFilter(query, filter);
 			}
 
-			return GetPagedResults(query, request, x => x.Title, x => x.ToView(Converter, request.IncludeDetails));
+			var order = ProcessOrderForPageVersion(request, x => x.Title);
+			return GetPagedResults(query, request, order, x => x.ToView(Converter, request.IncludeDetails));
 		}
 
 		public PagedResults<TagView> GetTags(PagedRequest request = null)
@@ -335,7 +330,8 @@ namespace Scribe.Services
 				.GroupBy(x => x)
 				.AsQueryable();
 
-			return GetPagedResults(query, request, x => x.Key, x => TagView.Create(x.Key, x.Count()));
+			var order = new Dictionary<Expression<Func<IGrouping<string, string>, object>>, bool> { { x => x.Key, false } };
+			return GetPagedResults(query, request, order, x => TagView.Create(x.Key, x.Count()));
 		}
 
 		public UserView GetUser(int id)
@@ -360,11 +356,12 @@ namespace Scribe.Services
 
 			if (!string.IsNullOrWhiteSpace(request.Filter))
 			{
-				var filter = RequestFilter.Parse(request.Filter);
+				var filter = RequestOptions.Parse(request.Filter);
 				query = ProcessFilter(query, filter);
 			}
 
-			return GetPagedResults(query, request, x => x.UserName, x => x.ToView());
+			var order = ProcessOrderForUser(request, x => x.UserName);
+			return GetPagedResults(query, request, order, x => x.ToView());
 		}
 
 		public void LogIn(Credentials credentials)
@@ -601,15 +598,20 @@ namespace Scribe.Services
 			return query;
 		}
 
-		private PagedResults<T2> GetPagedResults<T1, T2>(IQueryable<T1> query, PagedRequest request, Func<T1, object> orderBy, Func<T1, T2> transform)
+		private PagedResults<T2> GetPagedResults<T1, T2>(IQueryable<T1> query, PagedRequest request, IDictionary<Expression<Func<T1, object>>, bool> orderingBy, Func<T1, T2> transform)
 		{
+			var orderedQuery = orderingBy.Aggregate<KeyValuePair<Expression<Func<T1, object>>, bool>,
+				IOrderedQueryable<T1>>(null, (current, orderBy) => orderBy.Value
+					? current?.ThenByDescending(orderBy.Key) ?? query.OrderByDescending(orderBy.Key)
+					: current?.ThenBy(orderBy.Key) ?? query.OrderBy(orderBy.Key));
+
 			var response = new PagedResults<T2>();
 			response.Filter = request.Filter;
 			response.TotalCount = query.Count();
+			response.Order = request.Order;
 			response.PerPage = request.PerPage;
 			response.Page = response.TotalPages < request.Page ? response.TotalPages : request.Page;
-			response.Results = query
-				.OrderBy(orderBy)
+			response.Results = orderedQuery
 				.Skip((response.Page - 1) * response.PerPage)
 				.Take(response.PerPage)
 				.ToList()
@@ -619,9 +621,9 @@ namespace Scribe.Services
 			return response;
 		}
 
-		private static IQueryable<User> ProcessFilter(IQueryable<User> query, RequestFilter filter)
+		private static IQueryable<User> ProcessFilter(IQueryable<User> query, RequestOptions options)
 		{
-			foreach (var item in filter)
+			foreach (var item in options)
 			{
 				switch (item.Key.ToLower())
 				{
@@ -639,9 +641,9 @@ namespace Scribe.Services
 			return query;
 		}
 
-		private static IQueryable<PageVersion> ProcessFilter(IQueryable<PageVersion> query, RequestFilter filter)
+		private static IQueryable<PageVersion> ProcessFilter(IQueryable<PageVersion> query, RequestOptions options)
 		{
-			foreach (var item in filter)
+			foreach (var item in options)
 			{
 				switch (item.Key.ToLower())
 				{
@@ -662,6 +664,102 @@ namespace Scribe.Services
 			}
 
 			return query;
+		}
+
+		private static IDictionary<Expression<Func<File, object>>, bool> ProcessOrderForFile(PagedRequest request, Expression<Func<File, object>> defaultOrder, bool descending = false)
+		{
+			var response = new Dictionary<Expression<Func<File, object>>, bool>();
+
+			if (!string.IsNullOrWhiteSpace(request.Order))
+			{
+				var options = RequestOptions.Parse(request.Order);
+
+				foreach (var item in options)
+				{
+					var itemDescending = item.Value?.ToLower() == "descending";
+
+					switch (item.Key.ToLower())
+					{
+						case "name":
+							response.Add(x => x.Name, itemDescending);
+							break;
+					}
+				}
+			}
+			else
+			{
+				response.Add(defaultOrder, descending);
+			}
+
+			return response;
+		}
+
+		private static IDictionary<Expression<Func<PageVersion, object>>, bool> ProcessOrderForPageVersion(PagedRequest request, Expression<Func<PageVersion, object>> defaultOrder, bool descending = false)
+		{
+			var response = new Dictionary<Expression<Func<PageVersion, object>>, bool>();
+
+			if (!string.IsNullOrWhiteSpace(request.Order))
+			{
+				var options = RequestOptions.Parse(request.Order);
+
+				foreach (var item in options)
+				{
+					var itemDescending = item.Value?.ToLower() == "descending";
+
+					switch (item.Key.ToLower())
+					{
+						case "tags":
+							response.Add(x => x.Tags, itemDescending);
+							break;
+
+						case "text":
+							response.Add(x => x.Text, itemDescending);
+							break;
+
+						case "title":
+							response.Add(x => x.Title, itemDescending);
+							break;
+					}
+				}
+			}
+			else
+			{
+				response.Add(defaultOrder, descending);
+			}
+
+			return response;
+		}
+
+		private static IDictionary<Expression<Func<User, object>>, bool> ProcessOrderForUser(PagedRequest request, Expression<Func<User, object>> defaultOrder, bool descending = false)
+		{
+			var response = new Dictionary<Expression<Func<User, object>>, bool>();
+
+			if (!string.IsNullOrWhiteSpace(request.Order))
+			{
+				var options = RequestOptions.Parse(request.Order);
+
+				foreach (var item in options)
+				{
+					var itemDescending = item.Value?.ToLower() == "descending";
+
+					switch (item.Key.ToLower())
+					{
+						case "emailaddress":
+							response.Add(x => x.EmailAddress, itemDescending);
+							break;
+
+						case "username":
+							response.Add(x => x.UserName, itemDescending);
+							break;
+					}
+				}
+			}
+			else
+			{
+				response.Add(defaultOrder, descending);
+			}
+
+			return response;
 		}
 
 		private void UpdateEditingPage(PageView model)

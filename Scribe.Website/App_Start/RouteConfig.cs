@@ -29,16 +29,16 @@ namespace Scribe.Website
 			routes.MapRoute("EditPage", "EditPage/{id}/{title}", new { controller = "Page", action = "Edit", id = UrlParameter.Optional, title = UrlParameter.Optional });
 			routes.MapRoute("NewPage", "NewPage/{suggestedTitle}", new { controller = "Page", action = "New", suggestedTitle = UrlParameter.Optional });
 			routes.MapRoute("CancelEdit", "CancelEdit/{id}", new { controller = "Page", action = "CancelEdit", id = UrlParameter.Optional });
-			routes.MapRoute("Page", "Page/{id}/{title}", new { controller = "Page", action = "Page", title = UrlParameter.Optional });
 			routes.MapRoute("Wiki", "Wiki/{id}/{title}", new { controller = "Page", action = "Page", title = UrlParameter.Optional });
 			routes.MapRoute("PageDifference", "PageDifference/{id}/{title}", new { controller = "Page", action = "Difference", title = UrlParameter.Optional });
 			routes.MapRoute("PageHistory", "PageHistory/{id}/{title}", new { controller = "Page", action = "History", title = UrlParameter.Optional });
+			routes.MapRoute("Page", "Page/{id}/{title}", new { controller = "Page", action = "Page", title = UrlParameter.Optional });
 			routes.MapRoute("Pages", "Pages", new { controller = "Page", action = "Pages" });
 			routes.MapRoute("PagesWithTag", "PagesWithTag/{tag}", new { controller = "Page", action = "PagesWithTag", tag = UrlParameter.Optional });
 			routes.MapRoute("Profile", "Profile", new { controller = "Account", action = "Profile" });
 			routes.MapRoute("Search", "Search", new { controller = "Page", action = "Search", term = UrlParameter.Optional });
 			routes.MapRoute("Settings", "Settings", new { controller = "Page", action = "Settings" });
-			routes.MapRoute("File", "File", new { controller = "File", action = "File" });
+			routes.MapRoute("File", "File/{id}/{name}", new { controller = "File", action = "File", name = UrlParameter.Optional });
 			routes.MapRoute("Files", "Files", new { controller = "File", action = "Files" });
 			routes.MapRoute("Default", "{controller}/{action}/{id}", new { controller = "Page", action = "Home", id = UrlParameter.Optional });
 		}

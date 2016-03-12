@@ -195,6 +195,27 @@ namespace Scribe.IntegrationTests
 			Assert.AreEqual("Another Page 2", pages[0].Title);
 		}
 
+		[TestMethod]
+		public void GetPagesUsingOrder()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				TestHelper.AddPage(context, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
+				context.SaveChanges();
+			}
+
+			var client = new ScribeClient(TestSite, TestService);
+			client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
+			var pages = client.GetPages(new PagedRequest { Order = "Tags" }).Results.ToList();
+			Assert.AreEqual(2, pages.Count);
+			Assert.AreEqual("Another Page 2", pages[0].Title);
+			Assert.AreEqual("Hello Page", pages[1].Title);
+		}
+
 		#endregion
 	}
 }

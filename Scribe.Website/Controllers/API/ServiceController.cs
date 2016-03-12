@@ -70,12 +70,6 @@ namespace Scribe.Website.Controllers.API
 			return _service.GetFile(id, includeData);
 		}
 
-		[AllowAnonymous]
-		public FileView GetFile(string name, bool includeData)
-		{
-			return _service.GetFile(name, includeData);
-		}
-
 		[HttpPost]
 		[AllowAnonymous]
 		public PagedResults<FileView> GetFiles(PagedRequest request)
