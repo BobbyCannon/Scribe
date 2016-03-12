@@ -9,7 +9,6 @@
 	<div class="pull-right">
 		@Html.Raw(Model.Tags)
 	</div>
-
 	This page was last updated @Model.LastModified ago by @Model.CreatedBy.
 	@Html.ActionLink("Back", "History", new { id = Model.Id, title = Model.TitleForLink }, null)
 </div>

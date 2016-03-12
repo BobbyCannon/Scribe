@@ -47,12 +47,6 @@ namespace Scribe.Converters
 
 		#region Methods
 
-		public static string Process(string oldText, string newText)
-		{
-			var service = new HtmlDiff(oldText, newText);
-			return service.Build();
-		}
-
 		/// <summary>
 		/// Builds the HTML difference output
 		/// </summary>
@@ -71,6 +65,12 @@ namespace Scribe.Converters
 			}
 
 			return _content.ToString();
+		}
+
+		public static string Process(string oldText, string newText)
+		{
+			var service = new HtmlDiff(oldText, newText);
+			return service.Build();
 		}
 
 		private string[] ConvertHtmlToListOfWords(string[] characterString)

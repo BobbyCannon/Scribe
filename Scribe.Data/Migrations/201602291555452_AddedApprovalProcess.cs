@@ -1,7 +1,5 @@
 #region References
 
-
-
 #endregion
 
 namespace Scribe.Data.Migrations

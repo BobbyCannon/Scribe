@@ -11,7 +11,6 @@ using Lucene.Net.Index;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Search;
 using Lucene.Net.Store;
-using Scribe.Converters;
 using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Entities;

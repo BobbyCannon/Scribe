@@ -15,7 +15,11 @@ namespace Scribe.Website.Controllers
 {
 	public class BaseController : Controller
 	{
+		#region Fields
+
 		private User _user;
+
+		#endregion
 
 		#region Constructors
 

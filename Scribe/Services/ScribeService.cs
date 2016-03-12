@@ -202,7 +202,7 @@ namespace Scribe.Services
 				Name = x.Name,
 				NameForLink = PageView.ConvertTitleForLink(x.Name),
 				Size = x.Size / 1024 + " kb",
-				Type = x.Type,
+				Type = x.Type
 			});
 		}
 
@@ -291,17 +291,17 @@ namespace Scribe.Services
 			return page.ToHistoryView(IsGuestRequest);
 		}
 
-		public string GetPagePreview(PageView model)
+		public string GetPagePreview(PageView view)
 		{
 			VerifyAccess("You must be authenticated to get a page preview.");
 
-			if (model.Id > 0)
+			if (view.Id > 0)
 			{
-				UpdateEditingPage(model);
+				UpdateEditingPage(view);
 				_context.SaveChanges();
 			}
 
-			return Converter.ToHtml(model.Text);
+			return Converter.ToHtml(view.Text);
 		}
 
 		public PagedResults<PageView> GetPages(PagedRequest request = null)
@@ -666,9 +666,9 @@ namespace Scribe.Services
 			return query;
 		}
 
-		private static IDictionary<Expression<Func<File, object>>, bool> ProcessOrderForFile(PagedRequest request, Expression<Func<File, object>> defaultOrder, bool descending = false)
+		private static IDictionary<Expression<Func<T, object>>, bool> ProcessOrder<T>(PagedRequest request, Action<Dictionary<Expression<Func<T, object>>, bool>, string, bool> process, Expression<Func<T, object>> defaultOrder, bool defaultDescending = false)
 		{
-			var response = new Dictionary<Expression<Func<File, object>>, bool>();
+			var response = new Dictionary<Expression<Func<T, object>>, bool>();
 
 			if (!string.IsNullOrWhiteSpace(request.Order))
 			{
@@ -676,90 +676,76 @@ namespace Scribe.Services
 
 				foreach (var item in options)
 				{
-					var itemDescending = item.Value?.ToLower() == "descending";
-
-					switch (item.Key.ToLower())
-					{
-						case "name":
-							response.Add(x => x.Name, itemDescending);
-							break;
-					}
+					var itemDescending = item.Value?.ToLower() == "descending" || item.Value?.ToLower() == "desc";
+					process(response, item.Key.ToLower(), itemDescending);
 				}
 			}
-			else
+
+			if (response.Count <= 0)
 			{
-				response.Add(defaultOrder, descending);
+				response.Add(defaultOrder, defaultDescending);
 			}
 
 			return response;
 		}
 
-		private static IDictionary<Expression<Func<PageVersion, object>>, bool> ProcessOrderForPageVersion(PagedRequest request, Expression<Func<PageVersion, object>> defaultOrder, bool descending = false)
+		private static IDictionary<Expression<Func<File, object>>, bool> ProcessOrderForFile(PagedRequest request, Expression<Func<File, object>> defaultOrder, bool defaultDescending = false)
 		{
-			var response = new Dictionary<Expression<Func<PageVersion, object>>, bool>();
-
-			if (!string.IsNullOrWhiteSpace(request.Order))
+			return ProcessOrder(request, (response, key, descend) =>
 			{
-				var options = RequestOptions.Parse(request.Order);
-
-				foreach (var item in options)
+				switch (key)
 				{
-					var itemDescending = item.Value?.ToLower() == "descending";
-
-					switch (item.Key.ToLower())
-					{
-						case "tags":
-							response.Add(x => x.Tags, itemDescending);
-							break;
-
-						case "text":
-							response.Add(x => x.Text, itemDescending);
-							break;
-
-						case "title":
-							response.Add(x => x.Title, itemDescending);
-							break;
-					}
+					case "name":
+						response.Add(x => x.Name, descend);
+						break;
 				}
-			}
-			else
-			{
-				response.Add(defaultOrder, descending);
-			}
-
-			return response;
+			}, defaultOrder, defaultDescending);
 		}
 
-		private static IDictionary<Expression<Func<User, object>>, bool> ProcessOrderForUser(PagedRequest request, Expression<Func<User, object>> defaultOrder, bool descending = false)
+		private static IDictionary<Expression<Func<PageVersion, object>>, bool> ProcessOrderForPageVersion(PagedRequest request, Expression<Func<PageVersion, object>> defaultOrder, bool defaultDescending = false)
 		{
-			var response = new Dictionary<Expression<Func<User, object>>, bool>();
-
-			if (!string.IsNullOrWhiteSpace(request.Order))
+			return ProcessOrder(request, (response, key, descend) =>
 			{
-				var options = RequestOptions.Parse(request.Order);
-
-				foreach (var item in options)
+				switch (key)
 				{
-					var itemDescending = item.Value?.ToLower() == "descending";
+					case "createdon":
+						response.Add(x => x.CreatedOn, descend);
+						break;
 
-					switch (item.Key.ToLower())
-					{
-						case "emailaddress":
-							response.Add(x => x.EmailAddress, itemDescending);
-							break;
+					case "modifiedon":
+						response.Add(x => x.ModifiedOn, descend);
+						break;
 
-						case "username":
-							response.Add(x => x.UserName, itemDescending);
-							break;
-					}
+					case "tags":
+						response.Add(x => x.Tags, descend);
+						break;
+
+					case "text":
+						response.Add(x => x.Text, descend);
+						break;
+
+					case "title":
+						response.Add(x => x.Title, descend);
+						break;
 				}
-			}
-			else
-			{
-				response.Add(defaultOrder, descending);
-			}
+			}, defaultOrder, defaultDescending);
+		}
 
-			return response;
+		private static IDictionary<Expression<Func<User, object>>, bool> ProcessOrderForUser(PagedRequest request, Expression<Func<User, object>> defaultOrder, bool defaultDescending = false)
+		{
+			return ProcessOrder(request, (response, key, descend) =>
+			{
+				switch (key)
+				{
+					case "emailaddress":
+						response.Add(x => x.EmailAddress, descend);
+						break;
+
+					case "username":
+						response.Add(x => x.UserName, descend);
+						break;
+				}
+			}, defaultOrder, defaultDescending);
 		}
 
 		private void UpdateEditingPage(PageView model)

@@ -2,7 +2,6 @@
 
 using System;
 using System.Net.Http;
-using System.Web;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Web;

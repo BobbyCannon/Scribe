@@ -134,7 +134,7 @@ namespace Scribe.Services
 		{
 			if (_cache.ContainsKey(name))
 			{
-				return (string) _cache[name];
+				return _cache[name];
 			}
 
 			var response = _dataContext.Settings.FirstOrDefault(x => x.Name == name)?.Value;

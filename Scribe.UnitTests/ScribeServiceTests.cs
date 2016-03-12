@@ -900,6 +900,40 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
+		public void GetPagesWithOrderAscendingThenByDescending()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				TestHelper.AddPage(context, "a", "a", john);
+				TestHelper.AddPage(context, "c", "a", john);
+				TestHelper.AddPage(context, "b", "c", john);
+				TestHelper.AddPage(context, "e", "b", john);
+				TestHelper.AddPage(context, "d", "b", john);
+
+				var service = new ScribeService(context, null, null, null);
+				var actual = service.GetPages(new PagedRequest(order: "Text=Ascending;Title=Descending;"));
+
+				Assert.AreEqual(string.Empty, actual.Filter);
+				Assert.AreEqual("Text=Ascending;Title=Descending;", actual.Order);
+				Assert.AreEqual(1, actual.Page);
+				Assert.AreEqual(20, actual.PerPage);
+				Assert.AreEqual(5, actual.TotalCount);
+				Assert.AreEqual(1, actual.TotalPages);
+				Assert.AreEqual(5, actual.Results.Count());
+
+				var results = actual.Results.ToArray();
+				Assert.AreEqual("c", results[0].Title);
+				Assert.AreEqual("a", results[1].Title);
+				Assert.AreEqual("e", results[2].Title);
+				Assert.AreEqual("d", results[3].Title);
+				Assert.AreEqual("b", results[4].Title);
+			}
+		}
+
+		[TestMethod]
 		public void GetPagesWithOrderDescending()
 		{
 			using (var context = TestHelper.GetContext())
@@ -931,40 +965,6 @@ namespace Scribe.UnitTests
 				Assert.AreEqual("Fourth Page", results[2].Title);
 				Assert.AreEqual("First Page", results[3].Title);
 				Assert.AreEqual("Fifth Page", results[4].Title);
-			}
-		}
-
-		[TestMethod]
-		public void GetPagesWithOrderAscendingThenByDescending()
-		{
-			using (var context = TestHelper.GetContext())
-			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "a", "a", john);
-				TestHelper.AddPage(context, "c", "a", john);
-				TestHelper.AddPage(context, "b", "c", john);
-				TestHelper.AddPage(context, "e", "b", john);
-				TestHelper.AddPage(context, "d", "b", john);
-
-				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest(order: "Text=Ascending;Title=Descending;"));
-
-				Assert.AreEqual(string.Empty, actual.Filter);
-				Assert.AreEqual("Text=Ascending;Title=Descending;", actual.Order);
-				Assert.AreEqual(1, actual.Page);
-				Assert.AreEqual(20, actual.PerPage);
-				Assert.AreEqual(5, actual.TotalCount);
-				Assert.AreEqual(1, actual.TotalPages);
-				Assert.AreEqual(5, actual.Results.Count());
-
-				var results = actual.Results.ToArray();
-				Assert.AreEqual("c", results[0].Title);
-				Assert.AreEqual("a", results[1].Title);
-				Assert.AreEqual("e", results[2].Title);
-				Assert.AreEqual("d", results[3].Title);
-				Assert.AreEqual("b", results[4].Title);
 			}
 		}
 
