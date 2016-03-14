@@ -307,7 +307,7 @@
 
 				$scope.cancel = function () {
 					if ($scope.model.id !== 0) {
-						$http.post('/api/Service/CancelPage/' + $scope.model.id)
+						$http.post('/api/Service/CancelEditingPage/' + $scope.model.id)
 							.success(function () {
 								$window.location = '/Page/' + $scope.model.id;
 							})
@@ -321,7 +321,7 @@
 
 				$window.onbeforeunload = function () {
 					if ($scope.model.id !== 0) {
-						$http.post('/api/Service/CancelPage/' + $scope.model.id);
+						$http.post('/api/Service/CancelEditingPage/' + $scope.model.id);
 					}
 				}
 
