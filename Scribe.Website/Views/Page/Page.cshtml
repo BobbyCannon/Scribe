@@ -12,7 +12,7 @@
 			</small>
 		</div>
 		<div class="span12 text-right-then-center hideForPrint">
-			@if (Request.IsAuthenticated)
+			@if (Request.IsAuthenticated && Model.Id > 0)
 			{
 				<a id="pageEditingByLink" ng-href="/EditPage/{{ model.id }}/{{ model.titleForLink }}" ng-show="model.editingBy.length === 0 || model.editingBy == currentUser">Edit</a>
 				<a id="pagePublishLink" class="clickable" ng-click="update('pending')" ng-show="model.approvalStatus === 'none'" Title="Request this page to be published as public content.">Publish</a>
@@ -35,7 +35,7 @@
 		</div>
 		This page was last updated <span id="pageLastModified">{{ model.lastModified }}</span> ago by <span id="pageCreatedBy">{{ model.createdBy }}</span>.
 		<a id="pageHistoryLink" ng-href="/PageHistory/{{ model.id }}/{{ model.titleForLink }}">History</a>
-		@if (Request.IsAuthenticated)
+		@if (Request.IsAuthenticated && Model.Id > 0)
 		{
 			<a id="pageEditingByLink2" ng-href="/EditPage/{{ model.id }}/{{ model.titleForLink }}" ng-show="model.editingBy.length === 0 || model.editingBy == currentUser">Edit</a>
 			<a id="pagePublishLink2" class="clickable" ng-click="update('pending')" ng-show="model.approvalStatus === 'none'" Title="Request this page to be published as public content.">Publish</a>

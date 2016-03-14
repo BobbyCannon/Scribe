@@ -38,8 +38,9 @@ namespace Scribe.Website
 			routes.MapRoute("Profile", "Profile", new { controller = "Account", action = "Profile" });
 			routes.MapRoute("Search", "Search", new { controller = "Page", action = "Search", term = UrlParameter.Optional });
 			routes.MapRoute("Settings", "Settings", new { controller = "Page", action = "Settings" });
-			routes.MapRoute("File", "File/{id}/{name}", new { controller = "File", action = "File", name = UrlParameter.Optional });
+			routes.MapRoute("FileUpload", "File/Upload", new { controller = "File", action = "Upload" });
 			routes.MapRoute("Files", "Files", new { controller = "File", action = "Files" });
+			routes.MapRoute("File", "File/{id}/{name}", new { controller = "File", action = "File", name = UrlParameter.Optional });
 			routes.MapRoute("Default", "{controller}/{action}/{id}", new { controller = "Page", action = "Home", id = UrlParameter.Optional });
 		}
 
