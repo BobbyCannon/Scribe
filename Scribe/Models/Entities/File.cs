@@ -66,6 +66,7 @@ namespace Scribe.Models.Entities
 			var response = new FileView
 			{
 				Id = Id,
+				ModifiedOn = ModifiedOn,
 				Name = Name,
 				NameForLink = PageView.ConvertTitleForLink(Name),
 				Size = Size / 1024 + " kb",

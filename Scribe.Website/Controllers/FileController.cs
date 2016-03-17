@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Web;
@@ -28,19 +29,36 @@ namespace Scribe.Website.Controllers
 		#region Methods
 
 		[AllowAnonymous]
-		public FileResult File(int id)
+		public ActionResult File(int id)
 		{
 			var service = new ScribeService(DataContext, null, null, GetCurrentUser(false));
+
+			if (!string.IsNullOrEmpty(Request.Headers["If-Modified-Since"]))
+			{
+				var fileInfo = service.GetFile(id);
+				var previousModifiedOn = DateTime.ParseExact(Request.Headers["If-Modified-Since"], "r", CultureInfo.InvariantCulture).ToLocalTime();
+				var currentModifiedOn = fileInfo.ModifiedOn.TruncateTo(Extensions.DateTruncate.Second);
+
+				if (currentModifiedOn <= previousModifiedOn)
+				{
+					Response.StatusCode = 304;
+					Response.StatusDescription = "Not Modified";
+					return Content(string.Empty);
+				}
+			}
+
 			var file = service.GetFile(id, true);
 			if (file != null)
 			{
+				Response.Cache.SetCacheability(HttpCacheability.Public);
+				Response.Cache.SetLastModified(file.ModifiedOn);
 				Response.AddHeader("Content-Disposition", "inline; filename=" + file.Name);
-				return new FileContentResult(file.Data, file.Type);
+				return File(file.Data, file.Type);
 			}
 
 			Response.AddHeader("Content-Disposition", "inline; filename=404.png");
 			var data = Assembly.GetExecutingAssembly().ReadEmbeddedBinaryFile("Scribe.Website.Content.404.png");
-			return new FileContentResult(data, "image/png");
+			return File(data, "image/png");
 		}
 
 		public ActionResult Files()
