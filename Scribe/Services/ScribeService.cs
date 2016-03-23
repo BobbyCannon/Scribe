@@ -200,6 +200,7 @@ namespace Scribe.Services
 			return GetPagedResults(query, request, order, x => new FileView
 			{
 				Id = x.Id,
+				ModifiedOn = x.ModifiedOn,
 				Name = x.Name,
 				NameForLink = PageView.ConvertTitleForLink(x.Name),
 				Size = x.Size / 1024 + " kb",
@@ -209,7 +210,8 @@ namespace Scribe.Services
 
 		public PageView GetFrontPage()
 		{
-			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.Page.IsHomePage);
+			var id = IsGuestRequest ? _settingsService.FrontPagePublicId : _settingsService.FrontPagePrivateId;
+			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.PageId == id);
 
 			return page != null
 				? page.ToView(Converter)
@@ -527,11 +529,6 @@ namespace Scribe.Services
 				throw new UnauthorizedAccessException("You do not have the permission to update this page.");
 			}
 
-			if (update.Type.HasFlag(PageUpdateType.SetHomepage) && _user != null && !_user.InRole("administrator"))
-			{
-				throw new UnauthorizedAccessException("You do not have the permission to update this page.");
-			}
-
 			var pageVersion = GetCurrentPagesQuery().FirstOrDefault(x => x.PageId == update.Id);
 			if (pageVersion == null)
 			{
@@ -563,12 +560,6 @@ namespace Scribe.Services
 			{
 				pageVersion.IsPublished = false;
 				UpdatePageApprovedVersion(pageVersion.Page);
-			}
-
-			if (update.Type.HasFlag(PageUpdateType.SetHomepage))
-			{
-				_context.Pages.Where(x => x.IsHomePage).ForEach(x => x.IsHomePage = false);
-				pageVersion.Page.IsHomePage = true;
 			}
 
 			_context.SaveChanges();

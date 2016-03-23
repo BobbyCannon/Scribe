@@ -74,6 +74,10 @@
     <Compile Include="Migrations\201603031757051_AddedPageVersions.Designer.cs">
       <DependentUpon>201603031757051_AddedPageVersions.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201603231637056_AddedHomePageToSettings.cs" />
+    <Compile Include="Migrations\201603231637056_AddedHomePageToSettings.Designer.cs">
+      <DependentUpon>201603231637056_AddedHomePageToSettings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\BaseDbMigration.cs" />
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,6 +93,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603031757051_AddedPageVersions.resx">
       <DependentUpon>201603031757051_AddedPageVersions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603231637056_AddedHomePageToSettings.resx">
+      <DependentUpon>201603231637056_AddedHomePageToSettings.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

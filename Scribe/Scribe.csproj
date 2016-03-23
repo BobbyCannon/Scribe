@@ -88,6 +88,7 @@
     <Compile Include="Models\Views\PageDifferenceView.cs" />
     <Compile Include="Models\Views\PageHistorySummaryView.cs" />
     <Compile Include="Models\Views\PageHistoryView.cs" />
+    <Compile Include="Models\Views\PageReferenceView.cs" />
     <Compile Include="Models\Views\PageView.cs" />
     <Compile Include="Models\Views\ProfileView.cs" />
     <Compile Include="Models\Views\SearchResultView.cs" />

@@ -131,7 +131,14 @@ namespace Scribe.Website.Controllers
 		[MvcAuthorize(Roles = "Administrator")]
 		public ActionResult Settings()
 		{
-			var service = new SettingsService(DataContext, GetCurrentUser());
+			var user = GetCurrentUser();
+			var service = new SettingsService(DataContext, user);
+			var privateService = new ScribeService(DataContext, null, null, user);
+			var publicService = new ScribeService(DataContext, null, null, null);
+
+			ViewBag.PrivatePages = privateService.GetPages(new PagedRequest { IncludeDetails = false, PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
+			ViewBag.PublicPages = publicService.GetPages(new PagedRequest { IncludeDetails = false, PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
+			
 			return View(service.GetSettings());
 		}
 

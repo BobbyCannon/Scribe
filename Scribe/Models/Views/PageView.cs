@@ -23,7 +23,6 @@ namespace Scribe.Models.Views
 			Files = new List<FileView>();
 			Html = string.Empty;
 			Id = 0;
-			IsHomePage = false;
 			IsPublished = false;
 			LastModified = string.Empty;
 			Pages = new List<string>();
@@ -49,8 +48,6 @@ namespace Scribe.Models.Views
 		public string Html { get; set; }
 
 		public int Id { get; set; }
-
-		public bool IsHomePage { get; set; }
 
 		public bool IsPublished { get; set; }
 

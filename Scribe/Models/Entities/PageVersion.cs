@@ -136,7 +136,6 @@ namespace Scribe.Models.Entities
 				EditingBy = EditingOn > DateTime.UtcNow.Subtract(ScribeService.EditingTimeout) ? (EditingBy?.DisplayName ?? string.Empty) : string.Empty,
 				Files = new List<FileView>(),
 				Html = includeDetails ? converter?.ToHtml(Text) ?? string.Empty : string.Empty,
-				IsHomePage = Page.IsHomePage,
 				IsPublished = IsPublished,
 				LastModified = DateTime.UtcNow.Subtract(CreatedOn).ToTimeAgo(),
 				Pages = new List<string>(),

@@ -20,7 +20,6 @@
 				<a id="pageApproveLink" class="clickable" ng-click="update('reject')" ng-show="model.approvalStatus === 'pending'  && userHasTag('approver')" Title="Reject this page be be published as public content.">Reject</a>
 				<a id="pageApproveLink" class="clickable" ng-click="update('publish')" ng-show="model.approvalStatus === 'approved' && userHasTag('publisher') && !model.isPublished" Title="Published as public content.">Publish</a>
 				<a id="pageApproveLink" class="clickable" ng-click="update('unpublish')" ng-show="model.approvalStatus === 'approved' && userHasTag('publisher') && model.isPublished" Title="Unpublished as public content.">Unpublish</a>
-				<a id="pageApproveLink" class="clickable" ng-click="update('sethomepage')" ng-show="userHasTag('administrator') && !model.isHomePage" Title="Make this page the homepage.">Homepage</a>
 			}
 		</div>
 	</div>
@@ -97,10 +96,6 @@
 
 						case 'unpublish':
 							message = 'Are you sure you want to unpublish this page?';
-							break;
-
-						case 'sethomepage':
-							message = 'Are you sure you want to set this page as the homepage?';
 							break;
 					}
 

@@ -1,4 +1,5 @@
-﻿@model SettingsView
+﻿@using System.Collections
+@model SettingsView
 
 @{
 	ViewBag.Title = "Settings";
@@ -35,6 +36,15 @@
 						<input id="softDelete" type="checkbox" ng-model="model.softDelete" />
 						<label for="softDelete">Soft delete pages and files </label>
 					</dd>
+					<dt>
+						Home Page
+					</dt>
+					<dd class="padding-top-4">
+						<label>Private</label><br />
+						<select class="x-large" ng-model="model.frontPagePrivateId" ng-options="page.id as page.title for page in privatePages"></select><br />
+						<label>Public</label><br />
+						<select class="x-large" ng-model="model.frontPagePublicId" ng-options="page.id as page.title for page in publicPages"></select>
+					</dd>
 				</dl>
 			</div>
 			<div class="span12">
@@ -70,6 +80,8 @@
 				'use strict';
 
 				$scope.model = @(Html.Raw(Model.ToJson()));
+				$scope.publicPages = @(Html.Raw(Extensions.ToJson(ViewBag.PublicPages)));
+				$scope.privatePages = @(Html.Raw(Extensions.ToJson(ViewBag.PrivatePages)));
 
 				$scope.input = {
 					tab: 'viewCss'

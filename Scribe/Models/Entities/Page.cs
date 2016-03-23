@@ -36,11 +36,6 @@ namespace Scribe.Models.Entities
 		/// </summary>
 		public bool IsDeleted { get; set; }
 
-		/// <summary>
-		/// Determines if this page is the home page.
-		/// </summary>
-		public bool IsHomePage { get; set; }
-
 		public virtual ICollection<PageVersion> Versions { get; set; }
 
 		#endregion

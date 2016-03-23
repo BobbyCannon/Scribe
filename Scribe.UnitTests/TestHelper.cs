@@ -35,7 +35,7 @@ namespace Scribe.UnitTests
 
 		#region Properties
 
-		public static bool RunUnitTestAgainstDatabase => true;
+		public static bool RunUnitTestAgainstDatabase => false;
 
 		#endregion
 
@@ -94,16 +94,23 @@ namespace Scribe.UnitTests
 
 			if (homepage)
 			{
-				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.SetHomepage });
+				var settingsService = new SettingsService(context, user);
+				var settings = settingsService.GetSettings();
+				settings.FrontPagePrivateId = view.Id;
+				settings.FrontPagePublicId = view.Id;
+				settingsService.Save(settings);
+				context.SaveChanges();
 			}
 
 			return context.PageVersions.OrderByDescending(x => x.PageId == view.Id).First();
 		}
 
-		public static void AddSettings(IScribeContext context, User administrator, SettingsView settings)
+		public static SettingsView AddSettings(IScribeContext context, User administrator, SettingsView settings)
 		{
 			var service = new SettingsService(context, administrator);
 			service.Save(settings);
+			context.SaveChanges();
+			return settings;
 		}
 
 		public static User AddUser(IScribeContext context, string userName, string password, params string[] roles)
@@ -232,7 +239,7 @@ namespace Scribe.UnitTests
 			var service = new ScribeService(context, null, GetSearchService(), user);
 			action(view);
 
-			var page = service.SavePage(view);
+			service.SavePage(view);
 			context.SaveChanges();
 
 			switch (status)

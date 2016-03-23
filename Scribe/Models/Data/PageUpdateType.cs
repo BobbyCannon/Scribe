@@ -13,7 +13,6 @@ namespace Scribe.Models.Data
 		Approve = 0x02,
 		Reject = 0x04,
 		Publish = 0x08,
-		Unpublish = 0x10,
-		SetHomepage = 0x20
+		Unpublish = 0x10
 	}
 }

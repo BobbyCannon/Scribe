@@ -151,7 +151,8 @@ namespace Scribe.IntegrationTests
 
 				var client = new ScribeClient(TestSite, TestService);
 				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
-				var result = client.GetPagePreview(page.ToView());
+				var view = client.BeginEditingPage(page.Id);
+				var result = client.GetPagePreview(view);
 				Assert.AreEqual("<p>Hello World</p>\n", result);
 			}
 		}

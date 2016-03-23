@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Scribe.Data;
+using Scribe.Models.Data;
 using Scribe.Models.Entities;
 using Scribe.Models.Views;
 
@@ -16,16 +17,16 @@ namespace Scribe.Services
 		#region Fields
 
 		private static readonly Dictionary<string, string> _cache;
-		private readonly IScribeContext _dataContext;
+		private readonly IScribeContext _context;
 		private readonly User _user;
 
 		#endregion
 
 		#region Constructors
 
-		public SettingsService(IScribeContext dataContext, User user)
+		public SettingsService(IScribeContext context, User user)
 		{
-			_dataContext = dataContext;
+			_context = context;
 			_user = user;
 		}
 
@@ -42,6 +43,18 @@ namespace Scribe.Services
 		{
 			get { return GetSetting("Enable Guest Mode", false); }
 			set { AddOrUpdateSetting("Enable Guest Mode", value.ToString()); }
+		}
+
+		public int FrontPagePrivateId
+		{
+			get { return GetSetting("Private Front Page", 0); }
+			set { AddOrUpdateSetting("Private Front Page", value.ToString()); }
+		}
+
+		public int FrontPagePublicId
+		{
+			get { return GetSetting("Public Front Page", 0); }
+			set { AddOrUpdateSetting("Public Front Page", value.ToString()); }
 		}
 
 		public string LdapConnectionString
@@ -88,6 +101,8 @@ namespace Scribe.Services
 			return new SettingsView
 			{
 				EnableGuestMode = EnableGuestMode,
+				FrontPagePrivateId = FrontPagePrivateId,
+				FrontPagePublicId = FrontPagePublicId,
 				LdapConnectionString = LdapConnectionString,
 				OverwriteFilesOnUpload = OverwriteFilesOnUpload,
 				PrintCss = PrintCss,
@@ -104,6 +119,8 @@ namespace Scribe.Services
 			}
 
 			EnableGuestMode = settings.EnableGuestMode;
+			FrontPagePrivateId = settings.FrontPagePrivateId;
+			FrontPagePublicId = settings.FrontPagePublicId;
 			LdapConnectionString = settings.LdapConnectionString ?? string.Empty;
 			OverwriteFilesOnUpload = settings.OverwriteFilesOnUpload;
 			PrintCss = settings.PrintCss;
@@ -118,11 +135,11 @@ namespace Scribe.Services
 				throw new UnauthorizedAccessException("You do not have the permission to be able to change settings.");
 			}
 
-			var setting = _dataContext.Settings.FirstOrDefault(x => x.Name == name);
+			var setting = _context.Settings.FirstOrDefault(x => x.Name == name);
 			if (setting == null)
 			{
 				setting = new Setting { Name = name };
-				_dataContext.Settings.Add(setting);
+				_context.Settings.Add(setting);
 			}
 
 			setting.Value = value;
@@ -137,7 +154,7 @@ namespace Scribe.Services
 				return _cache[name];
 			}
 
-			var response = _dataContext.Settings.FirstOrDefault(x => x.Name == name)?.Value;
+			var response = _context.Settings.FirstOrDefault(x => x.Name == name)?.Value;
 			if (response != null)
 			{
 				UpdateCache(name, response);
@@ -153,7 +170,7 @@ namespace Scribe.Services
 				return bool.Parse(_cache[name]);
 			}
 
-			var value = _dataContext.Settings.FirstOrDefault(x => x.Name == name)?.Value;
+			var value = _context.Settings.FirstOrDefault(x => x.Name == name)?.Value;
 			if (value == null)
 			{
 				return defaultValue;
@@ -162,6 +179,30 @@ namespace Scribe.Services
 			bool response;
 
 			if (!bool.TryParse(value, out response))
+			{
+				return defaultValue;
+			}
+
+			UpdateCache(name, value);
+			return response;
+		}
+
+		private int GetSetting(string name, int defaultValue = 0)
+		{
+			if (_cache.ContainsKey(name))
+			{
+				return int.Parse(_cache[name]);
+			}
+
+			var value = _context.Settings.FirstOrDefault(x => x.Name == name)?.Value;
+			if (value == null)
+			{
+				return defaultValue;
+			}
+
+			int response;
+
+			if (!int.TryParse(value, out response))
 			{
 				return defaultValue;
 			}

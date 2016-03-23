@@ -331,8 +331,8 @@ namespace Scribe.UnitTests
 			using (var context = TestHelper.GetContext())
 			{
 				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = false });
 				var page = TestHelper.AddPage(context, "Front Page", "Hello World", user, ApprovalStatus.Approved, true, true);
+				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = false, FrontPagePrivateId = page.Id });
 				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Front Page2", ApprovalStatus.Approved, true);
 
 				var service = new ScribeService(context, null, null, null);
@@ -343,7 +343,7 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
-		public void GetFrontPagePublic()
+		public void GetFrontPagePublicApprovedNotPublishEdit()
 		{
 			using (var context = TestHelper.GetContext())
 			{
@@ -352,6 +352,26 @@ namespace Scribe.UnitTests
 				TestHelper.AddPage(context, "Front Page1", "Hello World1", user);
 				var page2 = TestHelper.AddPage(context, "Front Page2", "Hello World2", user, ApprovalStatus.Approved, true, true);
 				TestHelper.UpdatePage(context, user, page2.ToView(), x => x.Title = "New Front Page2", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(context, user, page2.ToView(), x => x.Title = "New Front Page3", ApprovalStatus.Approved, false);
+
+				var service = new ScribeService(context, null, null, null);
+				var actual = service.GetFrontPage();
+
+				Assert.AreEqual("New Front Page2", actual.Title);
+			}
+		}
+
+		[TestMethod]
+		public void GetFrontPagePublicNotApprovedNotPublishEdit()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddPage(context, "Front Page1", "Hello World1", user);
+				var page2 = TestHelper.AddPage(context, "Front Page2", "Hello World2", user, ApprovalStatus.Approved, true, true);
+				TestHelper.UpdatePage(context, user, page2.ToView(), x => x.Title = "New Front Page2", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(context, user, page2.ToView(), x => x.Title = "New Front Page3", ApprovalStatus.None, false);
 
 				var service = new ScribeService(context, null, null, null);
 				var actual = service.GetFrontPage();
@@ -1685,35 +1705,6 @@ namespace Scribe.UnitTests
 
 				var service = new ScribeService(context, null, null, user);
 				TestHelper.ExpectedException<UnauthorizedAccessException>(() => service.UpdatePage(new PageUpdate { Id = page.Id, Type = PageUpdateType.Reject }), "You do not have the permission to update this page.");
-			}
-		}
-
-		[TestMethod]
-		public void UpdatePageForSetHomePage()
-		{
-			using (var context = TestHelper.GetContext())
-			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!", "administrator");
-				var page = TestHelper.AddPage(context, "Title", "Hello World", user, ApprovalStatus.Pending);
-
-				var service = new ScribeService(context, null, null, user);
-				service.UpdatePage(new PageUpdate { Id = page.Id, Type = PageUpdateType.SetHomepage });
-
-				var actualEntity = context.PageVersions.First();
-				Assert.IsTrue(actualEntity.Page.IsHomePage);
-			}
-		}
-
-		[TestMethod]
-		public void UpdatePageForSetHomePageWithoutTag()
-		{
-			using (var context = TestHelper.GetContext())
-			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Title", "Hello World", user, ApprovalStatus.Pending);
-
-				var service = new ScribeService(context, null, null, user);
-				TestHelper.ExpectedException<UnauthorizedAccessException>(() => service.UpdatePage(new PageUpdate { Id = page.Id, Type = PageUpdateType.SetHomepage }), "You do not have the permission to update this page.");
 			}
 		}
 

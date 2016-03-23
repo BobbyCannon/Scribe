@@ -24,7 +24,6 @@ namespace Scribe.Data.Mapping
 			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(x => x.IsDeleted).IsRequired();
-			Property(x => x.IsHomePage).IsRequired();
 			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 
 			// Relationships
