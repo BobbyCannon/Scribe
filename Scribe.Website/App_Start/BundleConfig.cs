@@ -12,7 +12,7 @@ namespace Scribe.Website
 
 		public static void RegisterBundles(BundleCollection bundles)
 		{
-			bundles.Add(new ScriptBundle("~/Scripts/js").Include(
+			bundles.Add(new ScriptBundle("~/bundle/js").Include(
 				"~/Scripts/jquery-{version}.js",
 				"~/Scripts/jquery.fieldSelection.js",
 				"~/Scripts/jquery.signalR-{version}.js",
@@ -23,7 +23,7 @@ namespace Scribe.Website
 				"~/Scripts/toastr.js",
 				"~/Scripts/scribe.js"));
 
-			bundles.Add(new StyleBundle("~/Content/css").Include(
+			bundles.Add(new StyleBundle("~/bundle/css").Include(
 				"~/Content/font-awesome.css",
 				"~/Content/toastr.css",
 				"~/Content/scribe.css"));

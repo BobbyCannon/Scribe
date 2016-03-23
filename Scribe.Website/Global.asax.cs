@@ -31,7 +31,8 @@ namespace Scribe.Website
 		{
 			var uri = Request.Url.AbsoluteUri.ToLower();
 
-			if (!IsConfigured && !uri.Contains("setup"))
+			// This redirect is intercepting bundling and signalr request. Need to fix this better.
+			if (!IsConfigured && !uri.Contains("setup") && !uri.Contains("/bundle/") && !uri.Contains("/signalr/"))
 			{
 				Response.RedirectToRoute("Setup");
 			}
