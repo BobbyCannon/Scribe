@@ -12,9 +12,9 @@
 		<licenseUrl>https://raw.githubusercontent.com/BobbyCannon/Scribe/master/LICENSE.md</licenseUrl>
 		<tags>Wiki WIKI Documentation Web InternetExplorer FireFox Chrome</tags>
 		<dependencies>
-			<dependency id="Newtonsoft.Json" version="8.0.2" />
 			<dependency id="MarkR" version="1.16.5901.26396" />
-			<dependency id="EasyDataFramework" version="1.2.5901.27030" />
+			<dependency id="Newtonsoft.Json" version="8.0.3" />
+			<dependency id="Speedy" version="3.0.5937.37981" />
 		</dependencies>
 		<references>
 			<reference file="Scribe.dll" />
