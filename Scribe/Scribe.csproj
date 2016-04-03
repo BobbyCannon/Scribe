@@ -36,16 +36,16 @@
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EasyDataFramework, Version=1.2.5901.27030, Culture=neutral, PublicKeyToken=f2284cd81cb122c5, processorArchitecture=MSIL">
-      <HintPath>..\packages\EasyDataFramework.1.2.5901.27030\lib\net45\EasyDataFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="MarkR, Version=1.16.5901.26396, Culture=neutral, PublicKeyToken=030ab3e7881eeaab, processorArchitecture=MSIL">
       <HintPath>..\packages\MarkR.1.16.5901.26396\lib\net45\MarkR.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Speedy, Version=3.0.5937.33246, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.3.0.5937.33246\lib\net40\Speedy.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -67,7 +67,7 @@
     <Compile Include="Converters\MarkupConverter.cs" />
     <Compile Include="Converters\TextToken.cs" />
     <Compile Include="Converters\UrlResolver.cs" />
-    <Compile Include="Data\IScribeContext.cs" />
+    <Compile Include="Data\IScribeDatabase.cs" />
     <Compile Include="Exceptions\PageNotFoundException.cs" />
     <Compile Include="Exceptions\UserNotFoundException.cs" />
     <Compile Include="Extensions.cs" />

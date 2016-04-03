@@ -13,8 +13,8 @@ namespace Scribe.Website.Controllers
 	{
 		#region Constructors
 
-		public ErrorController(IScribeContext dataContext, IAuthenticationService authenticationService)
-			: base(dataContext, authenticationService)
+		public ErrorController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
+			: base(dataDatabase, authenticationService)
 		{
 		}
 

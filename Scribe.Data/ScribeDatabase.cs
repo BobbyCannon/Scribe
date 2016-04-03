@@ -1,14 +1,23 @@
 #region References
 
-using EasyDataFramework;
 using Scribe.Models.Entities;
+using Speedy;
 
 #endregion
 
 namespace Scribe.Data
 {
-	public class ScribeMemoryContext : MemoryDataContext, IScribeContext
+	public class ScribeDatabase : Database, IScribeDatabase
 	{
+		#region Constructors
+
+		public ScribeDatabase(string filePath = null, DatabaseOptions options = null)
+			: base(filePath, options)
+		{
+		}
+
+		#endregion
+
 		#region Properties
 
 		public IRepository<File> Files => GetRepository<File>();

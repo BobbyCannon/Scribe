@@ -1,12 +1,13 @@
 ﻿#region References
 
-using EasyDataFramework;
+
+using Speedy;
 
 #endregion
 
 namespace Scribe.Models.Entities
 {
-	public class Setting : Entity
+	public class Setting : ModifiableEntity
 	{
 		#region Properties
 

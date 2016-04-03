@@ -17,16 +17,16 @@ namespace Scribe.Services
 		#region Fields
 
 		private static readonly Dictionary<string, string> _cache;
-		private readonly IScribeContext _context;
+		private readonly IScribeDatabase _database;
 		private readonly User _user;
 
 		#endregion
 
 		#region Constructors
 
-		public SettingsService(IScribeContext context, User user)
+		public SettingsService(IScribeDatabase database, User user)
 		{
-			_context = context;
+			_database = database;
 			_user = user;
 		}
 
@@ -135,11 +135,11 @@ namespace Scribe.Services
 				throw new UnauthorizedAccessException("You do not have the permission to be able to change settings.");
 			}
 
-			var setting = _context.Settings.FirstOrDefault(x => x.Name == name);
+			var setting = _database.Settings.FirstOrDefault(x => x.Name == name);
 			if (setting == null)
 			{
 				setting = new Setting { Name = name };
-				_context.Settings.Add(setting);
+				_database.Settings.Add(setting);
 			}
 
 			setting.Value = value;
@@ -154,7 +154,7 @@ namespace Scribe.Services
 				return _cache[name];
 			}
 
-			var response = _context.Settings.FirstOrDefault(x => x.Name == name)?.Value;
+			var response = _database.Settings.FirstOrDefault(x => x.Name == name)?.Value;
 			if (response != null)
 			{
 				UpdateCache(name, response);
@@ -170,7 +170,7 @@ namespace Scribe.Services
 				return bool.Parse(_cache[name]);
 			}
 
-			var value = _context.Settings.FirstOrDefault(x => x.Name == name)?.Value;
+			var value = _database.Settings.FirstOrDefault(x => x.Name == name)?.Value;
 			if (value == null)
 			{
 				return defaultValue;
@@ -194,7 +194,7 @@ namespace Scribe.Services
 				return int.Parse(_cache[name]);
 			}
 
-			var value = _context.Settings.FirstOrDefault(x => x.Name == name)?.Value;
+			var value = _database.Settings.FirstOrDefault(x => x.Name == name)?.Value;
 			if (value == null)
 			{
 				return defaultValue;

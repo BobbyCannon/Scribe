@@ -19,8 +19,8 @@ namespace Scribe.Website.Controllers
 	{
 		#region Constructors
 
-		public FileController(IScribeContext dataContext, IAuthenticationService authenticationService)
-			: base(dataContext, authenticationService)
+		public FileController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
+			: base(dataDatabase, authenticationService)
 		{
 		}
 
@@ -31,7 +31,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult File(int id)
 		{
-			var service = new ScribeService(DataContext, null, null, GetCurrentUser(false));
+			var service = new ScribeService(DataDatabase, null, null, GetCurrentUser(false));
 
 			if (!string.IsNullOrEmpty(Request.Headers["If-Modified-Since"]))
 			{
@@ -63,7 +63,7 @@ namespace Scribe.Website.Controllers
 
 		public ActionResult Files()
 		{
-			var service = new ScribeService(DataContext, null, null, GetCurrentUser());
+			var service = new ScribeService(DataDatabase, null, null, GetCurrentUser());
 			return View(service.GetFiles(new PagedRequest(perPage: int.MaxValue)));
 		}
 
@@ -84,7 +84,7 @@ namespace Scribe.Website.Controllers
 				contentType = MimeMapping.GetMimeMapping(file.FileName);
 			}
 
-			var service = new ScribeService(DataContext, null, null, GetCurrentUser());
+			var service = new ScribeService(DataDatabase, null, null, GetCurrentUser());
 			var fileData = new FileView
 			{
 				Name = Path.GetFileName(file.FileName),
@@ -93,7 +93,7 @@ namespace Scribe.Website.Controllers
 			};
 
 			service.SaveFile(fileData);
-			DataContext.SaveChanges();
+			DataDatabase.SaveChanges();
 
 			return new JsonNetResult(service.GetFiles(new PagedRequest(perPage: int.MaxValue)));
 		}

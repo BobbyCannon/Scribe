@@ -28,14 +28,14 @@ namespace Scribe.UnitTests
 
 		static TestHelper()
 		{
-			Database.SetInitializer(new MigrateDatabaseToLatestVersion<ScribeContext, Configuration>(true));
+			Database.SetInitializer(new MigrateDatabaseToLatestVersion<ScribeSqlDatabase, Configuration>(true));
 		}
 
 		#endregion
 
 		#region Properties
 
-		public static bool RunUnitTestAgainstDatabase => false;
+		public static bool RunUnitTestAgainstDatabase => true;
 
 		#endregion
 
@@ -49,9 +49,9 @@ namespace Scribe.UnitTests
 			}
 		}
 
-		public static void AddDefaultSettings(IScribeContext context, User administrator)
+		public static void AddDefaultSettings(IScribeDatabase database, User administrator)
 		{
-			var service = new SettingsService(context, administrator);
+			var service = new SettingsService(database, administrator);
 			var settings = new SettingsView
 			{
 				EnableGuestMode = false,
@@ -64,16 +64,16 @@ namespace Scribe.UnitTests
 			service.Save(settings);
 		}
 
-		public static File AddFile(IScribeContext context, User user, string name, string type, byte[] data)
+		public static File AddFile(IScribeDatabase database, User user, string name, string type, byte[] data)
 		{
-			var service = new ScribeService(context, null, null, user);
+			var service = new ScribeService(database, null, null, user);
 			var id = service.SaveFile(new FileView { Name = name, Data = data, Type = type });
-			return context.Files.First(x => x.Id == id);
+			return database.Files.First(x => x.Id == id);
 		}
 
-		public static PageVersion AddPage(IScribeContext context, string title, string content, User user, ApprovalStatus status = ApprovalStatus.None, bool published = false, bool homepage = false, params string[] tags)
+		public static PageVersion AddPage(IScribeDatabase database, string title, string content, User user, ApprovalStatus status = ApprovalStatus.None, bool published = false, bool homepage = false, params string[] tags)
 		{
-			var service = new ScribeService(context, null, GetSearchService(), user);
+			var service = new ScribeService(database, null, GetSearchService(), user);
 			var view = service.SavePage(new PageView { ApprovalStatus = status, Title = title, Text = content, Tags = tags });
 
 			switch (status)
@@ -94,26 +94,26 @@ namespace Scribe.UnitTests
 
 			if (homepage)
 			{
-				var settingsService = new SettingsService(context, user);
+				var settingsService = new SettingsService(database, user);
 				var settings = settingsService.GetSettings();
 				settings.FrontPagePrivateId = view.Id;
 				settings.FrontPagePublicId = view.Id;
 				settingsService.Save(settings);
-				context.SaveChanges();
+				database.SaveChanges();
 			}
 
-			return context.PageVersions.OrderByDescending(x => x.PageId == view.Id).First();
+			return database.PageVersions.OrderByDescending(x => x.PageId == view.Id).First();
 		}
 
-		public static SettingsView AddSettings(IScribeContext context, User administrator, SettingsView settings)
+		public static SettingsView AddSettings(IScribeDatabase database, User administrator, SettingsView settings)
 		{
-			var service = new SettingsService(context, administrator);
+			var service = new SettingsService(database, administrator);
 			service.Save(settings);
-			context.SaveChanges();
+			database.SaveChanges();
 			return settings;
 		}
 
-		public static User AddUser(IScribeContext context, string userName, string password, params string[] roles)
+		public static User AddUser(IScribeDatabase database, string userName, string password, params string[] roles)
 		{
 			var user = new User
 			{
@@ -124,7 +124,7 @@ namespace Scribe.UnitTests
 			};
 
 			user.SetPassword(password);
-			context.Users.Add(user);
+			database.Users.Add(user);
 			return user;
 		}
 
@@ -162,11 +162,11 @@ namespace Scribe.UnitTests
 			Assert.Fail("The expected exception was not thrown.");
 		}
 
-		public static IScribeContext GetContext(bool clearDatabase = true)
+		public static IScribeDatabase GetContext(bool clearDatabase = true)
 		{
 			if (RunUnitTestAgainstDatabase)
 			{
-				var context = new ScribeContext();
+				var context = new ScribeSqlDatabase();
 				if (clearDatabase)
 				{
 					context.Database.ExecuteSqlCommand(Resources.ClearDatabase);
@@ -174,7 +174,7 @@ namespace Scribe.UnitTests
 				return context;
 			}
 
-			return new ScribeMemoryContext();
+			return new ScribeDatabase();
 		}
 
 		public static IScribeContextProvider GetContextProvider()
@@ -185,7 +185,7 @@ namespace Scribe.UnitTests
 			{
 				provider.Setup(x => x.GetContext(It.IsAny<bool>())).Returns<bool>(clearDatabase =>
 				{
-					var context = new ScribeContext();
+					var context = new ScribeSqlDatabase();
 
 					if (clearDatabase)
 					{
@@ -197,13 +197,13 @@ namespace Scribe.UnitTests
 			}
 			else
 			{
-				var context = new ScribeMemoryContext();
+				var context = new ScribeDatabase();
 				provider.Setup(x => x.GetContext(It.IsAny<bool>())).Returns<bool>(clearDatabase =>
 				{
 					if (clearDatabase)
 					{
 						context?.Dispose();
-						context = new ScribeMemoryContext();
+						context = new ScribeDatabase();
 					}
 
 					return context;
@@ -234,13 +234,13 @@ namespace Scribe.UnitTests
 			}
 		}
 
-		public static PageVersion UpdatePage(IScribeContext context, User user, PageView view, Action<PageView> action, ApprovalStatus status = ApprovalStatus.None, bool published = false)
+		public static PageVersion UpdatePage(IScribeDatabase database, User user, PageView view, Action<PageView> action, ApprovalStatus status = ApprovalStatus.None, bool published = false)
 		{
-			var service = new ScribeService(context, null, GetSearchService(), user);
+			var service = new ScribeService(database, null, GetSearchService(), user);
 			action(view);
 
 			service.SavePage(view);
-			context.SaveChanges();
+			database.SaveChanges();
 
 			switch (status)
 			{
@@ -258,9 +258,9 @@ namespace Scribe.UnitTests
 				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Publish });
 			}
 
-			context.SaveChanges();
+			database.SaveChanges();
 
-			return context.PageVersions.OrderByDescending(x => x.PageId == view.Id).First();
+			return database.PageVersions.OrderByDescending(x => x.PageId == view.Id).First();
 		}
 
 		#endregion

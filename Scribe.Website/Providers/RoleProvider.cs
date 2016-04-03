@@ -45,7 +45,7 @@ namespace Scribe.Website.Providers
 
 		public override string[] GetRolesForUser(string username)
 		{
-			using (var context = new ScribeContext())
+			using (var context = new ScribeSqlDatabase())
 			{
 				var userId = username.Split(';').First().ConvertToInt();
 				var user = context.Users.FirstOrDefault(x => x.Id == userId);
@@ -60,7 +60,7 @@ namespace Scribe.Website.Providers
 
 		public override bool IsUserInRole(string username, string roleName)
 		{
-			using (var context = new ScribeContext())
+			using (var context = new ScribeSqlDatabase())
 			{
 				var userId = username.Split(';').First().ConvertToInt();
 				var user = context.Users.FirstOrDefault(x => x.Id == userId);

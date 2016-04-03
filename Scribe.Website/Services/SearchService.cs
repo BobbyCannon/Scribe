@@ -30,7 +30,7 @@ namespace Scribe.Website.Services
 	{
 		#region Fields
 
-		private readonly IScribeContext _context;
+		private readonly IScribeDatabase _database;
 		private readonly string _indexPath2;
 		private static readonly LuceneVersion _luceneversion = LuceneVersion.LUCENE_30;
 		private static readonly Regex _removeTagsRegex = new Regex("<(.|\n)*?>");
@@ -41,10 +41,10 @@ namespace Scribe.Website.Services
 
 		#region Constructors
 
-		public SearchService(IScribeContext context, string path, User user)
+		public SearchService(IScribeDatabase database, string path, User user)
 		{
-			_context = context;
-			_settings = new SettingsService(context, user);
+			_database = database;
+			_settings = new SettingsService(database, user);
 			_indexPath2 = path;
 			_user = user;
 		}
@@ -106,12 +106,12 @@ namespace Scribe.Website.Services
 		{
 			EnsureDirectoryExists();
 
-			var user = _context.Users.First();
-			var privateService = new ScribeService(_context, null, null, user);
+			var user = _database.Users.First();
+			var privateService = new ScribeService(_database, null, null, user);
 			privateService.Converter.ClearEvents();
 			AddIndex(PrivateSearchPath, true, privateService.GetPages(new PagedRequest(perPage: int.MaxValue, includeDetails: true)).Results.ToArray());
 
-			var publicService = new ScribeService(_context, null, null, null);
+			var publicService = new ScribeService(_database, null, null, null);
 			publicService.Converter.ClearEvents();
 			AddIndex(PublicSearchPath, true, publicService.GetPages(new PagedRequest(perPage: int.MaxValue, includeDetails: true)).Results.ToArray());
 		}

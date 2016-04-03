@@ -50,9 +50,9 @@ namespace Scribe.Website
 			GlobalConfiguration.Configuration.Formatters.Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
 			GlobalConfiguration.Configuration.EnsureInitialized();
 
-			Database.SetInitializer(new MigrateDatabaseToLatestVersion<ScribeContext, Configuration>(true));
+			Database.SetInitializer(new MigrateDatabaseToLatestVersion<ScribeSqlDatabase, Configuration>(true));
 
-			using (var datacontext = new ScribeContext())
+			using (var datacontext = new ScribeSqlDatabase())
 			{
 				var settingsService = new SettingsService(datacontext, null);
 

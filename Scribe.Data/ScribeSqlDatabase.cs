@@ -1,26 +1,26 @@
 #region References
 
 using System.Data.Entity;
-using EasyDataFramework;
-using EasyDataFramework.EntityFramework;
 using Scribe.Data.Mapping;
 using Scribe.Models.Entities;
+using Speedy;
+using Speedy.EntityFramework;
 
 #endregion
 
 namespace Scribe.Data
 {
-	public class ScribeContext : EntityFrameworkDataContext, IScribeContext
+	public class ScribeSqlDatabase : EntityFrameworkDatabase, IScribeDatabase
 	{
 		#region Constructors
 
-		public ScribeContext()
-			: this("Name=DefaultConnection")
+		public ScribeSqlDatabase()
+			: this("Name=DefaultConnection", DatabaseOptions.GetDefaults())
 		{
 		}
 
-		public ScribeContext(string connectionString)
-			: base(connectionString)
+		public ScribeSqlDatabase(string connectionString, DatabaseOptions options)
+			: base(connectionString, options)
 		{
 		}
 

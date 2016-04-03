@@ -7,8 +7,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using EasyDataFramework;
+
 using Scribe.Models.Views;
+using Speedy;
 
 #endregion
 
@@ -17,7 +18,7 @@ namespace Scribe.Models.Entities
 	/// <summary>
 	/// Represents a user of the scribe wiki.
 	/// </summary>
-	public class User : Entity
+	public class User : ModifiableEntity
 	{
 		#region Constructors
 

@@ -6,7 +6,7 @@ using System.Data.Entity.Migrations;
 
 namespace Scribe.Data.Migrations
 {
-	public sealed class Configuration : DbMigrationsConfiguration<ScribeContext>
+	public sealed class Configuration : DbMigrationsConfiguration<ScribeSqlDatabase>
 	{
 		#region Constructors
 
@@ -20,7 +20,7 @@ namespace Scribe.Data.Migrations
 
 		#region Methods
 
-		protected override void Seed(ScribeContext context)
+		protected override void Seed(ScribeSqlDatabase database)
 		{
 			//  This method will be called after migrating to the latest version.
 

@@ -32,9 +32,9 @@ namespace Scribe.IntegrationTests
 			}
 		}
 
-		public static void AddDefaultSettings(IScribeContext context, User administrator)
+		public static void AddDefaultSettings(IScribeDatabase database, User administrator)
 		{
-			var service = new SettingsService(context, administrator);
+			var service = new SettingsService(database, administrator);
 			var settings = new SettingsView
 			{
 				EnableGuestMode = false,
@@ -48,16 +48,16 @@ namespace Scribe.IntegrationTests
 			service.Save(settings);
 		}
 
-		public static File AddFile(IScribeContext context, User user, string name, string type, byte[] data)
+		public static File AddFile(IScribeDatabase database, User user, string name, string type, byte[] data)
 		{
-			var service = new ScribeService(context, null, GetSearchService(), user);
+			var service = new ScribeService(database, null, GetSearchService(), user);
 			var id = service.SaveFile(new FileView { Name = name, Data = data, Type = type });
-			return context.Files.First(x => x.Id == id);
+			return database.Files.First(x => x.Id == id);
 		}
 
-		public static PageVersion AddPage(IScribeContext context, string title, string content, User user, ApprovalStatus status, bool published = false, params string[] tags)
+		public static PageVersion AddPage(IScribeDatabase database, string title, string content, User user, ApprovalStatus status, bool published = false, params string[] tags)
 		{
-			var service = new ScribeService(context, null, GetSearchService(), user);
+			var service = new ScribeService(database, null, GetSearchService(), user);
 			var view = service.SavePage(new PageView { ApprovalStatus = status, Title = title, Text = content, Tags = tags });
 
 			switch (status)
@@ -76,16 +76,16 @@ namespace Scribe.IntegrationTests
 				service.UpdatePage(new PageUpdate { Id = view.Id, Type = PageUpdateType.Publish });
 			}
 
-			return context.PageVersions.First(x => x.Id == view.Id);
+			return database.PageVersions.First(x => x.Id == view.Id);
 		}
 
-		public static void AddSettings(IScribeContext context, User administrator, SettingsView settings)
+		public static void AddSettings(IScribeDatabase database, User administrator, SettingsView settings)
 		{
-			var service = new SettingsService(context, administrator);
+			var service = new SettingsService(database, administrator);
 			service.Save(settings);
 		}
 
-		public static User AddUser(IScribeContext context, string userName, string password, params string[] roles)
+		public static User AddUser(IScribeDatabase database, string userName, string password, params string[] roles)
 		{
 			var user = new User
 			{
@@ -96,7 +96,7 @@ namespace Scribe.IntegrationTests
 			};
 
 			user.SetPassword(password);
-			context.Users.Add(user);
+			database.Users.Add(user);
 			return user;
 		}
 
@@ -134,9 +134,9 @@ namespace Scribe.IntegrationTests
 			Assert.Fail("The expected exception was not thrown.");
 		}
 
-		public static IScribeContext GetContext(bool clearDatabase = true)
+		public static IScribeDatabase GetContext(bool clearDatabase = true)
 		{
-			var context = new ScribeContext();
+			var context = new ScribeSqlDatabase();
 
 			if (clearDatabase)
 			{

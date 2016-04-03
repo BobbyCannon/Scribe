@@ -10,7 +10,7 @@ namespace Scribe.UnitTests
 	{
 		#region Methods
 
-		IScribeContext GetContext(bool clearDatabase = true);
+		IScribeDatabase GetContext(bool clearDatabase = true);
 
 		#endregion
 	}

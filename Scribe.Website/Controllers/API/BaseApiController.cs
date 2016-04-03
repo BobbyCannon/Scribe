@@ -23,9 +23,9 @@ namespace Scribe.Website.Controllers.API
 
 		#region Constructors
 
-		public BaseApiController(IScribeContext dataContext, IAuthenticationService authenticationService)
+		public BaseApiController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
 		{
-			DataContext = dataContext;
+			DataDatabase = dataDatabase;
 			AuthenticationService = authenticationService;
 		}
 
@@ -35,7 +35,7 @@ namespace Scribe.Website.Controllers.API
 
 		public IAuthenticationService AuthenticationService { get; }
 
-		public IScribeContext DataContext { get; }
+		public IScribeDatabase DataDatabase { get; }
 
 		#endregion
 
@@ -52,7 +52,7 @@ namespace Scribe.Website.Controllers.API
 		{
 			if (disposing)
 			{
-				DataContext.Dispose();
+				DataDatabase.Dispose();
 			}
 
 			base.Dispose(disposing);
@@ -85,7 +85,7 @@ namespace Scribe.Website.Controllers.API
 			}
 
 			var userId = identity.GetId();
-			_user = DataContext.Users.FirstOrDefault(u => u.Id == userId);
+			_user = DataDatabase.Users.FirstOrDefault(u => u.Id == userId);
 			if (_user == null)
 			{
 				// Log the user out because we cannot find the user account.

@@ -1,13 +1,13 @@
 ﻿#region References
 
-using EasyDataFramework;
 using Scribe.Models.Entities;
+using Speedy;
 
 #endregion
 
 namespace Scribe.Data
 {
-	public interface IScribeContext : IDataContext
+	public interface IScribeDatabase : IDatabase
 	{
 		#region Properties
 

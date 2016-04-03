@@ -3,13 +3,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using EasyDataFramework;
+
+using Speedy;
 
 #endregion
 
 namespace Scribe.Models.Entities
 {
-	public class Page : Entity
+	public class Page : ModifiableEntity
 	{
 		#region Constructors
 

@@ -23,9 +23,9 @@ namespace Scribe.Website.Controllers
 
 		#region Constructors
 
-		public BaseController(IScribeContext dataContext, IAuthenticationService authenticationService)
+		public BaseController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
 		{
-			DataContext = dataContext;
+			DataDatabase = dataDatabase;
 			AuthenticationService = authenticationService;
 		}
 
@@ -35,7 +35,7 @@ namespace Scribe.Website.Controllers
 
 		public IAuthenticationService AuthenticationService { get; }
 
-		public IScribeContext DataContext { get; }
+		public IScribeDatabase DataDatabase { get; }
 
 		#endregion
 
@@ -68,7 +68,7 @@ namespace Scribe.Website.Controllers
 			}
 
 			var userId = identity.GetId();
-			_user = DataContext.Users.FirstOrDefault(u => u.Id == userId);
+			_user = DataDatabase.Users.FirstOrDefault(u => u.Id == userId);
 			if (_user == null)
 			{
 				// Log the user out because we cannot find the user account.
@@ -94,7 +94,7 @@ namespace Scribe.Website.Controllers
 		{
 			if (disposing)
 			{
-				DataContext.Dispose();
+				DataDatabase.Dispose();
 			}
 
 			base.Dispose(disposing);

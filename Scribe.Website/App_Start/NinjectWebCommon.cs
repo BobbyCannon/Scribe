@@ -82,7 +82,7 @@ namespace Scribe.Website
 			var serializer = JsonSerializer.Create(settings);
 
 			kernel.Bind<JsonSerializer>().ToConstant(serializer);
-			kernel.Bind<IScribeContext>().To<ScribeContext>();
+			kernel.Bind<IScribeDatabase>().To<ScribeSqlDatabase>();
 			kernel.Bind<IAuthenticationService>().To<AuthenticationService>();
 			kernel.Bind<INotificationHub>().To<NotificationHubService>();
 		}

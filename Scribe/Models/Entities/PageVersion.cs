@@ -3,11 +3,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EasyDataFramework;
+
 using Scribe.Converters;
 using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
 using Scribe.Services;
+using Speedy;
 
 #endregion
 
@@ -16,7 +17,7 @@ namespace Scribe.Models.Entities
 	/// <summary>
 	/// Represents a page. Content store in the page version.
 	/// </summary>
-	public class PageVersion : Entity
+	public class PageVersion : ModifiableEntity
 	{
 		#region Properties
 

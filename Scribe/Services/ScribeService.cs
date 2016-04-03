@@ -22,7 +22,7 @@ namespace Scribe.Services
 		#region Fields
 
 		private readonly AccountService _accountService;
-		private readonly IScribeContext _context;
+		private readonly IScribeDatabase _database;
 		private readonly ISearchService _searchService;
 		private readonly SettingsService _settingsService;
 		private readonly User _user;
@@ -31,16 +31,16 @@ namespace Scribe.Services
 
 		#region Constructors
 
-		public ScribeService(IScribeContext context, AccountService accountService, ISearchService searchService, User user)
+		public ScribeService(IScribeDatabase database, AccountService accountService, ISearchService searchService, User user)
 		{
-			_context = context;
+			_database = database;
 			_accountService = accountService;
 			_searchService = searchService;
-			_settingsService = new SettingsService(context, user);
+			_settingsService = new SettingsService(database, user);
 			_user = user;
 
 			Converter = new MarkupConverter();
-			Converter.ImagedParsed += title => _context.Files.Where(x => x.Name == title).Select(x => new FileView { Id = x.Id, Name = x.Name }).FirstOrDefault();
+			Converter.ImagedParsed += title => _database.Files.Where(x => x.Name == title).Select(x => new FileView { Id = x.Id, Name = x.Name }).FirstOrDefault();
 			Converter.LinkParsed += (title, title2) => GetCurrentPagesQuery().Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.PageId, Title = x.Title }).FirstOrDefault();
 		}
 
@@ -80,7 +80,7 @@ namespace Scribe.Services
 			{
 				page.EditingBy = _user;
 				page.EditingOn = DateTime.UtcNow;
-				_context.SaveChanges();
+				_database.SaveChanges();
 			}
 
 			var response = page.ToView(Converter);
@@ -105,14 +105,14 @@ namespace Scribe.Services
 			page.EditingBy = null;
 			page.EditingById = null;
 			page.EditingOn = SqlDateTime.MinValue.Value;
-			_context.SaveChanges();
+			_database.SaveChanges();
 		}
 
 		public void DeleteFile(int id)
 		{
 			VerifyAccess("You must be authenticated to delete a file.");
 
-			var file = _context.Files.FirstOrDefault(x => x.Id == id);
+			var file = _database.Files.FirstOrDefault(x => x.Id == id);
 			if (file == null)
 			{
 				throw new ArgumentException("Failed to find the file with the provided ID.", nameof(id));
@@ -124,17 +124,17 @@ namespace Scribe.Services
 			}
 			else
 			{
-				_context.Files.Remove(file);
+				_database.Files.Remove(file);
 			}
 
-			_context.SaveChanges();
+			_database.SaveChanges();
 		}
 
 		public void DeletePage(int id)
 		{
 			VerifyAccess("You must be authenticated to delete a page.");
 
-			var page = _context.Pages.FirstOrDefault(x => x.Id == id);
+			var page = _database.Pages.FirstOrDefault(x => x.Id == id);
 			if (page == null)
 			{
 				return;
@@ -148,12 +148,12 @@ namespace Scribe.Services
 			{
 				page.ApprovedVersionId = null;
 				page.CurrentVersionId = null;
-				_context.SaveChanges();
-				_context.PageVersions.RemoveRange(x => x.PageId == id);
-				_context.Pages.Remove(id);
+				_database.SaveChanges();
+				_database.PageVersions.RemoveRange(x => x.PageId == id);
+				_database.Pages.Remove(id);
 			}
 
-			_context.SaveChanges();
+			_database.SaveChanges();
 		}
 
 		public void DeleteTag(string tag)
@@ -169,14 +169,14 @@ namespace Scribe.Services
 			var pagesToUpdate = GetCurrentPagesQuery().Where(x => x.Tags.Contains(name1)).ToList();
 			pagesToUpdate.ForEach(page => page.Tags = page.Tags.Replace(name1, ","));
 
-			_context.SaveChanges();
+			_database.SaveChanges();
 
 			pagesToUpdate.ForEach(page => _searchService.Add(page.ToView(Converter)));
 		}
 
 		public FileView GetFile(int id, bool includeData = false)
 		{
-			var file = _context.Files.FirstOrDefault(x => x.Id == id && !x.IsDeleted);
+			var file = _database.Files.FirstOrDefault(x => x.Id == id && !x.IsDeleted);
 			if (file == null)
 			{
 				throw new ArgumentException("The file could not be found.", nameof(id));
@@ -187,7 +187,7 @@ namespace Scribe.Services
 
 		public PagedResults<FileView> GetFiles(PagedRequest request = null)
 		{
-			var query = _context.Files.Where(x => !x.IsDeleted);
+			var query = _database.Files.Where(x => !x.IsDeleted);
 			request = request ?? new PagedRequest();
 			request.Cleanup();
 
@@ -301,7 +301,7 @@ namespace Scribe.Services
 			if (view.Id > 0)
 			{
 				UpdateEditingPage(view);
-				_context.SaveChanges();
+				_database.SaveChanges();
 			}
 
 			return Converter.ToHtml(view.Text);
@@ -346,7 +346,7 @@ namespace Scribe.Services
 				throw new UnauthorizedAccessException("You do not have the permission to be access users.");
 			}
 
-			return _context.Users.FirstOrDefault(x => x.Id == id)?.ToView();
+			return _database.Users.FirstOrDefault(x => x.Id == id)?.ToView();
 		}
 
 		public PagedResults<UserView> GetUsers(PagedRequest request = null)
@@ -356,7 +356,7 @@ namespace Scribe.Services
 				throw new UnauthorizedAccessException("You do not have the permission to be access users.");
 			}
 
-			var query = _context.Users.OrderBy(x => x.DisplayName).AsQueryable();
+			var query = _database.Users.OrderBy(x => x.DisplayName).AsQueryable();
 			request = request ?? new PagedRequest();
 			request.Cleanup();
 
@@ -401,7 +401,7 @@ namespace Scribe.Services
 
 			pagesToUpdate.ForEach(page => page.Tags = page.Tags.Replace(name1, name2));
 
-			_context.SaveChanges();
+			_database.SaveChanges();
 
 			pagesToUpdate.ForEach(page => _searchService.Add(page.ToView(Converter)));
 		}
@@ -410,7 +410,7 @@ namespace Scribe.Services
 		{
 			VerifyAccess("You must be authenticated to save the file.");
 
-			var file = _context.Files.FirstOrDefault(x => x.Name == view.Name)
+			var file = _database.Files.FirstOrDefault(x => x.Name == view.Name)
 				?? new File { Name = view.Name, CreatedBy = _user, CreatedOn = DateTime.UtcNow };
 
 			if (!_settingsService.OverwriteFilesOnUpload && file.Id != 0)
@@ -424,8 +424,8 @@ namespace Scribe.Services
 			file.ModifiedOn = file.Id == 0 ? file.CreatedOn : DateTime.UtcNow;
 			file.ModifiedBy = _user;
 
-			_context.Files.AddOrUpdate(file);
-			_context.SaveChanges();
+			_database.Files.AddOrUpdate(file);
+			_database.SaveChanges();
 
 			return file.Id;
 		}
@@ -442,7 +442,7 @@ namespace Scribe.Services
 			var currentTime = DateTime.UtcNow;
 			var tags = $",{string.Join(",", view.Tags.Select(x => x.Trim()).Distinct().OrderBy(x => x))},";
 
-			var page = _context.Pages.FirstOrDefault(x => x.Id == view.Id)
+			var page = _database.Pages.FirstOrDefault(x => x.Id == view.Id)
 				?? new Page { CreatedOn = currentTime, ModifiedOn = currentTime };
 
 			var pageVersion = page.Versions.OrderByDescending(x => x.Id).FirstOrDefault();
@@ -453,8 +453,8 @@ namespace Scribe.Services
 
 			if (page.Id == 0)
 			{
-				_context.Pages.Add(page);
-				_context.SaveChanges();
+				_database.Pages.Add(page);
+				_database.SaveChanges();
 			}
 
 			// Add version if it's new or has changed.
@@ -486,8 +486,8 @@ namespace Scribe.Services
 				pageVersion.Page = page;
 			}
 
-			_context.PageVersions.AddOrUpdate(pageVersion);
-			_context.SaveChanges();
+			_database.PageVersions.AddOrUpdate(pageVersion);
+			_database.SaveChanges();
 
 			var result = pageVersion.ToView(Converter);
 			_searchService.Add(result);
@@ -499,7 +499,7 @@ namespace Scribe.Services
 		{
 			VerifyAccess("You do not have the permission to be access users.", "administrator");
 
-			var user = _context.Users.FirstOrDefault(x => x.Id == view.Id);
+			var user = _database.Users.FirstOrDefault(x => x.Id == view.Id);
 			if (user == null)
 			{
 				throw new UserNotFoundException("The user could not be found.");
@@ -510,7 +510,7 @@ namespace Scribe.Services
 			user.UserName = view.UserName;
 			user.Tags = $",{string.Join(",", view.Tags.Select(x => x.Trim()).Distinct().OrderBy(x => x))},";
 
-			_context.SaveChanges();
+			_database.SaveChanges();
 
 			return user.ToView();
 		}
@@ -562,13 +562,13 @@ namespace Scribe.Services
 				UpdatePageApprovedVersion(pageVersion.Page);
 			}
 
-			_context.SaveChanges();
+			_database.SaveChanges();
 			return pageVersion.ToView(Converter);
 		}
 
 		private IQueryable<PageVersion> GetAllPagesQuery(params Expression<Func<PageVersion, object>>[] includes)
 		{
-			var query = includes != null ? _context.PageVersions.Including(includes) : _context.PageVersions;
+			var query = includes != null ? _database.PageVersions.Including(includes) : _database.PageVersions;
 			query = query.Where(x => !x.Page.IsDeleted);
 
 			if (IsGuestRequest)
@@ -583,8 +583,8 @@ namespace Scribe.Services
 		private IQueryable<PageVersion> GetCurrentPagesQuery(params Expression<Func<PageVersion, object>>[] includes)
 		{
 			var query = includes != null
-				? _context.PageVersions.Including(includes)
-				: _context.PageVersions;
+				? _database.PageVersions.Including(includes)
+				: _database.PageVersions;
 
 			query = IsGuestRequest
 				? query.Where(x => !x.Page.IsDeleted && x.Page.ApprovedVersionId == x.Id)

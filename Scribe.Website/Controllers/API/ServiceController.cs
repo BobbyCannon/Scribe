@@ -22,13 +22,13 @@ namespace Scribe.Website.Controllers.API
 
 		#region Constructors
 
-		public ServiceController(IScribeContext dataContext, IAuthenticationService authenticationService)
-			: base(dataContext, authenticationService)
+		public ServiceController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
+			: base(dataDatabase, authenticationService)
 		{
 			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
-			var searchService = new SearchService(DataContext, path, GetCurrentUser(false));
-			var accountService = new AccountService(dataContext, authenticationService);
-			_service = new ScribeService(dataContext, accountService, searchService, GetCurrentUser(false));
+			var searchService = new SearchService(DataDatabase, path, GetCurrentUser(false));
+			var accountService = new AccountService(dataDatabase, authenticationService);
+			_service = new ScribeService(dataDatabase, accountService, searchService, GetCurrentUser(false));
 		}
 
 		#endregion

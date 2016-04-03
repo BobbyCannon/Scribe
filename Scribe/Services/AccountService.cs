@@ -17,18 +17,18 @@ namespace Scribe.Services
 		#region Fields
 
 		private readonly IAuthenticationService _authenticationService;
-		private readonly IScribeContext _context;
+		private readonly IScribeDatabase _database;
 		private readonly string _ldapConnectionString;
 
 		#endregion
 
 		#region Constructors
 
-		public AccountService(IScribeContext context, IAuthenticationService authenticationService)
+		public AccountService(IScribeDatabase database, IAuthenticationService authenticationService)
 		{
-			_context = context;
+			_database = database;
 			_authenticationService = authenticationService;
-			_ldapConnectionString = new SettingsService(context, null).LdapConnectionString;
+			_ldapConnectionString = new SettingsService(database, null).LdapConnectionString;
 		}
 
 		#endregion
@@ -67,7 +67,7 @@ namespace Scribe.Services
 
 		public void Update(ProfileView profile)
 		{
-			var user = _context.Users.FirstOrDefault(x => x.Id == profile.UserId);
+			var user = _database.Users.FirstOrDefault(x => x.Id == profile.UserId);
 			if (user == null)
 			{
 				throw new DataException("The profile could not be found.");
@@ -103,7 +103,7 @@ namespace Scribe.Services
 
 			user.SetPassword(password);
 
-			var foundUser = _context.Users.FirstOrDefault(x => x.UserName == userName);
+			var foundUser = _database.Users.FirstOrDefault(x => x.UserName == userName);
 			if (foundUser != null)
 			{
 				foundUser.EmailAddress = user.EmailAddress;
@@ -113,15 +113,15 @@ namespace Scribe.Services
 				user = foundUser;
 			}
 
-			_context.Users.AddOrUpdate(user);
-			_context.SaveChanges();
+			_database.Users.AddOrUpdate(user);
+			_database.SaveChanges();
 
 			return user;
 		}
 
 		private bool Authenticate(Credentials model)
 		{
-			var user = _context.Users.FirstOrDefault(x => x.UserName == model.UserName);
+			var user = _database.Users.FirstOrDefault(x => x.UserName == model.UserName);
 			if (user == null)
 			{
 				return false;

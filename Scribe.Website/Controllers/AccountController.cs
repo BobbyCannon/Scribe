@@ -15,8 +15,8 @@ namespace Scribe.Website.Controllers
 	{
 		#region Constructors
 
-		public AccountController(IScribeContext dataContext, IAuthenticationService authenticationService)
-			: base(dataContext, authenticationService)
+		public AccountController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
+			: base(dataDatabase, authenticationService)
 		{
 		}
 
@@ -42,7 +42,7 @@ namespace Scribe.Website.Controllers
 				return View(model);
 			}
 
-			var accountService = new AccountService(DataContext, AuthenticationService);
+			var accountService = new AccountService(DataDatabase, AuthenticationService);
 			if (!accountService.LogIn(model))
 			{
 				ModelState.AddModelError("userName", Constants.LoginInvalidError);
@@ -50,7 +50,7 @@ namespace Scribe.Website.Controllers
 				return View(model);
 			}
 
-			DataContext.SaveChanges();
+			DataDatabase.SaveChanges();
 
 			if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
 			{
@@ -82,25 +82,25 @@ namespace Scribe.Website.Controllers
 		[HttpPost]
 		public ActionResult UserProfile(ProfileView profile)
 		{
-			var service = new AccountService(DataContext, AuthenticationService);
+			var service = new AccountService(DataDatabase, AuthenticationService);
 			service.Update(profile);
-			DataContext.SaveChanges();
+			DataDatabase.SaveChanges();
 			return View(profile);
 		}
 
 		[MvcAuthorize(Roles = "Administrator")]
 		public ActionResult Users()
 		{
-			var accountService = new AccountService(DataContext, AuthenticationService);
-			var service = new ScribeService(DataContext, accountService, null, GetCurrentUser());
+			var accountService = new AccountService(DataDatabase, AuthenticationService);
+			var service = new ScribeService(DataDatabase, accountService, null, GetCurrentUser());
 			return View(service.GetUsers(new PagedRequest(perPage: int.MaxValue)));
 		}
 
 		[MvcAuthorize(Roles = "Administrator")]
 		public ActionResult UsersWithTag(string tag)
 		{
-			var accountService = new AccountService(DataContext, AuthenticationService);
-			var service = new ScribeService(DataContext, accountService, null, GetCurrentUser());
+			var accountService = new AccountService(DataDatabase, AuthenticationService);
+			var service = new ScribeService(DataDatabase, accountService, null, GetCurrentUser());
 			return View(service.GetUsers(new PagedRequest($"Tags={tag}", 1, int.MaxValue)));
 		}
 
@@ -108,8 +108,8 @@ namespace Scribe.Website.Controllers
 		[ActionName("User")]
 		public ActionResult UserView(int id)
 		{
-			var accountService = new AccountService(DataContext, AuthenticationService);
-			var service = new ScribeService(DataContext, accountService, null, GetCurrentUser());
+			var accountService = new AccountService(DataDatabase, AuthenticationService);
+			var service = new ScribeService(DataDatabase, accountService, null, GetCurrentUser());
 			return View(service.GetUser(id));
 		}
 

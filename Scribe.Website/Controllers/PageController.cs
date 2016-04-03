@@ -28,14 +28,14 @@ namespace Scribe.Website.Controllers
 
 		#region Constructors
 
-		public PageController(IScribeContext dataContext, IAuthenticationService authenticationService, INotificationHub notificationHub)
-			: base(dataContext, authenticationService)
+		public PageController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService, INotificationHub notificationHub)
+			: base(dataDatabase, authenticationService)
 		{
 			_notificationHub = notificationHub;
 			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
-			_searchService = new SearchService(DataContext, path, GetCurrentUser(false));
-			var accountService = new AccountService(dataContext, authenticationService);
-			_service = new ScribeService(DataContext, accountService, _searchService, GetCurrentUser(false));
+			_searchService = new SearchService(DataDatabase, path, GetCurrentUser(false));
+			var accountService = new AccountService(dataDatabase, authenticationService);
+			_service = new ScribeService(DataDatabase, accountService, _searchService, GetCurrentUser(false));
 		}
 
 		#endregion
@@ -58,7 +58,7 @@ namespace Scribe.Website.Controllers
 		public ActionResult Edit(int id)
 		{
 			var view = _service.BeginEditingPage(id);
-			DataContext.SaveChanges();
+			DataDatabase.SaveChanges();
 			_notificationHub.PageLockedForEdit(id, view.EditingBy);
 			return View(view);
 		}
@@ -132,9 +132,9 @@ namespace Scribe.Website.Controllers
 		public ActionResult Settings()
 		{
 			var user = GetCurrentUser();
-			var service = new SettingsService(DataContext, user);
-			var privateService = new ScribeService(DataContext, null, null, user);
-			var publicService = new ScribeService(DataContext, null, null, null);
+			var service = new SettingsService(DataDatabase, user);
+			var privateService = new ScribeService(DataDatabase, null, null, user);
+			var publicService = new ScribeService(DataDatabase, null, null, null);
 
 			ViewBag.PrivatePages = privateService.GetPages(new PagedRequest { IncludeDetails = false, PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
 			ViewBag.PublicPages = publicService.GetPages(new PagedRequest { IncludeDetails = false, PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
