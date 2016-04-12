@@ -120,12 +120,12 @@
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy, Version=3.0.5937.37981, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.EntityFramework.3.0.5937.37981\lib\net40\Speedy.dll</HintPath>
+    <Reference Include="Speedy, Version=4.0.5945.42553, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.EntityFramework.4.0.5945.42553\lib\net452\Speedy.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy.EntityFramework, Version=3.0.5937.37981, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.EntityFramework.3.0.5937.37981\lib\net40\Speedy.EntityFramework.dll</HintPath>
+    <Reference Include="Speedy.EntityFramework, Version=4.0.5945.42553, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.EntityFramework.4.0.5945.42553\lib\net452\Speedy.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Net.Http" />
