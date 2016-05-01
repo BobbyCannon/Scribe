@@ -15,7 +15,7 @@ namespace Scribe.Data
 		#region Constructors
 
 		public ScribeSqlDatabase()
-			: this("Name=DefaultConnection", DatabaseOptions.GetDefaults())
+			: this("Name=DefaultConnection", new DatabaseOptions())
 		{
 		}
 

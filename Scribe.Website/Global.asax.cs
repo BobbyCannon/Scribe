@@ -31,6 +31,14 @@ namespace Scribe.Website
 		{
 			var uri = Request.Url.AbsoluteUri.ToLower();
 
+			if (!IsConfigured)
+			{
+				using (var datacontext = new ScribeSqlDatabase())
+				{
+					IsConfigured = datacontext.Users.Any();
+				}
+			}
+
 			// This redirect is intercepting bundling and signalr request. Need to fix this better.
 			if (!IsConfigured && !uri.Contains("setup") && !uri.Contains("/bundle/") && !uri.Contains("/signalr/"))
 			{

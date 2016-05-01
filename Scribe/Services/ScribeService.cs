@@ -149,7 +149,7 @@ namespace Scribe.Services
 				page.ApprovedVersionId = null;
 				page.CurrentVersionId = null;
 				_database.SaveChanges();
-				_database.PageVersions.RemoveRange(x => x.PageId == id);
+				_database.PageVersions.Remove(x => x.PageId == id);
 				_database.Pages.Remove(id);
 			}
 
