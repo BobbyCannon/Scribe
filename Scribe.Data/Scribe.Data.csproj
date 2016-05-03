@@ -42,12 +42,12 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy, Version=4.1.5966.36945, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.EntityFramework.4.1.5966.36945\lib\net452\Speedy.dll</HintPath>
+    <Reference Include="Speedy, Version=4.1.5967.31378, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.EntityFramework.4.1.5967.31378\lib\net452\Speedy.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy.EntityFramework, Version=4.1.5966.36945, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.EntityFramework.4.1.5966.36945\lib\net452\Speedy.EntityFramework.dll</HintPath>
+    <Reference Include="Speedy.EntityFramework, Version=4.1.5967.31378, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.EntityFramework.4.1.5967.31378\lib\net452\Speedy.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
