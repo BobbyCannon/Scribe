@@ -1,5 +1,4 @@
-﻿@using System.Collections
-@model SettingsView
+﻿@model SettingsView
 
 @{
 	ViewBag.Title = "Settings";
@@ -74,12 +73,13 @@
 {
 	<script type="text/javascript">
 
-		scribe.controller('controller', [
+		scribe.controller('controller',
+		[
 			'$scope', '$http', '$window',
 			function ($scope, $http, $window) {
 				'use strict';
 
-				$scope.model = @(Html.Raw(Model.ToJson()));
+				$scope.model = @(Html.Raw(Model.ToJson(true)));
 				$scope.publicPages = @(Html.Raw(Extensions.ToJson(ViewBag.PublicPages)));
 				$scope.privatePages = @(Html.Raw(Extensions.ToJson(ViewBag.PrivatePages)));
 

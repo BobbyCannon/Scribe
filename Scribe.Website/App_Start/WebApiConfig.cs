@@ -18,7 +18,7 @@ namespace Scribe.Website
 
 			config.Filters.Add(new AuthorizeAttribute());
 			config.Filters.Add(new WebApiExceptionFilterAttribute());
-			config.Services.Add(typeof (IExceptionLogger), new TraceExceptionLogger());
+			config.Services.Add(typeof(IExceptionLogger), new TraceExceptionLogger());
 		}
 
 		#endregion

@@ -40,12 +40,13 @@
 {
 	<script type="text/javascript">
 
-		scribe.controller('controller', [
+		scribe.controller('controller',
+		[
 			'$scope', '$http',
 			function ($scope, $http) {
 				'use strict';
 
-				$scope.model = @(Html.Raw(Model.ToJson()));
+				$scope.model = @(Html.Raw(Model.ToJson(true)));
 				$scope.progress = {
 					value: 0,
 					visible: false

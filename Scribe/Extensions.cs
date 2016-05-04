@@ -8,9 +8,6 @@ using System.Reflection;
 using System.Security.Principal;
 using System.Text;
 using System.Web.Security;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 
 #endregion
 
@@ -54,56 +51,12 @@ namespace Scribe
 		/// Converts the string to an int. If it cannot be parse it will return the default value.
 		/// </summary>
 		/// <param name="input"> The string to convert. </param>
-		/// <param name="defaultValue"> The default value to return. Defaults to Guid.Empty. </param>
-		/// <returns> The int value or the default value. </returns>
-		public static Guid ConvertToGuid(this string input, Guid? defaultValue = null)
-		{
-			Guid response;
-			return !Guid.TryParse(input, out response) ? defaultValue ?? Guid.Empty : response;
-		}
-
-		/// <summary>
-		/// Converts the string to an int. If it cannot be parse it will return the default value.
-		/// </summary>
-		/// <param name="input"> The string to convert. </param>
 		/// <param name="defaultValue"> The default value to return. Defaults to 0. </param>
 		/// <returns> The int value or the default value. </returns>
 		public static int ConvertToInt(this string input, int defaultValue = 0)
 		{
 			int response;
 			return !int.TryParse(input, out response) ? defaultValue : response;
-		}
-
-		public static T DeepClone<T>(this T item)
-		{
-			var data = JsonConvert.SerializeObject(item, GetSerializerSettings());
-			return JsonConvert.DeserializeObject<T>(data);
-		}
-
-		/// <summary>
-		/// Loop through collection and run action on each item.
-		/// </summary>
-		/// <typeparam name="T"> The type of the item. </typeparam>
-		/// <param name="collection"> The collection to enumerate. </param>
-		/// <param name="action"> The action to run on each item. </param>
-		public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
-		{
-			foreach (var item in collection)
-			{
-				action(item);
-			}
-		}
-
-		/// <summary>
-		/// Deserialize an object from JSON.
-		/// </summary>
-		/// <typeparam name="T"> The type to be deserialized. </typeparam>
-		/// <param name="item"> The JSON data. </param>
-		/// <param name="camelCase"> The flag to determine if we should use camel case or not. </param>
-		/// <returns> The deserialized object from the provided JSON. </returns>
-		public static T FromJson<T>(this string item, bool camelCase = false)
-		{
-			return JsonConvert.DeserializeObject<T>(item, GetSerializerSettings(camelCase));
 		}
 
 		public static string GetDisplayName(this IIdentity identity)
@@ -114,22 +67,6 @@ namespace Scribe
 		public static int GetId(this IIdentity identity)
 		{
 			return !identity.Name.Contains(';') ? 0 : identity.Name.Split(';').First().ConvertToInt();
-		}
-
-		public static JsonSerializerSettings GetSerializerSettings(bool camelCase = true)
-		{
-			var response = new JsonSerializerSettings();
-			response.Converters.Add(new IsoDateTimeConverter());
-			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-			response.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-
-			if (camelCase)
-			{
-				response.Converters.Add(new StringEnumConverter { CamelCaseText = true });
-				response.ContractResolver = new CamelCasePropertyNamesContractResolver();
-			}
-
-			return response;
 		}
 
 		public static IEnumerable<string> GetTags(this IIdentity identity)
@@ -173,19 +110,6 @@ namespace Scribe
 			var builder = new StringBuilder();
 			AddExceptionToBuilder(builder, ex);
 			return builder.ToString();
-		}
-
-		/// <summary>
-		/// Converts the item to JSON.
-		/// </summary>
-		/// <typeparam name="T"> The type of the item to convert. </typeparam>
-		/// <param name="item"> The item to convert. </param>
-		/// <param name="camelCase"> The flag to determine if we should use camel case or not. </param>
-		/// <param name="indented"> The flag to determine if the JSON should be indented or not. </param>
-		/// <returns> The JSON value of the item. </returns>
-		public static string ToJson<T>(this T item, bool camelCase = true, bool indented = false)
-		{
-			return JsonConvert.SerializeObject(item, indented ? Formatting.Indented : Formatting.None, GetSerializerSettings(camelCase));
 		}
 
 		/// <summary>

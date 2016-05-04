@@ -1,9 +1,5 @@
 ﻿#region References
 
-#endregion
-
-#region References
-
 using System;
 
 #endregion

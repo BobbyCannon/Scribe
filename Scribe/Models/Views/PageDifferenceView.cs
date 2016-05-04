@@ -1,8 +1,4 @@
-﻿#region References
-
-#endregion
-
-namespace Scribe.Models.Views
+﻿namespace Scribe.Models.Views
 {
 	public class PageDifferenceView
 	{

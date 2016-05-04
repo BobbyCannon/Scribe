@@ -53,7 +53,7 @@ namespace Scribe.Converters
 
 			using (var stream = new StringReader(xml))
 			{
-				var serializer = new XmlSerializer(typeof (List<TextToken>));
+				var serializer = new XmlSerializer(typeof(List<TextToken>));
 				IEnumerable<TextToken> textTokens = (List<TextToken>) serializer.Deserialize(stream);
 				return textTokens ?? new List<TextToken>();
 			}

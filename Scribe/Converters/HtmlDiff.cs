@@ -418,8 +418,8 @@ namespace Scribe.Converters
 
 			foreach (var match in matches)
 			{
-				var matchStartsAtCurrentPositionInOld = (positionInOld == match.StartInOld);
-				var matchStartsAtCurrentPositionInNew = (positionInNew == match.StartInNew);
+				var matchStartsAtCurrentPositionInOld = positionInOld == match.StartInOld;
+				var matchStartsAtCurrentPositionInNew = positionInNew == match.StartInNew;
 
 				Action action;
 

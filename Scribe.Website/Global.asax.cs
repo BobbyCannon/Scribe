@@ -54,7 +54,7 @@ namespace Scribe.Website
 			RouteConfig.RegisterRoutes(RouteTable.Routes);
 			BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-			GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings = Extensions.GetSerializerSettings();
+			GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings = Speedy.Extensions.GetSerializerSettings(true, false);
 			GlobalConfiguration.Configuration.Formatters.Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
 			GlobalConfiguration.Configuration.EnsureInitialized();
 

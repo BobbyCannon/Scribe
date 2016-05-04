@@ -7,7 +7,7 @@ using Scribe.Website;
 
 #endregion
 
-[assembly: OwinStartup(typeof (Startup))]
+[assembly: OwinStartup(typeof(Startup))]
 
 namespace Scribe.Website
 {

@@ -64,12 +64,13 @@
 {
 	<script type="text/javascript">
 
-		scribe.controller('controller', [
+		scribe.controller('controller',
+		[
 			'$scope', '$http', '$window',
 			function ($scope, $http, $window) {
 				'use strict';
 
-				$scope.model = @(Html.Raw(Model.ToJson()));
+				$scope.model = @(Html.Raw(Model.ToJson(true)));
 				$scope.currentUser = '@(Request.RequestContext.HttpContext.User.Identity.GetDisplayName())';
 				$scope.currentUserTags = '@(Html.Raw(Request.RequestContext.HttpContext.User.Identity.GetTags().ToJson()))';
 

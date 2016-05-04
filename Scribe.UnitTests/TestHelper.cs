@@ -15,8 +15,10 @@ using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
 using Scribe.Services;
 using Scribe.UnitTests.Properties;
+using Speedy;
 using TestR.Desktop;
 using TestR.Logging;
+using Database = System.Data.Entity.Database;
 
 #endregion
 

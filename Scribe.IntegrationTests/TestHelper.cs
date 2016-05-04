@@ -13,6 +13,7 @@ using Scribe.Models.Entities;
 using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
 using Scribe.Services;
+using Speedy;
 using TestR.Desktop;
 using TestR.Logging;
 

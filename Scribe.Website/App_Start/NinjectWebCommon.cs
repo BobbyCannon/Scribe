@@ -16,8 +16,8 @@ using WebActivatorEx;
 
 #endregion
 
-[assembly: WebActivatorEx.PreApplicationStartMethod(typeof (NinjectWebCommon), "Start")]
-[assembly: ApplicationShutdownMethod(typeof (NinjectWebCommon), "Stop")]
+[assembly: WebActivatorEx.PreApplicationStartMethod(typeof(NinjectWebCommon), "Start")]
+[assembly: ApplicationShutdownMethod(typeof(NinjectWebCommon), "Stop")]
 
 namespace Scribe.Website
 {
@@ -36,8 +36,8 @@ namespace Scribe.Website
 		/// </summary>
 		public static void Start()
 		{
-			DynamicModuleUtility.RegisterModule(typeof (OnePerRequestHttpModule));
-			DynamicModuleUtility.RegisterModule(typeof (NinjectHttpModule));
+			DynamicModuleUtility.RegisterModule(typeof(OnePerRequestHttpModule));
+			DynamicModuleUtility.RegisterModule(typeof(NinjectHttpModule));
 			_bootstrapper.Initialize(CreateKernel);
 		}
 

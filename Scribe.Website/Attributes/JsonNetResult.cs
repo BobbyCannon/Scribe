@@ -53,7 +53,7 @@ namespace Scribe.Website
 			}
 
 			var writer = new JsonTextWriter(response.Output) { Formatting = Formatting };
-			var serializer = JsonSerializer.Create(Extensions.GetSerializerSettings());
+			var serializer = JsonSerializer.Create(Speedy.Extensions.GetSerializerSettings(true, false));
 			serializer.Serialize(writer, Data);
 			writer.Flush();
 		}

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Scribe.Data;
-using Scribe.Models.Data;
 using Scribe.Models.Entities;
 using Scribe.Models.Views;
 

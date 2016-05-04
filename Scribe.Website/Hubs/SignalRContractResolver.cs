@@ -25,7 +25,7 @@ namespace Scribe.Website.Hubs
 		{
 			_defaultContractSerializer = new DefaultContractResolver();
 			_camelCaseContractResolver = new CamelCasePropertyNamesContractResolver();
-			_assembly = typeof (Connection).Assembly;
+			_assembly = typeof(Connection).Assembly;
 		}
 
 		#endregion

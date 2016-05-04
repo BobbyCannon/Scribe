@@ -622,7 +622,7 @@ namespace Scribe.Services
 				var propertyExpression = (MemberExpression) unaryExpression.Operand;
 				var parameters = orderBy.Parameters;
 
-				if (propertyExpression.Type == typeof (DateTime))
+				if (propertyExpression.Type == typeof(DateTime))
 				{
 					var newExpression = Expression.Lambda<Func<T1, DateTime>>(propertyExpression, parameters);
 					return descending
@@ -630,7 +630,7 @@ namespace Scribe.Services
 						: current?.ThenBy(newExpression) ?? query.OrderBy(newExpression);
 				}
 
-				if (propertyExpression.Type == typeof (int))
+				if (propertyExpression.Type == typeof(int))
 				{
 					var newExpression = Expression.Lambda<Func<T1, int>>(propertyExpression, parameters);
 					return descending
@@ -673,7 +673,7 @@ namespace Scribe.Services
 				switch (item.Key.ToLower())
 				{
 					case "status":
-						var status = (ApprovalStatus) Enum.Parse(typeof (ApprovalStatus), item.Value);
+						var status = (ApprovalStatus) Enum.Parse(typeof(ApprovalStatus), item.Value);
 						query = query.Where(x => x.ApprovalStatus == status);
 						break;
 

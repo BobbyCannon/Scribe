@@ -1,7 +1,3 @@
-#region References
-
-#endregion
-
 namespace Scribe.Data.Migrations
 {
 	public partial class AddedApprovalProcess : BaseDbMigration
