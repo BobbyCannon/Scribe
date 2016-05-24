@@ -64,7 +64,7 @@ namespace Scribe.Website.Controllers
 		public ActionResult Files()
 		{
 			var service = new ScribeService(DataDatabase, null, null, GetCurrentUser());
-			return View(service.GetFiles(new PagedRequest(perPage: int.MaxValue)));
+			return View(service.GetFiles(new PagedRequest { PerPage = int.MaxValue }));
 		}
 
 		[HttpPost]
@@ -95,7 +95,7 @@ namespace Scribe.Website.Controllers
 			service.SaveFile(fileData);
 			DataDatabase.SaveChanges();
 
-			return new JsonNetResult(service.GetFiles(new PagedRequest(perPage: int.MaxValue)));
+			return new JsonNetResult(service.GetFiles(new PagedRequest { PerPage = int.MaxValue }));
 		}
 
 		#endregion

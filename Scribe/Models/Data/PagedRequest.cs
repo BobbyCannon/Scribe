@@ -10,13 +10,13 @@ namespace Scribe.Models.Data
 	{
 		#region Constructors
 
-		public PagedRequest(string filter = "", int page = 1, int perPage = 20, bool includeDetails = false, string order = "")
+		public PagedRequest()
 		{
-			Filter = filter;
-			Page = page;
-			PerPage = perPage;
-			IncludeDetails = includeDetails;
-			Order = order;
+			Filter = string.Empty;
+			Page = 1;
+			PerPage = 20;
+			IncludeDetails = false;
+			Order = string.Empty;
 		}
 
 		#endregion

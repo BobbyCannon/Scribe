@@ -191,7 +191,7 @@ namespace Scribe.IntegrationTests
 
 			var client = new ScribeClient(TestSite, TestService);
 			client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
-			var pages = client.GetPages(new PagedRequest("Tags=anotherTag")).Results.ToList();
+			var pages = client.GetPages(new PagedRequest { Filter = "Tags=anotherTag" }).Results.ToList();
 			Assert.AreEqual(1, pages.Count);
 			Assert.AreEqual("Another Page 2", pages[0].Title);
 		}

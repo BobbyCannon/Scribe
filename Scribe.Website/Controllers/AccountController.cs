@@ -93,7 +93,7 @@ namespace Scribe.Website.Controllers
 		{
 			var accountService = new AccountService(DataDatabase, AuthenticationService);
 			var service = new ScribeService(DataDatabase, accountService, null, GetCurrentUser());
-			return View(service.GetUsers(new PagedRequest(perPage: int.MaxValue)));
+			return View(service.GetUsers(new PagedRequest { PerPage = int.MaxValue }));
 		}
 
 		[MvcAuthorize(Roles = "Administrator")]
@@ -101,7 +101,7 @@ namespace Scribe.Website.Controllers
 		{
 			var accountService = new AccountService(DataDatabase, AuthenticationService);
 			var service = new ScribeService(DataDatabase, accountService, null, GetCurrentUser());
-			return View(service.GetUsers(new PagedRequest($"Tags={tag}", 1, int.MaxValue)));
+			return View(service.GetUsers(new PagedRequest { Filter = $"Tags={tag}", Page = 1, PerPage = int.MaxValue }));
 		}
 
 		[MvcAuthorize(Roles = "Administrator")]

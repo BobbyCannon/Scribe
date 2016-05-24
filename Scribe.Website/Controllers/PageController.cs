@@ -92,8 +92,8 @@ namespace Scribe.Website.Controllers
 			return View("Edit", new PageView
 			{
 				Title = suggestedTitle,
-				Files = _service.GetFiles(new PagedRequest(perPage: int.MaxValue)).Results,
-				Pages = _service.GetPages(new PagedRequest(perPage: int.MaxValue)).Results.Select(x => x.Title).ToList()
+				Files = _service.GetFiles(new PagedRequest { PerPage = int.MaxValue }).Results,
+				Pages = _service.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => x.Title).ToList()
 			});
 		}
 
@@ -106,14 +106,14 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult Pages()
 		{
-			var pages = _service.GetPages(new PagedRequest(perPage: int.MaxValue));
+			var pages = _service.GetPages(new PagedRequest { PerPage = int.MaxValue });
 			return View(pages);
 		}
 
 		[AllowAnonymous]
 		public ActionResult PagesWithTag(string tag)
 		{
-			return View(_service.GetPages(new PagedRequest($"Tags={tag}", 1, int.MaxValue)));
+			return View(_service.GetPages(new PagedRequest { Filter = $"Tags={tag}", Page = 1, PerPage = int.MaxValue }));
 		}
 
 		public ActionResult RenameTag(string oldName, string newName)
@@ -151,7 +151,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult Tags()
 		{
-			return View(_service.GetTags(new PagedRequest(perPage: int.MaxValue)));
+			return View(_service.GetTags(new PagedRequest { PerPage = int.MaxValue }));
 		}
 
 		#endregion
