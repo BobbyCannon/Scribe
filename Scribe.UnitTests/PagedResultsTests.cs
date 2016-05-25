@@ -70,6 +70,36 @@ namespace Scribe.UnitTests
 		}
 
 		[TestMethod]
+		public void HasMoreWithTwoPagesOfOneOnFirstPage()
+		{
+			var result = new PagedResults<string>
+			{
+				PerPage = 1,
+				Results = new[] { "blah" },
+				Page = 1,
+				TotalCount = 2
+			};
+
+			Assert.AreEqual(2, result.TotalPages);
+			Assert.IsTrue(result.HasMore);
+		}
+
+		[TestMethod]
+		public void HasMoreWithTwoPagesOfOneOnLastPage()
+		{
+			var result = new PagedResults<string>
+			{
+				PerPage = 1,
+				Results = new[] { "blah" },
+				Page = 2,
+				TotalCount = 2
+			};
+
+			Assert.AreEqual(2, result.TotalPages);
+			Assert.IsFalse(result.HasMore);
+		}
+
+		[TestMethod]
 		public void TotalPages()
 		{
 			var result = new PagedResults<string> { PerPage = 4, TotalCount = 8 };

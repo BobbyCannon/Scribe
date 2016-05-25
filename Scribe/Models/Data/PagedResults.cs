@@ -12,7 +12,7 @@ namespace Scribe.Models.Data
 		#region Properties
 
 		public string Filter { get; set; }
-		public bool HasMore => TotalCount > 0 && Results.Count() + PerPage * (TotalPages - 1) != TotalCount;
+		public bool HasMore => Page != TotalPages;
 		public string Order { get; set; }
 		public int Page { get; set; }
 		public int PerPage { get; set; }
