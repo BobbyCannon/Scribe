@@ -191,7 +191,27 @@ namespace Scribe.IntegrationTests
 
 			var client = new ScribeClient(TestSite, TestService);
 			client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
-			var pages = client.GetPages(new PagedRequest { Filter = "Tags=anotherTag" }).Results.ToList();
+			var pages = client.GetPages(new PagedRequest { Filter = "Tags.Contains(\",myTag,\")" }).Results.ToList();
+			Assert.AreEqual(1, pages.Count);
+			Assert.AreEqual("Hello Page", pages[0].Title);
+		}
+
+		[TestMethod]
+		public void GetPagesUsingFilterWithParameters()
+		{
+			using (var context = TestHelper.GetContext())
+			{
+				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(context, user);
+				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				TestHelper.AddPage(context, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
+				context.SaveChanges();
+			}
+
+			var client = new ScribeClient(TestSite, TestService);
+			client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
+			var pages = client.GetPages(new PagedRequest { Filter = "Tags.Contains(@0)", FilterValues = new object[] { ",anotherTag," } }).Results.ToList();
 			Assert.AreEqual(1, pages.Count);
 			Assert.AreEqual("Another Page 2", pages[0].Title);
 		}

@@ -109,11 +109,11 @@ namespace Scribe.Website.Services
 			var user = _database.Users.First();
 			var privateService = new ScribeService(_database, null, null, user);
 			privateService.Converter.ClearEvents();
-			AddIndex(PrivateSearchPath, true, privateService.GetPages(new PagedRequest { PerPage = int.MaxValue, IncludeDetails = true }).Results.ToArray());
+			AddIndex(PrivateSearchPath, true, privateService.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.ToArray());
 
 			var publicService = new ScribeService(_database, null, null, null);
 			publicService.Converter.ClearEvents();
-			AddIndex(PublicSearchPath, true, publicService.GetPages(new PagedRequest { PerPage = int.MaxValue, IncludeDetails = true }).Results.ToArray());
+			AddIndex(PublicSearchPath, true, publicService.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.ToArray());
 		}
 
 		/// <summary>

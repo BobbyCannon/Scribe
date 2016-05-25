@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System.Collections.Generic;
-using System.Linq;
 
 #endregion
 
@@ -12,6 +11,7 @@ namespace Scribe.Models.Data
 		#region Properties
 
 		public string Filter { get; set; }
+		public IEnumerable<object> FilterValues { get; set; }
 		public bool HasMore => Page != TotalPages;
 		public string Order { get; set; }
 		public int Page { get; set; }

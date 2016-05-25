@@ -754,9 +754,11 @@ namespace Scribe.UnitTests
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
-				var actual = service.GetPages(new PagedRequest { Filter = "Status=Approved" });
+				var values = new object[] { (int) ApprovalStatus.Approved };
+				var actual = service.GetPages(new PagedRequest { Filter = "ApprovalStatus == @0", FilterValues = values });
 
-				Assert.AreEqual("Status=Approved", actual.Filter);
+				Assert.AreEqual("ApprovalStatus == @0", actual.Filter);
+				TestHelper.AreEqual(values, actual.FilterValues);
 				Assert.AreEqual(1, actual.Results.Count());
 				Assert.AreEqual("Page3", actual.Results.First().Title);
 			}
@@ -780,9 +782,11 @@ namespace Scribe.UnitTests
 				var path = Path.GetTempPath() + "ScribeTests";
 				var searchService = new SearchService(context, path, john);
 				var service = new ScribeService(context, null, searchService, john);
-				var actual = service.GetPages(new PagedRequest { Filter = "Status=Pending" });
+				var values = new object[] { (int)ApprovalStatus.Pending };
+				var actual = service.GetPages(new PagedRequest { Filter = "ApprovalStatus == @0", FilterValues = values });
 
-				Assert.AreEqual("Status=Pending", actual.Filter);
+				Assert.AreEqual("ApprovalStatus == @0", actual.Filter);
+				TestHelper.AreEqual(values, actual.FilterValues);
 				Assert.AreEqual(1, actual.Results.Count());
 				Assert.AreEqual("Page2", actual.Results.First().Title);
 			}
@@ -806,9 +810,9 @@ namespace Scribe.UnitTests
 				var path = Path.GetTempPath() + "ScribeTests";
 				var searchService = new SearchService(context, path, john);
 				var service = new ScribeService(context, null, searchService, john);
-				var actual = service.GetPages(new PagedRequest { Filter = "Tags=Tag3" });
+				var actual = service.GetPages(new PagedRequest { Filter = "Tags.Contains(\"Tag3\")" });
 
-				Assert.AreEqual("Tags=Tag3", actual.Filter);
+				Assert.AreEqual("Tags.Contains(\"Tag3\")", actual.Filter);
 				Assert.AreEqual(2, actual.Results.Count());
 				Assert.AreEqual("Page1", actual.Results.First().Title);
 				Assert.AreEqual("Page3", actual.Results.Last().Title);
@@ -872,9 +876,11 @@ namespace Scribe.UnitTests
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest { Filter = "Page 5" });
+				var values = new[] { "Page 5" };
+				var actual = service.GetPages(new PagedRequest { Filter = "Title.Contains(@0)", FilterValues = values });
 
-				Assert.AreEqual("Page 5", actual.Filter);
+				Assert.AreEqual("Title.Contains(@0)", actual.Filter);
+				TestHelper.AreEqual(values, actual.FilterValues);
 				Assert.AreEqual(1, actual.Page);
 				Assert.AreEqual(20, actual.PerPage);
 				Assert.AreEqual(1, actual.TotalCount);
@@ -934,10 +940,10 @@ namespace Scribe.UnitTests
 				TestHelper.AddPage(context, "d", "b", john);
 
 				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest { Order = "Text=Ascending;Title=Descending;" });
+				var actual = service.GetPages(new PagedRequest { Order = "Text, Title descending" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
-				Assert.AreEqual("Text=Ascending;Title=Descending;", actual.Order);
+				Assert.AreEqual("Text, Title descending", actual.Order);
 				Assert.AreEqual(1, actual.Page);
 				Assert.AreEqual(20, actual.PerPage);
 				Assert.AreEqual(5, actual.TotalCount);
@@ -1144,10 +1150,10 @@ namespace Scribe.UnitTests
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest{ Order = "Title=Descending" });
+				var actual = service.GetPages(new PagedRequest{ Order = "Title descending" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
-				Assert.AreEqual("Title=Descending", actual.Order);
+				Assert.AreEqual("Title descending", actual.Order);
 				Assert.AreEqual(1, actual.Page);
 				Assert.AreEqual(20, actual.PerPage);
 				Assert.AreEqual(5, actual.TotalCount);
@@ -1178,10 +1184,10 @@ namespace Scribe.UnitTests
 				TestHelper.AddPage(context, "d", "b", john);
 
 				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest{ Order = "Text=Descending;Title=Ascending;" });
+				var actual = service.GetPages(new PagedRequest{ Order = "Text descending, Title" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
-				Assert.AreEqual("Text=Descending;Title=Ascending;", actual.Order);
+				Assert.AreEqual("Text descending, Title", actual.Order);
 				Assert.AreEqual(1, actual.Page);
 				Assert.AreEqual(20, actual.PerPage);
 				Assert.AreEqual(5, actual.TotalCount);
@@ -1219,9 +1225,9 @@ namespace Scribe.UnitTests
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest { Filter = "Odd", Page = 1, PerPage = 2 });
+				var actual = service.GetPages(new PagedRequest { Filter = "Title.Contains(\"Odd\")", Page = 1, PerPage = 2 });
 
-				Assert.AreEqual("Odd", actual.Filter);
+				Assert.AreEqual("Title.Contains(\"Odd\")", actual.Filter);
 				Assert.AreEqual(1, actual.Page);
 				Assert.AreEqual(2, actual.PerPage);
 				Assert.AreEqual(5, actual.TotalCount);
@@ -1254,9 +1260,9 @@ namespace Scribe.UnitTests
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPages(new PagedRequest { Filter = "Odd", Page = 2, PerPage = 2 });
+				var actual = service.GetPages(new PagedRequest { Filter = "Title.Contains(\"Odd\")", Page = 2, PerPage = 2 });
 
-				Assert.AreEqual("Odd", actual.Filter);
+				Assert.AreEqual("Title.Contains(\"Odd\")", actual.Filter);
 				Assert.AreEqual(2, actual.Page);
 				Assert.AreEqual(2, actual.PerPage);
 				Assert.AreEqual(5, actual.TotalCount);
@@ -1477,7 +1483,7 @@ namespace Scribe.UnitTests
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, user1);
-				var actual = service.GetUsers(new PagedRequest { Filter = "Tags=foo" });
+				var actual = service.GetUsers(new PagedRequest { Filter = "Tags.Contains(\"foo\")" });
 
 				Assert.AreEqual(1, actual.Page);
 				Assert.AreEqual(1, actual.TotalCount);
@@ -1499,7 +1505,7 @@ namespace Scribe.UnitTests
 				context.SaveChanges();
 
 				var service = new ScribeService(context, null, null, user1);
-				var actual = service.GetUsers(new PagedRequest { Filter = "UserName=Jane" });
+				var actual = service.GetUsers(new PagedRequest { Filter = "UserName == \"JaneSmith\"" });
 
 				Assert.AreEqual(1, actual.Page);
 				Assert.AreEqual(1, actual.TotalCount);

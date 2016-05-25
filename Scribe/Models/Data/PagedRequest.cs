@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 
 #endregion
 
@@ -12,10 +13,11 @@ namespace Scribe.Models.Data
 
 		public PagedRequest()
 		{
+			Expand = new string[0];
 			Filter = string.Empty;
+			FilterValues = new object[0];
 			Page = 1;
 			PerPage = 20;
-			IncludeDetails = false;
 			Order = string.Empty;
 		}
 
@@ -24,13 +26,24 @@ namespace Scribe.Models.Data
 		#region Properties
 
 		/// <summary>
+		/// Request filter values.
+		/// Example: ["blah", 1]
+		/// </summary>
+		public IEnumerable<string> Expand { get; set; }
+
+		/// <summary>
 		/// Request filters should be in the follow format.
-		/// Item1=Value1;Item2=Value2;
-		/// Example: Tags=homepage;Status=approved;
+		/// Item1 = @0 && Item2 = @1
+		/// Example: Tags == @0 && Status == @1
+		/// Example: Tags == "blah" && Status == 1
 		/// </summary>
 		public string Filter { get; set; }
 
-		public bool IncludeDetails { get; set; }
+		/// <summary>
+		/// Request filter values.
+		/// Example: ["blah", 1]
+		/// </summary>
+		public IEnumerable<object> FilterValues { get; set; }
 
 		/// <summary>
 		/// Request order should be in the follow format.
@@ -39,8 +52,14 @@ namespace Scribe.Models.Data
 		/// </summary>
 		public string Order { get; set; }
 
+		/// <summary>
+		/// The page to load.
+		/// </summary>
 		public int Page { get; set; }
 
+		/// <summary>
+		/// The items to get per page.
+		/// </summary>
 		public int PerPage { get; set; }
 
 		#endregion

@@ -136,8 +136,8 @@ namespace Scribe.Website.Controllers
 			var privateService = new ScribeService(DataDatabase, null, null, user);
 			var publicService = new ScribeService(DataDatabase, null, null, null);
 
-			ViewBag.PrivatePages = privateService.GetPages(new PagedRequest { IncludeDetails = false, PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
-			ViewBag.PublicPages = publicService.GetPages(new PagedRequest { IncludeDetails = false, PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
+			ViewBag.PrivatePages = privateService.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
+			ViewBag.PublicPages = publicService.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
 
 			return View(service.GetSettings());
 		}
