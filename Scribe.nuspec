@@ -14,7 +14,7 @@
 		<dependencies>
 			<dependency id="MarkR" version="1.16.5945.36818" />
 			<dependency id="Newtonsoft.Json" version="8.0.3" />
-			<dependency id="Speedy" version="4.1.5967.37633" />
+			<dependency id="Speedy" version="4.3.5989.32170" />
 		</dependencies>
 		<references>
 			<reference file="Scribe.dll" />
