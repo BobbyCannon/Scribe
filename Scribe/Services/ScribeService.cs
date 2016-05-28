@@ -324,7 +324,7 @@ namespace Scribe.Services
 			}
 
 			query = query.OrderBy(string.IsNullOrWhiteSpace(request.Order) ? "Title" : request.Order);
-			return GetPagedResults(query, request, x => x.ToView(Converter, request.Expand.Contains("details", StringComparer.OrdinalIgnoreCase)));
+			return GetPagedResults(query, request, x => x.ToView(Converter, request.Including.Contains("details", StringComparer.OrdinalIgnoreCase)));
 		}
 
 		public PagedResults<TagView> GetTags(PagedRequest request = null)
