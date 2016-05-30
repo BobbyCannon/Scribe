@@ -46,8 +46,8 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy, Version=4.3.5994.26094, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.4.3.5994.26094\lib\net452\Speedy.dll</HintPath>
+    <Reference Include="Speedy, Version=4.3.5994.27807, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.4.3.5994.27807\lib\net452\Speedy.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
