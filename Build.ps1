@@ -20,13 +20,10 @@ if (!(Test-Path $nugetDestination -PathType Container)){
     New-Item $nugetDestination -ItemType Directory | Out-Null
 }
 
-$build = [Math]::Floor([DateTime]::Now.Subtract([DateTime]::Parse("01/01/2000").Date).TotalDays)
-$revision = [Math]::Floor([DateTime]::Now.TimeOfDay.TotalSeconds / 2)
-
-.\IncrementVersion.ps1 -Build $build -Revision $revision
+.\IncrementVersion.ps1 -Build +
 
 $msbuild = "C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe"
-& $msbuild "$scriptPath\Scribe.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /p:PublishProfile=Deployment /p:DeployOnBuild=True /t:Rebuild /p:VisualStudioVersion=14.0 /v:m /m
+& $msbuild "$scriptPath\Scribe.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /p:PublishProfile=Release /p:DeployOnBuild=True /t:Rebuild /p:VisualStudioVersion=14.0 /v:m /m
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Build has failed! " $watch.Elapsed -ForegroundColor Red
@@ -34,7 +31,8 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptPath\Scribe\bin\$Configuration\Scribe.dll")
-$version = $versionInfo.FileVersion.ToString()
+$build = ([Version] $versionInfo.ProductVersion).Build
+$version = $versionInfo.FileVersion.Replace(".$build.0", ".$build")
 
 Copy-Item Scribe\bin\$Configuration\Scribe.dll $destination\bin\
 
