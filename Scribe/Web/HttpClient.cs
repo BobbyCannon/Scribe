@@ -15,7 +15,7 @@ namespace Scribe.Web
 	/// This class is used for making GET and POST calls to an HTTP endpoint.
 	/// </summary>
 	[ExcludeFromCodeCoverage]
-	public class HttpHelper
+	public class HttpClient
 	{
 		#region Constructors
 
@@ -23,7 +23,7 @@ namespace Scribe.Web
 		/// Initializes a new HTTP helper to point at a specific URI, and with the specified session identifier.
 		/// </summary>
 		/// <param name="baseUri"> The base URI of the service. </param>
-		public HttpHelper(string baseUri)
+		public HttpClient(string baseUri)
 		{
 			BaseUri = baseUri;
 			Cookies = new CookieCollection();
@@ -85,19 +85,31 @@ namespace Scribe.Web
 			return InternalPost(uri, content);
 		}
 
+		public static HttpResponseMessage Post<TContent>(string baseUri, string uri, TContent content)
+		{
+			var helper = new HttpClient(baseUri);
+			return helper.Post(uri, content);
+		}
+
+		public static HttpResponseMessage Post(string baseUri, string uri)
+		{
+			var helper = new HttpClient(baseUri);
+			return helper.Post(uri);
+		}
+
 		public virtual T Read<T>(HttpResponseMessage message)
 		{
 			return message.Content.ReadAsStringAsync().Result.FromJson<T>();
 		}
 
-		private HttpClient CreateHttpClient(string uri, HttpClientHandler handler)
+		private System.Net.Http.HttpClient CreateHttpClient(string uri, HttpClientHandler handler)
 		{
 			foreach (Cookie ck in Cookies)
 			{
 				handler.CookieContainer.Add(ck);
 			}
 
-			var client = new HttpClient(handler);
+			var client = new System.Net.Http.HttpClient(handler);
 			client.BaseAddress = new Uri(BaseUri);
 			client.Timeout = Timeout;
 

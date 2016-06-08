@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web.Hosting;
 using System.Web.Mvc;
+using System.Web.Routing;
 using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
@@ -21,8 +22,8 @@ namespace Scribe.Website.Controllers
 		#region Fields
 
 		private readonly INotificationHub _notificationHub;
-		private readonly SearchService _searchService;
-		private readonly ScribeService _service;
+		private SearchService _searchService;
+		private ScribeService _service;
 
 		#endregion
 
@@ -32,10 +33,6 @@ namespace Scribe.Website.Controllers
 			: base(dataDatabase, authenticationService)
 		{
 			_notificationHub = notificationHub;
-			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
-			_searchService = new SearchService(DataDatabase, path, GetCurrentUser(false));
-			var accountService = new AccountService(dataDatabase, authenticationService);
-			_service = new ScribeService(DataDatabase, accountService, _searchService, GetCurrentUser(false));
 		}
 
 		#endregion
@@ -113,7 +110,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult PagesWithTag(string tag)
 		{
-			return View(_service.GetPages(new PagedRequest { Filter = $"Tags={tag}", Page = 1, PerPage = int.MaxValue }));
+			return View(_service.GetPages(new PagedRequest { Filter = $"Tags.Contains(\"{tag}\")", Page = 1, PerPage = int.MaxValue }));
 		}
 
 		public ActionResult RenameTag(string oldName, string newName)
@@ -152,6 +149,17 @@ namespace Scribe.Website.Controllers
 		public ActionResult Tags()
 		{
 			return View(_service.GetTags(new PagedRequest { PerPage = int.MaxValue }));
+		}
+
+		/// <summary> Initializes data that might not be available when the constructor is called. </summary>
+		/// <param name="requestContext"> The HTTP context and route data. </param>
+		protected override void Initialize(RequestContext requestContext)
+		{
+			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
+			_searchService = new SearchService(DataDatabase, path, GetCurrentUser(requestContext, false));
+			var accountService = new AccountService(DataDatabase, AuthenticationService);
+			_service = new ScribeService(DataDatabase, accountService, _searchService, GetCurrentUser(requestContext, false));
+			base.Initialize(requestContext);
 		}
 
 		#endregion

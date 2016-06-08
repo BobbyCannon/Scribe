@@ -17,6 +17,21 @@ namespace Scribe.Website
 {
 	public class MvcApplication : HttpApplication
 	{
+		#region Fields
+
+		private static readonly string[] _ignoredRequest;
+
+		#endregion
+
+		#region Constructors
+
+		static MvcApplication()
+		{
+			_ignoredRequest = new[] { "setup", "/bundle/", "/signalr/", "/api/" };
+		}
+
+		#endregion
+
 		#region Properties
 
 		public static bool IsConfigured { get; set; }
@@ -31,16 +46,8 @@ namespace Scribe.Website
 		{
 			var uri = Request.Url.AbsoluteUri.ToLower();
 
-			if (!IsConfigured)
-			{
-				using (var datacontext = new ScribeSqlDatabase())
-				{
-					IsConfigured = datacontext.Users.Any();
-				}
-			}
-
 			// This redirect is intercepting bundling and signalr request. Need to fix this better.
-			if (!IsConfigured && !uri.Contains("setup") && !uri.Contains("/bundle/") && !uri.Contains("/signalr/"))
+			if (!IsConfigured && !uri.ContainsAny(_ignoredRequest))
 			{
 				Response.RedirectToRoute("Setup");
 			}

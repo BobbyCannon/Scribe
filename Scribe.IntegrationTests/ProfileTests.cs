@@ -1,6 +1,7 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Scribe.Web;
 using TestR.PowerShell;
 
 #endregion
@@ -32,6 +33,8 @@ namespace Scribe.IntegrationTests
 					TestHelper.AddUser(context, "John Doe", "Password!");
 					context.SaveChanges();
 				}
+
+				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
 
 				browser.NavigateTo($"{TestSite}/Login");
 				browser.Elements.TextInputs["userName"].Text = "John Doe";

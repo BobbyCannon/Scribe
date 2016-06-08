@@ -2,6 +2,7 @@
 
 using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
+using Scribe.Website.Attributes;
 
 #endregion
 

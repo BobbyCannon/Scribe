@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 #endregion
 
-namespace Scribe.Website
+namespace Scribe.Website.Attributes
 {
 	public class JsonNetResult : JsonResult
 	{

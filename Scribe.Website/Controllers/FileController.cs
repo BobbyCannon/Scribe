@@ -10,6 +10,7 @@ using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Services;
+using Scribe.Website.Attributes;
 
 #endregion
 
@@ -31,7 +32,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult File(int id)
 		{
-			var service = new ScribeService(DataDatabase, null, null, GetCurrentUser(false));
+			var service = new ScribeService(DataDatabase, null, null, GetCurrentUser(null,false));
 
 			if (!string.IsNullOrEmpty(Request.Headers["If-Modified-Since"]))
 			{

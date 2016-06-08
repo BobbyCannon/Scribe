@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Scribe.Models.Data;
 using Scribe.Models.Enumerations;
 using Scribe.Services;
+using Scribe.Web;
 
 #endregion
 

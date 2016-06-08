@@ -27,7 +27,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult Login(string returnUrl)
 		{
-			GetCurrentUser(false);
+			GetCurrentUser(null,false);
 			ViewBag.ReturnUrl = returnUrl;
 			return View(new Credentials());
 		}

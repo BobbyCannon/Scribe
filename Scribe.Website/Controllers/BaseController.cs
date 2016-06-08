@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Authentication;
 using System.Threading;
 using System.Web.Mvc;
+using System.Web.Routing;
 using Scribe.Data;
 using Scribe.Models.Entities;
 using Scribe.Services;
@@ -44,11 +45,12 @@ namespace Scribe.Website.Controllers
 		/// <summary>
 		/// Gets the current logged in user using the provided session.
 		/// </summary>
+		/// <param name="requestContext"> </param>
 		/// <param name="throwException">
 		/// If true then throw an exception if the user is not logged in else return null.
 		/// </param>
 		/// <returns> The user of the logged in user. </returns>
-		public User GetCurrentUser(bool throwException = true)
+		public User GetCurrentUser(RequestContext requestContext = null, bool throwException = true)
 		{
 			if (_user != null)
 			{
@@ -56,7 +58,7 @@ namespace Scribe.Website.Controllers
 			}
 
 			// Make sure we are authenticated.
-			var identity = Thread.CurrentPrincipal?.Identity;
+			var identity = (requestContext?.HttpContext?.User ?? User)?.Identity;
 			if (identity?.IsAuthenticated != true)
 			{
 				if (throwException)

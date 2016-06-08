@@ -3,7 +3,25 @@
 @{
 	ViewBag.Title = "Tags";
 }
-<h1>Tags</h1>
+
+<div class="row">
+	<div class="span12">
+		<h1>Tags</h1>
+	</div>
+	<div class="span12">
+		@if (Request.IsAuthenticated)
+		{
+			<div class="pull-right">
+				@using (Html.BeginForm("RenameTag", "Page", FormMethod.Post))
+				{
+					<input id="RenameTagOldName" name="oldName" class="medium" type="text" placeholder="old name" required autofocus />
+					<input id="RenameTagNewName" name="newName" class="medium" type="text" placeholder="new name" required />
+					<input id="RenameTagSubmitButton" type="submit" value="Rename" />
+				}
+			</div>
+		}
+	</div>
+</div>
 <ul class="tag">
 	@foreach (var item in Model.Results)
 	{
@@ -12,13 +30,3 @@
 		</li>
 	}
 </ul>
-@if (Request.IsAuthenticated)
-{
-	<br />
-	using (Html.BeginForm("RenameTag", "Page", FormMethod.Post))
-	{
-		<input id="RenameTagOldName" name="oldName" class="medium" type="text" placeholder="old name" required autofocus />
-		<input id="RenameTagNewName" name="newName" class="medium" type="text" placeholder="new name" required />
-		<input id="RenameTagSubmitButton" type="submit" value="Rename" />
-	}
-}

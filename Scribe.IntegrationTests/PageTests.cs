@@ -1,10 +1,13 @@
 ﻿#region References
 
+using System.Net.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
+using Scribe.Web;
 using TestR.Helpers;
 using TestR.PowerShell;
+using HttpClient = Scribe.Web.HttpClient;
 
 #endregion
 
@@ -35,6 +38,8 @@ namespace Scribe.IntegrationTests
 					TestHelper.AddUser(context, "John Doe", "Password!");
 					context.SaveChanges();
 				}
+
+				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
 
 				browser.NavigateTo($"{TestSite}/Login");
 				browser.Elements.TextInputs["userName"].Text = "John Doe";
@@ -74,6 +79,8 @@ namespace Scribe.IntegrationTests
 					context.SaveChanges();
 				}
 
+				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
+
 				browser.NavigateTo($"{TestSite}/Login");
 				browser.Elements.TextInputs["userName"].Text = "John Doe";
 				browser.Elements.TextInputs["password"].Text = "Password!";
@@ -82,7 +89,7 @@ namespace Scribe.IntegrationTests
 
 				browser.NavigateTo($"{TestSite}/EditPage/1/ExistingPage");
 				browser.Elements.TextInputs["pageTitle"].Text = "My Welcome Page";
-				browser.Elements.TextArea["pageText"].Text = "World, hello to you...";
+				browser.Elements.TextArea["pageText"].Text = "The quick brown fox jumped over the lazy dog's back.";
 				browser.Elements.Buttons["saveButton"].Click();
 				browser.WaitForNavigation();
 			});
@@ -104,6 +111,8 @@ namespace Scribe.IntegrationTests
 					TestHelper.AddPage(context, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
 					context.SaveChanges();
 				}
+
+				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
 
 				browser.NavigateTo($"{TestSite}/Pages");
 
@@ -130,6 +139,8 @@ namespace Scribe.IntegrationTests
 					context.SaveChanges();
 				}
 
+				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
+
 				browser.NavigateTo($"{TestSite}/Pages");
 
 				Assert.AreEqual($"{TestSite}/Pages", browser.Uri);
@@ -155,6 +166,8 @@ namespace Scribe.IntegrationTests
 					TestHelper.AddPage(context, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
 					context.SaveChanges();
 				}
+
+				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
 
 				browser.NavigateTo($"{TestSite}/Login");
 				browser.Elements.TextInputs["userName"].Text = "John Doe";

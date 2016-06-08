@@ -5,13 +5,14 @@ using System.Linq;
 using System.Security.Authentication;
 using System.Threading;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using Scribe.Data;
 using Scribe.Models.Entities;
 using Scribe.Services;
 
 #endregion
 
-namespace Scribe.Website.Controllers.API
+namespace Scribe.Website.WebApi
 {
 	public class BaseApiController : ApiController
 	{
@@ -61,11 +62,12 @@ namespace Scribe.Website.Controllers.API
 		/// <summary>
 		/// Gets the current logged in user using the provided session.
 		/// </summary>
+		/// <param name="context"> </param>
 		/// <param name="throwException">
 		/// If true then throw an exception if the user is not logged in else return null.
 		/// </param>
 		/// <returns> The user of the logged in user. </returns>
-		protected User GetCurrentUser(bool throwException = true)
+		protected User GetCurrentUser(HttpControllerContext context = null, bool throwException = true)
 		{
 			if (_user != null)
 			{
@@ -73,7 +75,7 @@ namespace Scribe.Website.Controllers.API
 			}
 
 			// Make sure we are authenticated.
-			var identity = Thread.CurrentPrincipal?.Identity;
+			var identity = (context?.RequestContext.Principal ?? User)?.Identity;
 			if (identity?.IsAuthenticated != true)
 			{
 				if (throwException)

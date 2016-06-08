@@ -23,6 +23,11 @@ namespace Scribe
 			return offset > 0 ? ex.Message.Substring(0, offset) : ex.Message;
 		}
 
+		public static bool ContainsAny(this string value, IEnumerable<string> values)
+		{
+			return values.Any(value.Contains);
+		}
+
 		/// <summary>
 		/// Converts short unit to the long unit name.
 		/// </summary>

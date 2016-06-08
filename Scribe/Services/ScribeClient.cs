@@ -5,12 +5,13 @@ using System.Net.Http;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Web;
+using HttpClient = Scribe.Web.HttpClient;
 
 #endregion
 
 namespace Scribe.Services
 {
-	public class ScribeClient : HttpHelper, IScribeService
+	public class ScribeClient : HttpClient, IScribeService
 	{
 		#region Fields
 

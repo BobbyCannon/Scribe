@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System.IO;
+using System.Linq;
 using System.Web.Hosting;
 using System.Web.Http;
 using Scribe.Data;
@@ -10,7 +11,7 @@ using Scribe.Website.Hubs;
 
 #endregion
 
-namespace Scribe.Website.Controllers.API
+namespace Scribe.Website.WebApi
 {
 	public class SettingsController : BaseApiController
 	{
@@ -26,6 +27,21 @@ namespace Scribe.Website.Controllers.API
 		#region Methods
 
 		[HttpPost]
+		[AllowAnonymous]
+		public void Reload()
+		{
+			using (var datacontext = new ScribeSqlDatabase())
+			{
+				var settingsService = new SettingsService(datacontext, null);
+				settingsService.ClearCache();
+
+				MvcApplication.IsConfigured = datacontext.Users.Any();
+				MvcApplication.PrintCss = settingsService.PrintCss;
+				MvcApplication.ViewCss = settingsService.ViewCss;
+			}
+		}
+
+		[HttpPost]
 		[Authorize(Roles = "Administrator")]
 		public SettingsView Save(SettingsView settings)
 		{
@@ -33,6 +49,7 @@ namespace Scribe.Website.Controllers.API
 			var deleteIndex = service.EnableGuestMode != settings.EnableGuestMode;
 			service.Save(settings);
 			DataDatabase.SaveChanges();
+
 			MvcApplication.PrintCss = settings.PrintCss;
 			MvcApplication.ViewCss = settings.ViewCss;
 

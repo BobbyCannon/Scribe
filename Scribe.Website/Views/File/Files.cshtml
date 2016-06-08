@@ -52,6 +52,10 @@
 					visible: false
 				};
 
+				$scope.input = {
+					filter: scribe.getParameterByName('filter')
+				};
+
 				function uploadProgress(event) {
 					$scope.$apply(function () {
 						if (event.lengthComputable) {

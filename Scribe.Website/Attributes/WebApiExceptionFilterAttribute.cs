@@ -9,7 +9,7 @@ using System.Web.Http.Filters;
 
 #endregion
 
-namespace Scribe.Website
+namespace Scribe.Website.Attributes
 {
 	public class WebApiExceptionFilterAttribute : ExceptionFilterAttribute
 	{

@@ -90,6 +90,11 @@ namespace Scribe.Services
 
 		#region Methods
 
+		public void ClearCache()
+		{
+			_cache.Clear();
+		}
+
 		public SettingsView GetSettings()
 		{
 			if (_user == null || !_user.InRole("Administrator"))

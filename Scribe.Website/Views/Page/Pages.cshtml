@@ -81,6 +81,10 @@
 				$scope.model = @(Html.Raw(Model.ToJson(true)));
 				$scope.predicate = 'title';
 				$scope.reverse = false;
+
+				$scope.input = {
+					filter: scribe.getParameterByName('filter')
+				};
 			}
 		]);
 

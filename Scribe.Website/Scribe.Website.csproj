@@ -238,9 +238,9 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\API\BaseApiController.cs" />
-    <Compile Include="Controllers\API\ServiceController.cs" />
-    <Compile Include="Controllers\API\SettingsController.cs" />
+    <Compile Include="WebApi\BaseApiController.cs" />
+    <Compile Include="WebApi\ServiceController.cs" />
+    <Compile Include="WebApi\SettingsController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\FileController.cs" />
