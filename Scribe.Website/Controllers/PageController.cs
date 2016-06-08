@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Web.Hosting;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Bloodhound.Models;
 using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
@@ -29,8 +30,8 @@ namespace Scribe.Website.Controllers
 
 		#region Constructors
 
-		public PageController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService, INotificationHub notificationHub)
-			: base(dataDatabase, authenticationService)
+		public PageController(IScribeDatabase database, IAuthenticationService authenticationService, INotificationHub notificationHub)
+			: base(database, authenticationService)
 		{
 			_notificationHub = notificationHub;
 		}
@@ -55,7 +56,7 @@ namespace Scribe.Website.Controllers
 		public ActionResult Edit(int id)
 		{
 			var view = _service.BeginEditingPage(id);
-			DataDatabase.SaveChanges();
+			Database.SaveChanges();
 			_notificationHub.PageLockedForEdit(id, view.EditingBy);
 			return View(view);
 		}
@@ -90,14 +91,17 @@ namespace Scribe.Website.Controllers
 			{
 				Title = suggestedTitle,
 				Files = _service.GetFiles(new PagedRequest { PerPage = int.MaxValue }).Results,
-				Pages = _service.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => x.Title).ToList()
+				Pages = _service.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => new PageReference { Id = x.Id, Title = x.Title, TitleForLink = x.TitleForLink }).ToList()
 			});
 		}
 
 		[AllowAnonymous]
 		public ActionResult Page(int id)
 		{
-			return View(_service.GetPage(id));
+			var page = _service.GetPage(id);
+			(HttpContext.Items["Event"] as Event)?.Values.Add(new EventValue("Page Id", page.Id));
+			(HttpContext.Items["Event"] as Event)?.Values.Add(new EventValue("Page Title", page.Title));
+			return View(page);
 		}
 
 		[AllowAnonymous]
@@ -129,9 +133,9 @@ namespace Scribe.Website.Controllers
 		public ActionResult Settings()
 		{
 			var user = GetCurrentUser();
-			var service = new SettingsService(DataDatabase, user);
-			var privateService = new ScribeService(DataDatabase, null, null, user);
-			var publicService = new ScribeService(DataDatabase, null, null, null);
+			var service = new SettingsService(Database, user);
+			var privateService = new ScribeService(Database, null, null, user);
+			var publicService = new ScribeService(Database, null, null, null);
 
 			ViewBag.PrivatePages = privateService.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
 			ViewBag.PublicPages = publicService.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
@@ -156,9 +160,9 @@ namespace Scribe.Website.Controllers
 		protected override void Initialize(RequestContext requestContext)
 		{
 			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
-			_searchService = new SearchService(DataDatabase, path, GetCurrentUser(requestContext, false));
-			var accountService = new AccountService(DataDatabase, AuthenticationService);
-			_service = new ScribeService(DataDatabase, accountService, _searchService, GetCurrentUser(requestContext, false));
+			_searchService = new SearchService(Database, path, GetCurrentUser(requestContext, false));
+			var accountService = new AccountService(Database, AuthenticationService);
+			_service = new ScribeService(Database, accountService, _searchService, GetCurrentUser(requestContext, false));
 			base.Initialize(requestContext);
 		}
 

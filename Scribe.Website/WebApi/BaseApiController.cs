@@ -7,8 +7,9 @@ using System.Threading;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using Scribe.Data;
-using Scribe.Models.Entities;
+using Scribe.Data.Entities;
 using Scribe.Services;
+using Scribe.Website.Services;
 
 #endregion
 

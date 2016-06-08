@@ -6,17 +6,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using Scribe.Converters;
 using Scribe.Data;
+using Scribe.Data.Entities;
 using Scribe.Exceptions;
 using Scribe.Models.Data;
-using Scribe.Models.Entities;
 using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
-using Speedy;
+using Scribe.Services;
 using Speedy.Linq;
 
 #endregion
 
-namespace Scribe.Services
+namespace Scribe.Website.Services
 {
 	public class ScribeService : IScribeService
 	{
@@ -42,12 +42,11 @@ namespace Scribe.Services
 
 			Converter = new MarkupConverter();
 			Converter.ImagedParsed += title => _database.Files.Where(x => x.Name == title).Select(x => new FileView { Id = x.Id, Name = x.Name }).FirstOrDefault();
-			Converter.LinkParsed += (title, title2) => GetCurrentPagesQuery().Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.PageId, Title = x.Title }).FirstOrDefault();
-		}
-
-		static ScribeService()
-		{
-			EditingTimeout = new TimeSpan(0, 15, 0);
+			Converter.LinkParsed += (title, title2) =>
+			{
+				return GetCurrentPagesQuery().Where(x => x.Title == title || x.Title == title2).Select(x => new PageView { Id = x.PageId, Title = x.Title }).FirstOrDefault()
+					?? GetCurrentPagesQuery().Where(x => "Page/" + x.PageId == title || x.PageId.ToString() == title).Select(x => new PageView { Id = x.PageId, Title = x.Title }).FirstOrDefault();
+			};
 		}
 
 		#endregion
@@ -55,8 +54,6 @@ namespace Scribe.Services
 		#region Properties
 
 		public MarkupConverter Converter { get; }
-
-		public static TimeSpan EditingTimeout { get; }
 
 		public bool IsGuestRequest => _user == null && _settingsService.EnableGuestMode;
 
@@ -76,7 +73,7 @@ namespace Scribe.Services
 				throw new PageNotFoundException("Failed to find the page with that ID.");
 			}
 
-			var timeoutThreshold = DateTime.UtcNow.Subtract(EditingTimeout);
+			var timeoutThreshold = DateTime.UtcNow.Subtract(Constants.EditingTimeout);
 			if (page.EditingOn <= timeoutThreshold)
 			{
 				page.EditingBy = _user;
@@ -88,7 +85,7 @@ namespace Scribe.Services
 
 			response.Html = Converter.ToHtml(response.Text);
 			response.Files = GetFiles(new PagedRequest { PerPage = int.MaxValue }).Results;
-			response.Pages = GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => x.Title).ToList();
+			response.Pages = GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => new PageReference { Id = x.Id, Title = x.Title, TitleForLink = x.TitleForLink }).ToList();
 
 			return response;
 		}

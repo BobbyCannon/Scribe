@@ -611,6 +611,26 @@ table {
 		border: 1px solid $gray;
 	}
 
+	&.analytics.medium {
+		@include rem-units(width, 320);
+		@include rem-units(max-width, 320);
+		@include rem-units(margin-bottom, 40);
+
+		tr {
+			td:first-child {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				width: 80%;
+				max-width: 0;
+			}
+
+			td:last-child {
+				width: 20%;
+			}
+		}
+	}
+
 	&.files {
 		tr th:first-child,
 		tr td:first-child {
@@ -1056,6 +1076,14 @@ ins.diffmod {
 	&:disabled {
 		color: $darkGray !important;
 	}
+}
+
+.picker {
+	width: 470px;
+}
+
+.picker__holder {
+	overflow: hidden;
 }
 
 @media screen and (max-width: 960px) {

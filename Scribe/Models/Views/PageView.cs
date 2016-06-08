@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Web;
+using Scribe.Models.Data;
 using Scribe.Models.Enumerations;
 
 #endregion
@@ -25,7 +26,7 @@ namespace Scribe.Models.Views
 			Id = 0;
 			IsPublished = false;
 			LastModified = string.Empty;
-			Pages = new List<string>();
+			Pages = new List<PageReference>();
 			Tags = new List<string>();
 			Text = string.Empty;
 			Title = string.Empty;
@@ -53,7 +54,7 @@ namespace Scribe.Models.Views
 
 		public string LastModified { get; set; }
 
-		public List<string> Pages { get; set; }
+		public IEnumerable<PageReference> Pages { get; set; }
 
 		public IEnumerable<string> Tags { get; set; }
 

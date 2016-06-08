@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
@@ -7,9 +8,13 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Bloodhound;
+using Bloodhound.Models;
 using Scribe.Data;
 using Scribe.Data.Migrations;
-using Scribe.Services;
+using Scribe.Website.Services;
+using Speedy;
+using Database = System.Data.Entity.Database;
 
 #endregion
 
@@ -19,6 +24,7 @@ namespace Scribe.Website
 	{
 		#region Fields
 
+		private Event _event;
 		private static readonly string[] _ignoredRequest;
 
 		#endregion
@@ -36,11 +42,28 @@ namespace Scribe.Website
 
 		public static bool IsConfigured { get; set; }
 		public static string PrintCss { get; set; }
+		public static Tracker Tracker { get; set; }
 		public static string ViewCss { get; set; }
 
 		#endregion
 
 		#region Methods
+
+		protected void Application_AuthenticateRequest(object sender, EventArgs e)
+		{
+			var uri = Request.Url.AbsoluteUri.ToLower();
+			_event = Tracker?.StartEvent(AnalyticEventNames.WebRequest.ToString(),
+				new EventValue("URI", uri),
+				new EventValue("IsSecure", Request.IsSecureConnection),
+				new EventValue("IsAuthenticated", Request.IsAuthenticated),
+				new EventValue("UrlReferrer", Request.UrlReferrer?.ToString() ?? string.Empty),
+				new EventValue("UserHostAddress", Request.UserHostAddress ?? string.Empty),
+				new EventValue("UserAgent", Request.UserAgent ?? string.Empty),
+				new EventValue("IdentityName", User?.Identity?.Name ?? string.Empty)
+				);
+
+			Context.Items["Event"] = _event;
+		}
 
 		protected void Application_BeginRequest()
 		{
@@ -50,6 +73,22 @@ namespace Scribe.Website
 			if (!IsConfigured && !uri.ContainsAny(_ignoredRequest))
 			{
 				Response.RedirectToRoute("Setup");
+			}
+		}
+
+		protected void Application_End(object sender, EventArgs e)
+		{
+			Tracker?.Dispose();
+		}
+
+		protected void Application_EndRequest(object sender, EventArgs e)
+		{
+			_event?.Complete();
+			_event = null;
+			
+			if (Request.Path.ToLower().StartsWith("/api/") && (Response.StatusCode == 302))
+			{
+				Response.StatusCode = 401;
 			}
 		}
 
@@ -66,6 +105,12 @@ namespace Scribe.Website
 			GlobalConfiguration.Configuration.EnsureInitialized();
 
 			Database.SetInitializer(new MigrateDatabaseToLatestVersion<ScribeSqlDatabase, Configuration>(true));
+
+			var appDataPath = HttpContext.Current.Server.MapPath("~/App_Data");
+			var client = new ScribeDataChannel(new ScribeDatabaseProvider(() => new ScribeSqlDatabase()));
+			var provider = new KeyValueRepositoryProvider<Event>(appDataPath);
+
+			Tracker = Tracker.Start(client, provider);
 
 			using (var datacontext = new ScribeSqlDatabase())
 			{

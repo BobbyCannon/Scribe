@@ -1,0 +1,145 @@
+﻿@model AnalyticsHomeView
+
+<div ng-controller="Controller">
+
+	<div class="row">
+		<div class="span12">
+			<h2>Analytics</h2>
+		</div>
+		<div class="span12 text-right">
+			@using (Html.BeginForm("Home", "Analytics", FormMethod.Get))
+			{
+				<label class="input">FROM:</label>
+				<input id="startDate" name="startDate" type="text" class="medium" />
+				<label class="input">TO:</label>
+				<input id="endDate" name="endDate" type="text" class="medium" />
+				<button class="blue" type="submit">Filter</button>
+			}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="span8 text-center">
+			<h4>Most Viewed Pages</h4>
+			<table class="center analytics medium">
+				<tr ng-repeat="data in model.mostViewPages">
+					<td class="text-left">
+						<a ng-href="{{ data.link }}">{{ data.name }}</a>
+					</td>
+					<td class="text-right">{{ data.value }}</td>
+				</tr>
+			</table>
+		</div>
+		<div class="span8 text-center">
+			<h4>Most Active Pages</h4>
+			<table class="center analytics medium">
+				<tr ng-repeat="data in model.mostActivePages">
+					<td class="text-left">
+						<a ng-href="{{ data.link }}">{{ data.name }}</a>
+					</td>
+					<td class="text-right">{{ data.value }}</td>
+				</tr>
+			</table>
+		</div>
+		<div class="span8 text-center">
+			<h4>Most Active Editors</h4>
+			<table class="center analytics medium">
+				<tr ng-repeat="data in model.mostActiveEditors">
+					<td class="text-left">{{ data.name }}</td>
+					<td class="text-right">{{ data.value }}</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="span8 text-center">
+			<h4>Monthly New Pages</h4>
+			<canvas id="myChart" width="360" height="300"></canvas>
+		</div>
+		<div class="span8 text-center">
+			<h4>New Pages By User</h4>
+			<table class="center analytics medium">
+				<tr ng-repeat="data in model.newPagesByUser">
+					<td class="text-left">{{ data.name }}</td>
+					<td class="text-right">{{ data.value }}</td>
+				</tr>
+			</table>
+		</div>
+		<div class="span8 text-center">
+			<h4>Most Active Groups</h4>
+			<table class="center analytics medium">
+				<tr ng-repeat="data in model.mostActiveGroups">
+					<td class="text-left">{{ data.name }}</td>
+					<td class="text-right">{{ data.value }}</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+
+@section scripts
+{
+	<script type="text/javascript">
+
+		var $startPicker = $('#startDate').pickadate({ format: 'mm/dd/yyyy' }).pickadate('picker');
+		var $endPicker = $('#endDate').pickadate({ format: 'mm/dd/yyyy', max: new Date() }).pickadate('picker');
+
+		scribe.controller('Controller',
+		[
+			'$scope', '$http',
+			function ($scope, $http) {
+
+				'use strict';
+
+				$scope.model = @(Html.Raw(Model.ToJson(true)));
+				$startPicker.set({ select: Date.parse($scope.model.startDate) });
+				$endPicker.set({ select: Date.parse($scope.model.endDate) });
+
+				var ctx = $("#myChart");
+				var data = {
+					labels: Enumerable.From($scope.model.newPagesPerMonth)
+						.Select(function (x) {
+							return x.name;
+						})
+						.ToArray(),
+					datasets: [
+						{
+							label: "New Pages",
+							backgroundColor: "rgba(255,99,132,0.2)",
+							borderColor: "rgba(255,99,132,1)",
+							borderWidth: 1,
+							hoverBackgroundColor: "rgba(255,99,132,0.4)",
+							hoverBorderColor: "rgba(255,99,132,1)",
+							data: Enumerable.From($scope.model.newPagesPerMonth)
+								.Select(function (x) {
+									return x.value;
+								})
+								.ToArray()
+						}
+					]
+				};
+
+				var myBarChart = new Chart(ctx,
+				{
+					type: 'bar',
+					data: data,
+					options: {
+						legend: {
+							display: false
+						},
+						scales: {
+							yAxes: [{
+								ticks: {
+									min: 0
+								}
+							}]
+						}
+
+					}
+				});
+			}
+		]);
+
+	</script>
+}

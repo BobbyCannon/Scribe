@@ -11,6 +11,7 @@ using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Services;
 using Scribe.Website.Attributes;
+using Scribe.Website.Services;
 
 #endregion
 
@@ -20,8 +21,8 @@ namespace Scribe.Website.Controllers
 	{
 		#region Constructors
 
-		public FileController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
-			: base(dataDatabase, authenticationService)
+		public FileController(IScribeDatabase database, IAuthenticationService authenticationService)
+			: base(database, authenticationService)
 		{
 		}
 
@@ -32,13 +33,13 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult File(int id)
 		{
-			var service = new ScribeService(DataDatabase, null, null, GetCurrentUser(null,false));
+			var service = new ScribeService(Database, null, null, GetCurrentUser(null,false));
 
 			if (!string.IsNullOrEmpty(Request.Headers["If-Modified-Since"]))
 			{
 				var fileInfo = service.GetFile(id);
 				var previousModifiedOn = DateTime.ParseExact(Request.Headers["If-Modified-Since"], "r", CultureInfo.InvariantCulture).ToLocalTime();
-				var currentModifiedOn = fileInfo.ModifiedOn.TruncateTo(Extensions.DateTruncate.Second);
+				var currentModifiedOn = fileInfo.ModifiedOn.TruncateTo(Scribe.Extensions.DateTruncate.Second);
 
 				if (currentModifiedOn <= previousModifiedOn)
 				{
@@ -64,7 +65,7 @@ namespace Scribe.Website.Controllers
 
 		public ActionResult Files()
 		{
-			var service = new ScribeService(DataDatabase, null, null, GetCurrentUser());
+			var service = new ScribeService(Database, null, null, GetCurrentUser());
 			return View(service.GetFiles(new PagedRequest { PerPage = int.MaxValue }));
 		}
 
@@ -85,7 +86,7 @@ namespace Scribe.Website.Controllers
 				contentType = MimeMapping.GetMimeMapping(file.FileName);
 			}
 
-			var service = new ScribeService(DataDatabase, null, null, GetCurrentUser());
+			var service = new ScribeService(Database, null, null, GetCurrentUser());
 			var fileData = new FileView
 			{
 				Name = Path.GetFileName(file.FileName),
@@ -94,7 +95,7 @@ namespace Scribe.Website.Controllers
 			};
 
 			service.SaveFile(fileData);
-			DataDatabase.SaveChanges();
+			Database.SaveChanges();
 
 			return new JsonNetResult(service.GetFiles(new PagedRequest { PerPage = int.MaxValue }));
 		}

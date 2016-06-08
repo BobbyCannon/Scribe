@@ -4,13 +4,13 @@ using System.Data;
 using System.DirectoryServices;
 using System.Linq;
 using Scribe.Data;
+using Scribe.Data.Entities;
 using Scribe.Models.Data;
-using Scribe.Models.Entities;
 using Scribe.Models.Views;
 
 #endregion
 
-namespace Scribe.Services
+namespace Scribe.Website.Services
 {
 	public class AccountService
 	{
@@ -52,7 +52,13 @@ namespace Scribe.Services
 			var searchResult = GetUserAccount(credentials.UserName, credentials.Password);
 			if (searchResult == null)
 			{
-				return Authenticate(credentials);
+				var existingUser = Authenticate(credentials);
+				if (existingUser != null)
+				{
+					_authenticationService.LogIn(existingUser, credentials.RememberMe);
+				}
+
+				return existingUser != null;
 			}
 
 			var user = AddOrUpdateUser(credentials.UserName, credentials.Password, searchResult);
@@ -119,22 +125,21 @@ namespace Scribe.Services
 			return user;
 		}
 
-		private bool Authenticate(Credentials model)
+		public User Authenticate(Credentials model)
 		{
 			var user = _database.Users.FirstOrDefault(x => x.UserName == model.UserName);
 			if (user == null)
 			{
-				return false;
+				return null;
 			}
 
 			var hash = User.HashPassword(model.Password, user.Salt);
 			if (user.PasswordHash != hash)
 			{
-				return false;
+				return null;
 			}
 
-			_authenticationService.LogIn(user, model.RememberMe);
-			return true;
+			return user;
 		}
 
 		private string GetProperty(ResultPropertyValueCollection collection, string defaultValue)

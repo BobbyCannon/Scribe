@@ -4,7 +4,7 @@ using Speedy;
 
 #endregion
 
-namespace Scribe.Models.Entities
+namespace Scribe.Data.Entities
 {
 	public class Setting : ModifiableEntity
 	{

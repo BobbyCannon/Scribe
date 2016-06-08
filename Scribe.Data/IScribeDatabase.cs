@@ -1,6 +1,6 @@
 ﻿#region References
 
-using Scribe.Models.Entities;
+using Scribe.Data.Entities;
 using Speedy;
 
 #endregion
@@ -11,6 +11,8 @@ namespace Scribe.Data
 	{
 		#region Properties
 
+		IRepository<Event> Events { get; }
+		IRepository<EventValue> EventValues { get; }
 		IRepository<File> Files { get; }
 		IRepository<Page> Pages { get; }
 		IRepository<PageVersion> PageVersions { get; }

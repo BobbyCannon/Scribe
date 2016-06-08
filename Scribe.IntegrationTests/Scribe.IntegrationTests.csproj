@@ -131,6 +131,10 @@
       <Project>{E6C85046-F696-4798-BB97-E8E308FB95D0}</Project>
       <Name>Scribe.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Scribe.Website\Scribe.Website.csproj">
+      <Project>{ab5989ae-0d89-43dd-b7c5-3381615ebf48}</Project>
+      <Name>Scribe.Website</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Scribe\Scribe.csproj">
       <Project>{09412e66-5135-4be9-b674-d0a6f97fad0c}</Project>
       <Name>Scribe</Name>

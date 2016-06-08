@@ -47,6 +47,10 @@
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Bloodhound, Version=4.2.5.0, Culture=neutral, PublicKeyToken=f50ebb8a4f279131, processorArchitecture=MSIL">
+      <HintPath>..\packages\Bloodhound.4.2.5\lib\net452\Bloodhound.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -128,6 +132,7 @@
       <HintPath>..\packages\Speedy.EntityFramework.4.4.16\lib\net452\Speedy.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
@@ -215,9 +220,23 @@
     <None Include="Properties\PublishProfiles\release.pubxml" />
     <None Include="Properties\PublishProfiles\localhost.pubxml" />
     <None Include="Scripts\jquery-2.2.3.intellisense.js" />
+    <Content Include="Scripts\Chart.js" />
     <Content Include="Scripts\jquery-2.2.3.js" />
     <Content Include="Scripts\jquery.fieldSelection.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.js" />
+    <None Include="Scripts\linq-vsdoc.js" />
+    <Content Include="Scripts\linq.js" />
+    <Content Include="Scripts\pickadate\legacy.js" />
+    <Content Include="Scripts\pickadate\picker.date.js" />
+    <Content Include="Scripts\pickadate\picker.js" />
+    <Content Include="Scripts\pickadate\picker.time.js" />
+    <Content Include="Scripts\pickadate\themes\classic.css" />
+    <Content Include="Scripts\pickadate\themes\classic.date.css" />
+    <Content Include="Scripts\pickadate\themes\classic.time.css" />
+    <Content Include="Scripts\pickadate\themes\default.css" />
+    <Content Include="Scripts\pickadate\themes\default.date.css" />
+    <Content Include="Scripts\pickadate\themes\default.time.css" />
+    <Content Include="Scripts\pickadate\themes\rtl.css" />
     <Content Include="Scripts\scribe.js" />
     <Content Include="Scripts\toastr.js" />
     <Content Include="Scripts\underscore.js" />
@@ -225,12 +244,25 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnalyticEventNames.cs" />
     <Compile Include="Attributes\JsonNetResult.cs" />
     <Compile Include="Attributes\MvcAuthorizeAttribute.cs" />
     <Compile Include="Attributes\MvcExceptionFilterAttribute.cs" />
     <Compile Include="Attributes\TraceExceptionLogger.cs" />
     <Compile Include="Attributes\WebApiExceptionFilterAttribute.cs" />
+    <Compile Include="Controllers\AnalyticsController.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Models\PostmanCollection.cs" />
+    <Compile Include="Models\PostmanRequest.cs" />
     <Compile Include="Providers\RoleProvider.cs" />
+    <Compile Include="Services\AccountService.cs" />
+    <Compile Include="Services\AnalyticsService.cs" />
+    <Compile Include="Services\AuthenticationService.cs" />
+    <Compile Include="Services\AuthorizationHeaderHandler.cs" />
+    <Compile Include="Services\DocumentationService.cs" />
+    <Compile Include="Services\IAuthenticationService.cs" />
+    <Compile Include="Services\ISearchService.cs" />
+    <Compile Include="Services\ScribeService.cs" />
     <Compile Include="Services\SearchService.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -238,7 +270,11 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Services\SettingsService.cs" />
+    <Compile Include="Models\AnalyticData.cs" />
+    <Compile Include="ViewModels\AnalyticsHomeView.cs" />
     <Compile Include="WebApi\BaseApiController.cs" />
+    <Compile Include="WebApi\DiscoveryController.cs" />
     <Compile Include="WebApi\ServiceController.cs" />
     <Compile Include="WebApi\SettingsController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
@@ -254,6 +290,8 @@
     <Compile Include="Hubs\SignalRContractResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="WebApi\PagesController.cs" />
+    <Compile Include="WebApi\TagsController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -287,6 +325,7 @@
     <Content Include="Views\Account\User.cshtml" />
     <Content Include="Views\Account\UsersWithTag.cshtml" />
     <Content Include="Views\Page\Manual.cshtml" />
+    <Content Include="Views\Analytics\Home.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

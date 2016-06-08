@@ -4,7 +4,7 @@ using Scribe.Models.Views;
 
 #endregion
 
-namespace Scribe.Services
+namespace Scribe.Website.Services
 {
 	public interface ISearchService
 	{

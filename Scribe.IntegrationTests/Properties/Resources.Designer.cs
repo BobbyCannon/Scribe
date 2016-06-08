@@ -61,7 +61,9 @@ namespace Scribe.IntegrationTests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DELETE FROM [Files];
+        ///   Looks up a localized string similar to DELETE FROM [EventValues];
+        ///DELETE FROM [Events];
+        ///DELETE FROM [Files];
         ///UPDATE [Pages] SET [ApprovedVersionId] = null, [CurrentVersionId] = null;
         ///DELETE FROM [PageVersions];
         ///DELETE FROM [Pages];

@@ -118,7 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ClearDatabase" xml:space="preserve">
-    <value>DELETE FROM [Files];
+    <value>DELETE FROM [EventValues];
+DELETE FROM [Events];
+DELETE FROM [Files];
 UPDATE [Pages] SET [ApprovedVersionId] = null, [CurrentVersionId] = null;
 DELETE FROM [PageVersions];
 DELETE FROM [Pages];

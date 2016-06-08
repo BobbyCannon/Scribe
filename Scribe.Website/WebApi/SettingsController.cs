@@ -4,15 +4,18 @@ using System.IO;
 using System.Linq;
 using System.Web.Hosting;
 using System.Web.Http;
+using System.Web.Http.Description;
 using Scribe.Data;
 using Scribe.Models.Views;
 using Scribe.Services;
 using Scribe.Website.Hubs;
+using Scribe.Website.Services;
 
 #endregion
 
 namespace Scribe.Website.WebApi
 {
+	[ApiExplorerSettings(IgnoreApi = true)]
 	public class SettingsController : BaseApiController
 	{
 		#region Constructors

@@ -12,7 +12,7 @@ using Speedy;
 
 #endregion
 
-namespace Scribe.Models.Entities
+namespace Scribe.Data.Entities
 {
 	/// <summary>
 	/// Represents a user of the scribe wiki.

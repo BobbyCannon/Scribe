@@ -4,14 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Scribe.Converters;
+using Scribe.Models.Data;
 using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
-using Scribe.Services;
 using Speedy;
 
 #endregion
 
-namespace Scribe.Models.Entities
+namespace Scribe.Data.Entities
 {
 	/// <summary>
 	/// Represents a page. Content store in the page version.
@@ -133,12 +133,12 @@ namespace Scribe.Models.Entities
 				Id = PageId,
 				CreatedBy = CreatedBy.DisplayName,
 				CreatedOn = CreatedOn,
-				EditingBy = EditingOn > DateTime.UtcNow.Subtract(ScribeService.EditingTimeout) ? (EditingBy?.DisplayName ?? string.Empty) : string.Empty,
+				EditingBy = EditingOn > DateTime.UtcNow.Subtract(Constants.EditingTimeout) ? (EditingBy?.DisplayName ?? string.Empty) : string.Empty,
 				Files = new List<FileView>(),
 				Html = includeDetails ? converter?.ToHtml(Text) ?? string.Empty : string.Empty,
 				IsPublished = IsPublished,
 				LastModified = DateTime.UtcNow.Subtract(CreatedOn).ToTimeAgo(),
-				Pages = new List<string>(),
+				Pages = new List<PageReference>(),
 				Tags = SplitTags(Tags),
 				Text = includeDetails ? Text : string.Empty,
 				Title = Title,

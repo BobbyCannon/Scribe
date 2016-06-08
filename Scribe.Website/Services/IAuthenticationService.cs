@@ -1,10 +1,10 @@
 ﻿#region References
 
-using Scribe.Models.Entities;
+using Scribe.Data.Entities;
 
 #endregion
 
-namespace Scribe.Services
+namespace Scribe.Website.Services
 {
 	public interface IAuthenticationService
 	{

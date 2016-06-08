@@ -7,8 +7,9 @@ using System.Threading;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Scribe.Data;
-using Scribe.Models.Entities;
+using Scribe.Data.Entities;
 using Scribe.Services;
+using Scribe.Website.Services;
 
 #endregion
 
@@ -24,9 +25,9 @@ namespace Scribe.Website.Controllers
 
 		#region Constructors
 
-		public BaseController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
+		public BaseController(IScribeDatabase database, IAuthenticationService authenticationService)
 		{
-			DataDatabase = dataDatabase;
+			Database = database;
 			AuthenticationService = authenticationService;
 		}
 
@@ -36,7 +37,7 @@ namespace Scribe.Website.Controllers
 
 		public IAuthenticationService AuthenticationService { get; }
 
-		public IScribeDatabase DataDatabase { get; }
+		public IScribeDatabase Database { get; }
 
 		#endregion
 
@@ -70,7 +71,7 @@ namespace Scribe.Website.Controllers
 			}
 
 			var userId = identity.GetId();
-			_user = DataDatabase.Users.FirstOrDefault(u => u.Id == userId);
+			_user = Database.Users.FirstOrDefault(u => u.Id == userId);
 			if (_user == null)
 			{
 				// Log the user out because we cannot find the user account.
@@ -96,7 +97,7 @@ namespace Scribe.Website.Controllers
 		{
 			if (disposing)
 			{
-				DataDatabase.Dispose();
+				Database.Dispose();
 			}
 
 			base.Dispose(disposing);

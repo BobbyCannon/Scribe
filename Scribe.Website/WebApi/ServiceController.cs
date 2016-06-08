@@ -3,6 +3,7 @@
 using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Http.Controllers;
+using System.Web.Http.Description;
 using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
@@ -13,6 +14,7 @@ using Scribe.Website.Services;
 
 namespace Scribe.Website.WebApi
 {
+	[ApiExplorerSettings(IgnoreApi = true)]
 	public class ServiceController : BaseApiController, IScribeService
 	{
 		#region Fields

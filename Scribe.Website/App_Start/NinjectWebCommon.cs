@@ -12,6 +12,7 @@ using Scribe.Data;
 using Scribe.Services;
 using Scribe.Website;
 using Scribe.Website.Hubs;
+using Scribe.Website.Services;
 using WebActivatorEx;
 
 #endregion

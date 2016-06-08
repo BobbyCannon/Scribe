@@ -19,11 +19,19 @@ namespace Scribe.Website
 				"~/Scripts/underscore.js",
 				"~/Scripts/angular.js",
 				"~/Scripts/angular-sanitize.js",
+				"~/Scripts/Chart.js",
+				"~/Scripts/linq.js",
 				"~/Scripts/Directives/FileUpload.js",
+				"~/Scripts/pickadate/picker.js",
+				"~/Scripts/pickadate/picker.date.js",
+				"~/Scripts/pickadate/picker.time.js",
 				"~/Scripts/toastr.js",
 				"~/Scripts/scribe.js"));
 
 			bundles.Add(new StyleBundle("~/bundle/css").Include(
+				"~/Scripts/pickadate/themes/classic.css",
+				"~/Scripts/pickadate/themes/classic.date.css",
+				"~/Scripts/pickadate/themes/classic.time.css",
 				"~/Content/font-awesome.css",
 				"~/Content/toastr.css",
 				"~/Content/scribe.css"));

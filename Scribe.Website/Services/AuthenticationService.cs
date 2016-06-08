@@ -5,11 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Web;
 using System.Web.Security;
-using Scribe.Models.Entities;
+using Scribe.Data.Entities;
 
 #endregion
 
-namespace Scribe.Services
+namespace Scribe.Website.Services
 {
 	[ExcludeFromCodeCoverage]
 	public class AuthenticationService : IAuthenticationService

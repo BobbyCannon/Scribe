@@ -3,6 +3,7 @@
 using System.Web.Mvc;
 using Scribe.Data;
 using Scribe.Services;
+using Scribe.Website.Services;
 
 #endregion
 
@@ -13,8 +14,8 @@ namespace Scribe.Website.Controllers
 	{
 		#region Constructors
 
-		public ErrorController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
-			: base(dataDatabase, authenticationService)
+		public ErrorController(IScribeDatabase database, IAuthenticationService authenticationService)
+			: base(database, authenticationService)
 		{
 		}
 

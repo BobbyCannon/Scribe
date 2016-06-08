@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bloodhound, Version=4.2.5.0, Culture=neutral, PublicKeyToken=f50ebb8a4f279131, processorArchitecture=MSIL">
+      <HintPath>..\packages\Bloodhound.4.2.5\lib\net452\Bloodhound.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -61,6 +65,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Event.cs" />
+    <Compile Include="Entities\EventValue.cs" />
+    <Compile Include="Entities\File.cs" />
+    <Compile Include="Entities\Page.cs" />
+    <Compile Include="Entities\PageVersion.cs" />
+    <Compile Include="Entities\Setting.cs" />
+    <Compile Include="Entities\User.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="IScribeDatabase.cs" />
+    <Compile Include="Mapping\EventMap.cs" />
+    <Compile Include="Mapping\EventValueMap.cs" />
+    <Compile Include="Migrations\201606081944368_AddedAnalytics.cs" />
+    <Compile Include="Migrations\201606081944368_AddedAnalytics.Designer.cs">
+      <DependentUpon>201606081944368_AddedAnalytics.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ScribeDatabaseProvider.cs" />
+    <Compile Include="ScribeDataChannel.cs" />
     <Compile Include="Mapping\FileMap.cs" />
     <Compile Include="Mapping\PageMap.cs" />
     <Compile Include="Mapping\PageVersionMap.cs" />
@@ -100,6 +121,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603231637056_AddedHomePageToSettings.resx">
       <DependentUpon>201603231637056_AddedHomePageToSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201606081944368_AddedAnalytics.resx">
+      <DependentUpon>201606081944368_AddedAnalytics.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

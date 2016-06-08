@@ -6,6 +6,9 @@ scribe.directive('ngValidatedClick', function () {
 
 	'use strict';
 
+	Chart.defaults.global.elements.point.radius = 0;
+	Chart.defaults.global.responsive = false;
+
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {

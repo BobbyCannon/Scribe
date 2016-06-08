@@ -35,10 +35,9 @@
 				<div class="rows">
 					<table class="expand striped pages">
 						<tbody>
-							<tr ng-repeat="$name in model.pages | filter: input.pageFilter" class="clickable" ng-click="selectPage($name)">
-								<td>
-									{{$name}}
-								</td>
+							<tr ng-repeat="$details in model.pages | filter: input.pageFilter" class="clickable" ng-click="selectPage($details)">
+								<td>{{$details.id}}</td>
+								<td>{{$details.title}}</td>
 							</tr>
 						</tbody>
 					</table>
@@ -263,11 +262,11 @@
 					});
 				}
 
-				$scope.selectPage = function (name) {
+				$scope.selectPage = function (details) {
 					$scope.input.showPages = false;
 
 					_.defer(function () {
-						$scope.insert('[' + name + '](' + name + ')', 'replace');
+						$scope.insert('[' + details.title + '](Page/' + details.id + ')', 'replace');
 					});
 				}
 

@@ -1977,6 +1977,21 @@ table {
     background-color: #f5f5f5; }
   table.bordered {
     border: 1px solid #ccc; }
+  table.analytics.medium {
+    width:  320px;
+    width:  20rem;
+    max-width:  320px;
+    max-width:  20rem;
+    margin-bottom:  40px;
+    margin-bottom:  2.5rem; }
+    table.analytics.medium tr td:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 80%;
+      max-width: 0; }
+    table.analytics.medium tr td:last-child {
+      width: 20%; }
   table.files tr th:first-child,
   table.files tr td:first-child {
     width: auto; }
@@ -2569,6 +2584,12 @@ ins.diffmod {
   color: #565656 !important; }
   .input-inner-button.disabled, .input-inner-button:disabled {
     color: #999 !important; }
+
+.picker {
+  width: 470px; }
+
+.picker__holder {
+  overflow: hidden; }
 
 @media screen and (max-width: 960px) {
   [class*="span"] {

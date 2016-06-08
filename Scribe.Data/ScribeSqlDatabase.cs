@@ -1,8 +1,8 @@
 #region References
 
 using System.Data.Entity;
+using Scribe.Data.Entities;
 using Scribe.Data.Mapping;
-using Scribe.Models.Entities;
 using Speedy;
 using Speedy.EntityFramework;
 
@@ -28,6 +28,8 @@ namespace Scribe.Data
 
 		#region Properties
 
+		public IRepository<Event> Events => GetRepository<Event>();
+		public IRepository<EventValue> EventValues => GetRepository<EventValue>();
 		public IRepository<File> Files => GetRepository<File>();
 		public IRepository<Page> Pages => GetRepository<Page>();
 		public IRepository<PageVersion> PageVersions => GetRepository<PageVersion>();
@@ -40,6 +42,8 @@ namespace Scribe.Data
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
+			modelBuilder.Configurations.Add(new EventMap());
+			modelBuilder.Configurations.Add(new EventValueMap());
 			modelBuilder.Configurations.Add(new FileMap());
 			modelBuilder.Configurations.Add(new PageMap());
 			modelBuilder.Configurations.Add(new PageVersionMap());

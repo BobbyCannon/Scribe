@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Scribe.Data;
-using Scribe.Models.Entities;
+using Scribe.Data.Entities;
 using Scribe.Models.Views;
 
 #endregion
 
-namespace Scribe.Services
+namespace Scribe.Website.Services
 {
 	public class SettingsService
 	{
