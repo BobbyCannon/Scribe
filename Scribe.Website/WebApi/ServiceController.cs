@@ -8,6 +8,7 @@ using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
 using Scribe.Services;
+using Scribe.Website.Hubs;
 using Scribe.Website.Services;
 
 #endregion
@@ -19,41 +20,36 @@ namespace Scribe.Website.WebApi
 	{
 		#region Fields
 
+		private readonly INotificationHub _notificationHub;
 		private ScribeService _service;
 
 		#endregion
 
 		#region Constructors
 
-		public ServiceController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
-			: base(dataDatabase, authenticationService)
+		public ServiceController(IScribeDatabase database, IAuthenticationService authenticationService, INotificationHub notificationHub)
+			: base(database, authenticationService)
 		{
+			_notificationHub = notificationHub;
 		}
 
 		#endregion
 
 		#region Methods
 
-		/// <summary>Initializes the <see cref="T:System.Web.Http.ApiController" /> instance with the specified controllerContext.</summary>
-		/// <param name="controllerContext">The <see cref="T:System.Web.Http.Controllers.HttpControllerContext" /> object that is used for the initialization.</param>
-		protected override void Initialize(HttpControllerContext controllerContext)
-		{
-			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
-			var searchService = new SearchService(DataDatabase, path, GetCurrentUser(controllerContext,false));
-			var accountService = new AccountService(DataDatabase, AuthenticationService);
-			_service = new ScribeService(DataDatabase, accountService, searchService, GetCurrentUser(controllerContext,false));
-			base.Initialize(controllerContext);
-		}
-
 		public PageView BeginEditingPage(int id)
 		{
-			return _service.BeginEditingPage(id);
+			var view = _service.BeginEditingPage(id);
+			Database.SaveChanges();
+			_notificationHub.PageLockedForEdit(id, view.EditingBy);
+			return view;
 		}
 
 		[HttpPost]
 		public void CancelEditingPage(int id)
 		{
 			_service.CancelEditingPage(id);
+			_notificationHub.PageAvailableForEdit(id);
 		}
 
 		[HttpPost]
@@ -154,7 +150,9 @@ namespace Scribe.Website.WebApi
 		[HttpPost]
 		public PageView SavePage(PageView view)
 		{
-			return _service.SavePage(view);
+			var response = _service.SavePage(view);
+			_notificationHub.PageAvailableForEdit(response.Id);
+			return response;
 		}
 
 		[HttpPost]
@@ -168,6 +166,20 @@ namespace Scribe.Website.WebApi
 		public PageView UpdatePage(PageUpdate update)
 		{
 			return _service.UpdatePage(update);
+		}
+
+		/// <summary> Initializes the <see cref="T:System.Web.Http.ApiController" /> instance with the specified controllerContext. </summary>
+		/// <param name="controllerContext">
+		/// The <see cref="T:System.Web.Http.Controllers.HttpControllerContext" /> object that is
+		/// used for the initialization.
+		/// </param>
+		protected override void Initialize(HttpControllerContext controllerContext)
+		{
+			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
+			var searchService = new SearchService(Database, path, GetCurrentUser(controllerContext, false));
+			var accountService = new AccountService(Database, AuthenticationService);
+			_service = new ScribeService(Database, accountService, searchService, GetCurrentUser(controllerContext, false));
+			base.Initialize(controllerContext);
 		}
 
 		#endregion

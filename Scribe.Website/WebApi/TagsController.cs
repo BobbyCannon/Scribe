@@ -24,8 +24,8 @@ namespace Scribe.Website.WebApi
 
 		#region Constructors
 
-		public TagsController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService)
-			: base(dataDatabase, authenticationService)
+		public TagsController(IScribeDatabase database, IAuthenticationService authenticationService)
+			: base(database, authenticationService)
 		{
 		}
 
@@ -48,9 +48,9 @@ namespace Scribe.Website.WebApi
 		protected override void Initialize(HttpControllerContext controllerContext)
 		{
 			var path = HostingEnvironment.MapPath("~/App_Data/Indexes");
-			var searchService = new SearchService(DataDatabase, path, GetCurrentUser(controllerContext, false));
-			var accountService = new AccountService(DataDatabase, AuthenticationService);
-			_service = new ScribeService(DataDatabase, accountService, searchService, GetCurrentUser(controllerContext, false));
+			var searchService = new SearchService(Database, path, GetCurrentUser(controllerContext, false));
+			var accountService = new AccountService(Database, AuthenticationService);
+			_service = new ScribeService(Database, accountService, searchService, GetCurrentUser(controllerContext, false));
 			base.Initialize(controllerContext);
 		}
 

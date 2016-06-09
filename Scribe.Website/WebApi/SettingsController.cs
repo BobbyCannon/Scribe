@@ -20,8 +20,8 @@ namespace Scribe.Website.WebApi
 	{
 		#region Constructors
 
-		public SettingsController(IScribeDatabase dataDatabase, IAuthenticationService authenticationService, INotificationHub notificationHub)
-			: base(dataDatabase, authenticationService)
+		public SettingsController(IScribeDatabase database, IAuthenticationService authenticationService, INotificationHub notificationHub)
+			: base(database, authenticationService)
 		{
 		}
 
@@ -48,10 +48,10 @@ namespace Scribe.Website.WebApi
 		[Authorize(Roles = "Administrator")]
 		public SettingsView Save(SettingsView settings)
 		{
-			var service = new SettingsService(DataDatabase, GetCurrentUser());
+			var service = new SettingsService(Database, GetCurrentUser());
 			var deleteIndex = service.EnableGuestMode != settings.EnableGuestMode;
 			service.Save(settings);
-			DataDatabase.SaveChanges();
+			Database.SaveChanges();
 
 			MvcApplication.PrintCss = settings.PrintCss;
 			MvcApplication.ViewCss = settings.ViewCss;
@@ -69,14 +69,14 @@ namespace Scribe.Website.WebApi
 		[AllowAnonymous]
 		public void Setup(SetupView setup)
 		{
-			var accountService = new AccountService(DataDatabase, AuthenticationService);
+			var accountService = new AccountService(Database, AuthenticationService);
 			var user = accountService.Add(setup.UserName, setup.Password);
 			user.Tags = ",Administrator,";
-			DataDatabase.SaveChanges();
+			Database.SaveChanges();
 
-			var settingsService = new SettingsService(DataDatabase, user);
+			var settingsService = new SettingsService(Database, user);
 			settingsService.Save(setup);
-			DataDatabase.SaveChanges();
+			Database.SaveChanges();
 
 			MvcApplication.IsConfigured = true;
 		}
