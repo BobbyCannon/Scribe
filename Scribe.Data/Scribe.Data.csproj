@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bloodhound, Version=4.2.5.0, Culture=neutral, PublicKeyToken=f50ebb8a4f279131, processorArchitecture=MSIL">
-      <HintPath>..\packages\Bloodhound.4.2.5\lib\net452\Bloodhound.dll</HintPath>
+    <Reference Include="Bloodhound, Version=4.2.17.0, Culture=neutral, PublicKeyToken=f50ebb8a4f279131, processorArchitecture=MSIL">
+      <HintPath>..\packages\Bloodhound.4.2.17\lib\net452\Bloodhound.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -46,12 +46,12 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy, Version=4.4.16.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.EntityFramework.4.4.16\lib\net452\Speedy.dll</HintPath>
+    <Reference Include="Speedy, Version=4.4.17.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.EntityFramework.4.4.17\lib\net452\Speedy.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy.EntityFramework, Version=4.4.16.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.EntityFramework.4.4.16\lib\net452\Speedy.EntityFramework.dll</HintPath>
+    <Reference Include="Speedy.EntityFramework, Version=4.4.17.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.EntityFramework.4.4.17\lib\net452\Speedy.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

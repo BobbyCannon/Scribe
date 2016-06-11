@@ -6,7 +6,8 @@
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = Split-Path (Get-Variable MyInvocation).Value.MyCommand.Path 
 Push-Location $scriptPath
-$destination = "C:\Binaries\Scribe"
+$productName = "Scribe";
+$destination = "C:\Binaries\$productName"
 $nugetDestination = "C:\Workspaces\Nuget\Developer"
 
 if (Test-Path $destination -PathType Container){
@@ -22,8 +23,9 @@ if (!(Test-Path $nugetDestination -PathType Container)){
 
 .\IncrementVersion.ps1 -Build +
 
+& nuget.exe restore "$scriptPath\$productName.sln"
 $msbuild = "C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe"
-& $msbuild "$scriptPath\Scribe.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /p:PublishProfile=Release /p:DeployOnBuild=True /t:Rebuild /p:VisualStudioVersion=14.0 /v:m /m
+& $msbuild "$scriptPath\$productName.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /p:PublishProfile=Release /p:DeployOnBuild=True /t:Rebuild /p:VisualStudioVersion=14.0 /v:m /m
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Build has failed! " $watch.Elapsed -ForegroundColor Red
@@ -38,8 +40,8 @@ Copy-Item Scribe\bin\$Configuration\Scribe.dll $destination\bin\
 
 & "nuget.exe" pack Scribe.nuspec -Prop Configuration="$Configuration" -Version $version
 Move-Item "Scribe.Wiki.$version.nupkg" "$destination" -force
-Copy-Item "$destination\Scribe.Wiki.$version.nupkg" "$nugetDestination" -force
+Copy-Item "$destination\$productName.Wiki.$version.nupkg" "$nugetDestination" -force
 
 Write-Host
-Write-Host "Build: " $watch.Elapsed -ForegroundColor Yellow
+Write-Host "$productName Build: " $watch.Elapsed -ForegroundColor Yellow
 Pop-Location
