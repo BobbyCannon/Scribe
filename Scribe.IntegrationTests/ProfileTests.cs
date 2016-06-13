@@ -24,14 +24,14 @@ namespace Scribe.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				using (var context = TestHelper.GetContext())
+				using (var database = TestHelper.GetDatabase())
 				{
 					browser.NavigateTo($"{TestSite}");
 
-					var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-					TestHelper.AddDefaultSettings(context, user);
-					TestHelper.AddUser(context, "John Doe", "Password!");
-					context.SaveChanges();
+					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+					TestHelper.AddDefaultSettings(database, user);
+					TestHelper.AddUser(database, "John Doe", "Password!");
+					database.SaveChanges();
 				}
 
 				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();

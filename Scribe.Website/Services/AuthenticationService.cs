@@ -84,14 +84,14 @@ namespace Scribe.Website.Services
 			LogIn(user, rememberMe);
 		}
 
-		private static void ExpireCookies(HttpContext context)
+		private static void ExpireCookies(HttpContext database)
 		{
-			var keys = context.Request.Cookies.Cast<string>().ToList();
+			var keys = database.Request.Cookies.Cast<string>().ToList();
 			foreach (var name in keys)
 			{
 				var cookie = new HttpCookie(name);
 				cookie.Expires = DateTime.UtcNow.AddDays(-1);
-				context.Response.Cookies.Add(cookie);
+				database.Response.Cookies.Add(cookie);
 			}
 		}
 

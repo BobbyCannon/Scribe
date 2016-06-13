@@ -15,37 +15,37 @@ namespace Scribe.Website.Attributes
 	{
 		#region Methods
 
-		public override void OnException(HttpActionExecutedContext context)
+		public override void OnException(HttpActionExecutedContext database)
 		{
 			var debugging = HttpContext.Current.IsDebuggingEnabled;
 
-			if (context.Exception is NotImplementedException)
+			if (database.Exception is NotImplementedException)
 			{
-				context.Response = context.Request.CreateResponse(HttpStatusCode.NotImplemented);
+				database.Response = database.Request.CreateResponse(HttpStatusCode.NotImplemented);
 				return;
 			}
 
-			if (context.Exception is DbUpdateException)
+			if (database.Exception is DbUpdateException)
 			{
-				var message = GetMessage(context.Exception.ToDetailedString());
-				context.Response = context.Request.CreateErrorResponse(HttpStatusCode.BadRequest, message);
+				var message = GetMessage(database.Exception.ToDetailedString());
+				database.Response = database.Request.CreateErrorResponse(HttpStatusCode.BadRequest, message);
 				return;
 			}
 
-			if (context.Exception is ArgumentException)
+			if (database.Exception is ArgumentException)
 			{
-				var message = context.Exception.CleanMessage();
+				var message = database.Exception.CleanMessage();
 
-				context.Response = debugging
-					? context.Request.CreateErrorResponse(HttpStatusCode.BadRequest, message, context.Exception)
-					: context.Request.CreateErrorResponse(HttpStatusCode.BadRequest, message);
+				database.Response = debugging
+					? database.Request.CreateErrorResponse(HttpStatusCode.BadRequest, message, database.Exception)
+					: database.Request.CreateErrorResponse(HttpStatusCode.BadRequest, message);
 
 				return;
 			}
 
-			context.Response = debugging
-				? context.Request.CreateErrorResponse(HttpStatusCode.BadRequest, context.Exception.Message, context.Exception)
-				: context.Request.CreateErrorResponse(HttpStatusCode.BadRequest, context.Exception.Message);
+			database.Response = debugging
+				? database.Request.CreateErrorResponse(HttpStatusCode.BadRequest, database.Exception.Message, database.Exception)
+				: database.Request.CreateErrorResponse(HttpStatusCode.BadRequest, database.Exception.Message);
 		}
 
 		private string GetMessage(string message)

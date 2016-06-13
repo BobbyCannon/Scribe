@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Bloodhound.Models;
 using Speedy;
 
@@ -99,6 +100,35 @@ namespace Scribe.Data.Entities
 		/// Gets or sets the values.
 		/// </summary>
 		public virtual ICollection<EventValue> Values { get; set; }
+
+		#endregion
+
+		#region Methods
+
+		public void Update(Event entity)
+		{
+			CompletedOn = entity.CompletedOn;
+			ElapsedTicks = entity.ElapsedTicks;
+			Name = entity.Name;
+			SessionId = entity.SessionId;
+			StartedOn = entity.StartedOn;
+			Type = entity.Type;
+
+			var valuesToRemove = Values.Where(x => entity.Values.Any(y => y.Name == x.Name));
+			valuesToRemove.ForEach(x => Values.Remove(x));
+
+			foreach (var item in entity.Values)
+			{
+				var value = Values.FirstOrDefault(x => x.Name != item.Name);
+				if (value == null)
+				{
+					Values.Add(item);
+					continue;
+				}
+
+				value.Value = item.Value;
+			}
+		}
 
 		#endregion
 	}

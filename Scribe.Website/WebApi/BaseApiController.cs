@@ -63,12 +63,12 @@ namespace Scribe.Website.WebApi
 		/// <summary>
 		/// Gets the current logged in user using the provided session.
 		/// </summary>
-		/// <param name="context"> </param>
+		/// <param name="database"> </param>
 		/// <param name="throwException">
 		/// If true then throw an exception if the user is not logged in else return null.
 		/// </param>
 		/// <returns> The user of the logged in user. </returns>
-		protected User GetCurrentUser(HttpControllerContext context = null, bool throwException = true)
+		protected User GetCurrentUser(HttpControllerContext database = null, bool throwException = true)
 		{
 			if (_user != null)
 			{
@@ -76,7 +76,7 @@ namespace Scribe.Website.WebApi
 			}
 
 			// Make sure we are authenticated.
-			var identity = (context?.RequestContext.Principal ?? User)?.Identity;
+			var identity = (database?.RequestContext.Principal ?? User)?.Identity;
 			if (identity?.IsAuthenticated != true)
 			{
 				if (throwException)

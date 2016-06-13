@@ -14,43 +14,43 @@ namespace Scribe.Website.Attributes
 	{
 		#region Methods
 
-		public void OnException(ExceptionContext context)
+		public void OnException(ExceptionContext database)
 		{
-			if (context.Exception is PageNotFoundException)
+			if (database.Exception is PageNotFoundException)
 			{
-				context.Result = new RedirectToRouteResult(new RouteValueDictionary(new
+				database.Result = new RedirectToRouteResult(new RouteValueDictionary(new
 				{
 					controller = "Error",
 					action = "404"
 				}));
 
-				context.ExceptionHandled = true;
-				context.HttpContext.Response.Clear();
+				database.ExceptionHandled = true;
+				database.HttpContext.Response.Clear();
 			}
 
-			if (context.Exception is AuthenticationException)
+			if (database.Exception is AuthenticationException)
 			{
-				context.Result = new RedirectToRouteResult(new RouteValueDictionary(new
+				database.Result = new RedirectToRouteResult(new RouteValueDictionary(new
 				{
 					controller = "Account",
 					action = "Login",
-					returnUrl = context.HttpContext.Request.Path
+					returnUrl = database.HttpContext.Request.Path
 				}));
 
-				context.ExceptionHandled = true;
-				context.HttpContext.Response.Clear();
+				database.ExceptionHandled = true;
+				database.HttpContext.Response.Clear();
 			}
 
-			if (context.Exception is UnauthorizedAccessException)
+			if (database.Exception is UnauthorizedAccessException)
 			{
-				context.Result = new RedirectToRouteResult(new RouteValueDictionary(new
+				database.Result = new RedirectToRouteResult(new RouteValueDictionary(new
 				{
 					controller = "Account",
 					action = "Unauthorized"
 				}));
 
-				context.ExceptionHandled = true;
-				context.HttpContext.Response.Clear();
+				database.ExceptionHandled = true;
+				database.HttpContext.Response.Clear();
 			}
 		}
 

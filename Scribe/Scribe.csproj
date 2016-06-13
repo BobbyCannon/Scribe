@@ -38,6 +38,10 @@
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bloodhound, Version=4.2.7.0, Culture=neutral, PublicKeyToken=f50ebb8a4f279131, processorArchitecture=MSIL">
+      <HintPath>..\packages\Bloodhound.4.2.7\lib\net452\Bloodhound.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MarkR, Version=1.16.5945.36818, Culture=neutral, PublicKeyToken=030ab3e7881eeaab, processorArchitecture=MSIL">
       <HintPath>..\packages\MarkR.1.16.5945.36818\lib\net452\MarkR.dll</HintPath>
       <Private>True</Private>
@@ -46,8 +50,8 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy, Version=4.4.17.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.4.4.17\lib\net452\Speedy.dll</HintPath>
+    <Reference Include="Speedy, Version=4.4.18.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.4.4.18\lib\net452\Speedy.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

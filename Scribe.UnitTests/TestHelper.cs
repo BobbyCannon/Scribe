@@ -165,55 +165,28 @@ namespace Scribe.UnitTests
 			Assert.Fail("The expected exception was not thrown.");
 		}
 
-		public static IScribeDatabase GetContext(bool clearDatabase = true)
+		public static IScribeDatabase GetDatabase(bool clearDatabase = true)
 		{
 			if (RunUnitTestAgainstDatabase)
 			{
-				var context = new ScribeSqlDatabase();
+				var database = new ScribeSqlDatabase();
 				if (clearDatabase)
 				{
-					context.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+					database.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 				}
-				return context;
+				return database;
 			}
 
 			return new ScribeDatabase();
 		}
 
-		public static IScribeContextProvider GetContextProvider()
+		public static ScribeDatabaseProvider GetDatabaseProvider(bool clearDatabase = true)
 		{
-			var provider = new Mock<IScribeContextProvider>();
+			var database = GetDatabase(clearDatabase);
 
-			if (RunUnitTestAgainstDatabase)
-			{
-				provider.Setup(x => x.GetContext(It.IsAny<bool>())).Returns<bool>(clearDatabase =>
-				{
-					var context = new ScribeSqlDatabase();
-
-					if (clearDatabase)
-					{
-						context.Database.ExecuteSqlCommand(Resources.ClearDatabase);
-					}
-
-					return context;
-				});
-			}
-			else
-			{
-				var context = new ScribeDatabase();
-				provider.Setup(x => x.GetContext(It.IsAny<bool>())).Returns<bool>(clearDatabase =>
-				{
-					if (clearDatabase)
-					{
-						context?.Dispose();
-						context = new ScribeDatabase();
-					}
-
-					return context;
-				});
-			}
-
-			return provider.Object;
+			return RunUnitTestAgainstDatabase 
+				? new ScribeDatabaseProvider(() => GetDatabase(false)) 
+				: new ScribeDatabaseProvider(() => database);
 		}
 
 		public static ISearchService GetSearchService()

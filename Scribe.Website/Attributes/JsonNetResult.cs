@@ -32,14 +32,14 @@ namespace Scribe.Website.Attributes
 
 		#region Methods
 
-		public override void ExecuteResult(ControllerContext context)
+		public override void ExecuteResult(ControllerContext database)
 		{
-			if (context == null)
+			if (database == null)
 			{
-				throw new ArgumentNullException(nameof(context));
+				throw new ArgumentNullException(nameof(database));
 			}
 
-			var response = context.HttpContext.Response;
+			var response = database.HttpContext.Response;
 			response.ContentType = !string.IsNullOrEmpty(ContentType) ? ContentType : "application/json";
 
 			if (ContentEncoding != null)

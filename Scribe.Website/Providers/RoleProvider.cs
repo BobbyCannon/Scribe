@@ -45,10 +45,10 @@ namespace Scribe.Website.Providers
 
 		public override string[] GetRolesForUser(string username)
 		{
-			using (var context = new ScribeSqlDatabase())
+			using (var database = new ScribeSqlDatabase())
 			{
 				var userId = username.Split(';').First().ConvertToInt();
-				var user = context.Users.FirstOrDefault(x => x.Id == userId);
+				var user = database.Users.FirstOrDefault(x => x.Id == userId);
 				return user?.Tags?.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).ToArray() ?? new string[0];
 			}
 		}
@@ -60,10 +60,10 @@ namespace Scribe.Website.Providers
 
 		public override bool IsUserInRole(string username, string roleName)
 		{
-			using (var context = new ScribeSqlDatabase())
+			using (var database = new ScribeSqlDatabase())
 			{
 				var userId = username.Split(';').First().ConvertToInt();
-				var user = context.Users.FirstOrDefault(x => x.Id == userId);
+				var user = database.Users.FirstOrDefault(x => x.Id == userId);
 				return user != null && user.InRole(roleName);
 			}
 		}

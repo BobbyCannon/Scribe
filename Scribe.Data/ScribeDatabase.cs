@@ -14,6 +14,7 @@ namespace Scribe.Data
 		public ScribeDatabase(string filePath = null, DatabaseOptions options = null)
 			: base(filePath, options)
 		{
+			Property<Event>(x => x.UniqueId).IsUnique();
 		}
 
 		#endregion

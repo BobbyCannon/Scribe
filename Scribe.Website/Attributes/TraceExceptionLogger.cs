@@ -13,9 +13,9 @@ namespace Scribe.Website.Attributes
 	{
 		#region Methods
 
-		public override void Log(ExceptionLoggerContext context)
+		public override void Log(ExceptionLoggerContext database)
 		{
-			Trace.TraceError(context.ExceptionContext.Exception.ToString());
+			Trace.TraceError(database.ExceptionContext.Exception.ToString());
 		}
 
 		#endregion

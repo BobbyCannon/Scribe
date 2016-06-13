@@ -25,20 +25,20 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void BeginEditingPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 
-				TestHelper.UpdatePage(context, john, page.ToView(), x =>
+				TestHelper.UpdatePage(database, john, page.ToView(), x =>
 				{
 					x.Title = "Hello Page2";
 					x.Text = "Hello World2";
 				});
 
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				var actual = service.BeginEditingPage(page.Id);
 
 				Assert.AreEqual("Hello Page2", actual.Title);
@@ -50,22 +50,22 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void CancelEditingPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 
-				var entity = context.PageVersions.First(x => x.Id == page.Id);
+				var entity = database.PageVersions.First(x => x.Id == page.Id);
 				entity.EditingBy = user;
 				entity.EditingOn = DateTime.Now;
-				context.SaveChanges();
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				service.CancelEditingPage(page.Id);
 
-				entity = context.PageVersions.First(x => x.Id == page.Id);
+				entity = database.PageVersions.First(x => x.Id == page.Id);
 				Assert.AreEqual(null, entity.EditingBy);
 				Assert.AreEqual(null, entity.EditingById);
 				Assert.AreEqual(SqlDateTime.MinValue.Value, entity.EditingOn);
@@ -75,16 +75,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void DeleteFile()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = false });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var file1 = TestHelper.AddFile(context, john, "File1.png", "image/png", new byte[0]);
-				var file2 = TestHelper.AddFile(context, john, "File2.png", "image/png", new byte[0]);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = false });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var file1 = TestHelper.AddFile(database, john, "File1.png", "image/png", new byte[0]);
+				var file2 = TestHelper.AddFile(database, john, "File2.png", "image/png", new byte[0]);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				service.DeleteFile(file1.Id);
 				var actual = service.GetFiles().Results.ToList();
 
@@ -96,14 +96,14 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void DeleteFileWithInvalidId()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = false });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = false });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				TestHelper.ExpectedException<Exception>(() => { service.DeleteFile(int.MaxValue); }, "Failed to find the file with the provided ID.");
 			}
 		}
@@ -111,87 +111,87 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void DeleteFileWithSoftDelete()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var file1 = TestHelper.AddFile(context, john, "File1.png", "image/png", new byte[0]);
-				var file2 = TestHelper.AddFile(context, john, "File2.png", "image/png", new byte[0]);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var file1 = TestHelper.AddFile(database, john, "File1.png", "image/png", new byte[0]);
+				var file2 = TestHelper.AddFile(database, john, "File2.png", "image/png", new byte[0]);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				service.DeleteFile(file1.Id);
 				var actual = service.GetFiles();
 
 				Assert.AreEqual(1, actual.Results.Count());
 				TestHelper.AreEqual(file2.ToView(), actual.Results.First());
-				Assert.AreEqual(2, context.Files.Count());
-				Assert.AreEqual(1, context.Files.Count(x => x.IsDeleted));
+				Assert.AreEqual(2, database.Files.Count());
+				Assert.AreEqual(1, database.Files.Count(x => x.IsDeleted));
 			}
 		}
 
 		[TestMethod]
 		public void DeletePage()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = false });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = false });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
+				database.SaveChanges();
 
-				Assert.AreEqual(0, context.PageVersions.Count(x => x.Page.IsDeleted));
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				Assert.AreEqual(0, database.PageVersions.Count(x => x.Page.IsDeleted));
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				service.DeletePage(page.Id);
 			}
 
-			using (var context = provider.GetContext(false))
+			using (var database = provider.GetDatabase())
 			{
-				Assert.AreEqual(0, context.PageVersions.Count(x => x.Page.IsDeleted));
+				Assert.AreEqual(0, database.PageVersions.Count(x => x.Page.IsDeleted));
 			}
 		}
 
 		[TestMethod]
 		public void DeletePageWithHistory()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = false });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Hello Page2");
-				var page2 = TestHelper.AddPage(context, "Another Page", "Yep", john);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Another Page2");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = false });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Hello Page2");
+				var page2 = TestHelper.AddPage(database, "Another Page", "Yep", john);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Another Page2");
 
-				Assert.AreEqual(0, context.PageVersions.Count(x => x.Page.IsDeleted));
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				Assert.AreEqual(0, database.PageVersions.Count(x => x.Page.IsDeleted));
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				service.DeletePage(page.Id);
 
-				Assert.AreEqual(1, context.Pages.Count());
-				Assert.AreEqual(1, context.PageVersions.Count());
-				Assert.AreEqual(0, context.Pages.Count(x => x.Id == page.Id));
-				Assert.AreEqual(0, context.PageVersions.Count(x => x.PageId == page.Id));
+				Assert.AreEqual(1, database.Pages.Count());
+				Assert.AreEqual(1, database.PageVersions.Count());
+				Assert.AreEqual(0, database.Pages.Count(x => x.Id == page.Id));
+				Assert.AreEqual(0, database.PageVersions.Count(x => x.PageId == page.Id));
 			}
 		}
 
 		[TestMethod]
 		public void DeletePageWithInvalidId()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = false });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = false });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				service.DeletePage(int.MaxValue);
 			}
 		}
@@ -199,47 +199,47 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void DeletePageWithSoftDelete()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 			PageVersion pageVersion;
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				pageVersion = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				pageVersion = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
+				database.SaveChanges();
 
-				Assert.AreEqual(0, context.PageVersions.Count(x => x.Page.IsDeleted));
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				Assert.AreEqual(0, database.PageVersions.Count(x => x.Page.IsDeleted));
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				service.DeletePage(pageVersion.Id);
 			}
 
-			using (var context = provider.GetContext(false))
+			using (var database = provider.GetDatabase())
 			{
-				Assert.AreEqual(1, context.PageVersions.Count(x => x.Page.IsDeleted));
-				Assert.AreEqual(pageVersion.Id, context.PageVersions.First(x => x.Page.IsDeleted).Id);
+				Assert.AreEqual(1, database.PageVersions.Count(x => x.Page.IsDeleted));
+				Assert.AreEqual(pageVersion.Id, database.PageVersions.First(x => x.Page.IsDeleted).Id);
 			}
 		}
 
 		[TestMethod]
 		public void DeletePageWithSoftDeleteWithHistory()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Hello Page2");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Hello Page2");
 
-				Assert.AreEqual(0, context.PageVersions.Count(x => x.Page.IsDeleted));
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				Assert.AreEqual(0, database.PageVersions.Count(x => x.Page.IsDeleted));
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				service.DeletePage(page.Id);
 
-				var actual = context.PageVersions.Where(x => x.Page.IsDeleted).ToList();
+				var actual = database.PageVersions.Where(x => x.Page.IsDeleted).ToList();
 				Assert.AreEqual(2, actual.Count);
 				Assert.AreEqual(1, actual[0].Id);
 				Assert.AreEqual(2, actual[1].Id);
@@ -249,20 +249,20 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void DeleteTag()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3", "Tag4");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Tags = new[] { "Tag1", "Tag2", "Tag3" });
-				TestHelper.AddPage(context, "Page2", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3", "Tag4");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Tags = new[] { "Tag1", "Tag2", "Tag3" });
+				TestHelper.AddPage(database, "Page2", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2");
 
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				service.DeleteTag("Tag2");
 
-				var actual = context.PageVersions.ToList();
+				var actual = database.PageVersions.ToList();
 				Assert.AreEqual(3, actual.Count);
 				Assert.AreEqual(",Tag1,Tag2,Tag3,Tag4,", actual[0].Tags);
 				Assert.AreEqual(",Tag1,Tag3,", actual[1].Tags);
@@ -273,14 +273,14 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void DeleteTagEmpty()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var path = Path.GetTempPath() + "ScribeTests";
-				var searchService = new SearchService(context, path, null);
-				var service = new ScribeService(context, null, searchService, john);
+				var searchService = new SearchService(database, path, null);
+				var service = new ScribeService(database, null, searchService, john);
 				TestHelper.ExpectedException<Exception>(() => service.DeleteTag(string.Empty), "The tag name must be provided.");
 			}
 		}
@@ -288,16 +288,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetFileById()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var file1 = TestHelper.AddFile(context, john, "File1.png", "image/png", new byte[0]);
-				TestHelper.AddFile(context, john, "File2.png", "image/png", new byte[0]);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var file1 = TestHelper.AddFile(database, john, "File1.png", "image/png", new byte[0]);
+				TestHelper.AddFile(database, john, "File2.png", "image/png", new byte[0]);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetFile(file1.Id);
 
 				TestHelper.AreEqual(file1.ToView(), actual);
@@ -307,16 +307,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetFiles()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var file1 = TestHelper.AddFile(context, john, "File1.png", "image/png", new byte[0]);
-				var file2 = TestHelper.AddFile(context, john, "File2.png", "image/png", new byte[0]);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var file1 = TestHelper.AddFile(database, john, "File1.png", "image/png", new byte[0]);
+				var file2 = TestHelper.AddFile(database, john, "File2.png", "image/png", new byte[0]);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetFiles();
 
 				Assert.AreEqual(2, actual.Results.Count());
@@ -328,14 +328,14 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetFrontPageNonPublic()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				var page = TestHelper.AddPage(context, "Front Page", "Hello World", user, ApprovalStatus.Approved, true, true);
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = false, FrontPagePrivateId = page.Id });
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Front Page2", ApprovalStatus.Approved, true);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				var page = TestHelper.AddPage(database, "Front Page", "Hello World", user, ApprovalStatus.Approved, true, true);
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = false, FrontPagePrivateId = page.Id });
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Front Page2", ApprovalStatus.Approved, true);
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetFrontPage();
 
 				Assert.AreEqual("Front Page2", actual.Title);
@@ -345,16 +345,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetFrontPagePublicApprovedNotPublishEdit()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				TestHelper.AddPage(context, "Front Page1", "Hello World1", user);
-				var page2 = TestHelper.AddPage(context, "Front Page2", "Hello World2", user, ApprovalStatus.Approved, true, true);
-				TestHelper.UpdatePage(context, user, page2.ToView(), x => x.Title = "New Front Page2", ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page2.ToView(), x => x.Title = "New Front Page3", ApprovalStatus.Approved, false);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddPage(database, "Front Page1", "Hello World1", user);
+				var page2 = TestHelper.AddPage(database, "Front Page2", "Hello World2", user, ApprovalStatus.Approved, true, true);
+				TestHelper.UpdatePage(database, user, page2.ToView(), x => x.Title = "New Front Page2", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page2.ToView(), x => x.Title = "New Front Page3", ApprovalStatus.Approved, false);
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetFrontPage();
 
 				Assert.AreEqual("New Front Page2", actual.Title);
@@ -364,16 +364,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetFrontPagePublicNotApprovedNotPublishEdit()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				TestHelper.AddPage(context, "Front Page1", "Hello World1", user);
-				var page2 = TestHelper.AddPage(context, "Front Page2", "Hello World2", user, ApprovalStatus.Approved, true, true);
-				TestHelper.UpdatePage(context, user, page2.ToView(), x => x.Title = "New Front Page2", ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page2.ToView(), x => x.Title = "New Front Page3", ApprovalStatus.None, false);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddPage(database, "Front Page1", "Hello World1", user);
+				var page2 = TestHelper.AddPage(database, "Front Page2", "Hello World2", user, ApprovalStatus.Approved, true, true);
+				TestHelper.UpdatePage(database, user, page2.ToView(), x => x.Title = "New Front Page2", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page2.ToView(), x => x.Title = "New Front Page3", ApprovalStatus.None, false);
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetFrontPage();
 
 				Assert.AreEqual("New Front Page2", actual.Title);
@@ -383,14 +383,14 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPage(page.Id);
 
 				Assert.AreEqual(page.Title, actual.Title);
@@ -400,19 +400,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageDifference()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var page1 = TestHelper.AddPage(context, "Page1", "Hello World", user);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x =>
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x =>
 				{
 					x.Title = "Page2";
 					x.Text = "Hello...";
 				});
 
-				var service = new ScribeService(context, null, null, null);
-				var pageId = context.PageVersions.First(x => x.Title == "Page2").Id;
+				var service = new ScribeService(database, null, null, null);
+				var pageId = database.PageVersions.First(x => x.Title == "Page2").Id;
 				var actual = service.GetPageDifference(pageId);
 
 				Assert.AreEqual("<p><del class='diffmod'>Page1</del><ins class='diffmod'>Page2</ins></p>\n", actual.Title);
@@ -423,17 +423,17 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageDifferenceForGuestCurrentVersion()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				var page1 = TestHelper.AddPage(context, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page3");
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page4", ApprovalStatus.Approved, true);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page3");
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page4", ApprovalStatus.Approved, true);
 
-				var service = new ScribeService(context, null, null, null);
-				var pageId = context.PageVersions.First(x => x.Title == "Page4").Id;
+				var service = new ScribeService(database, null, null, null);
+				var pageId = database.PageVersions.First(x => x.Title == "Page4").Id;
 				var actual = service.GetPageDifference(pageId);
 
 				Assert.AreEqual("<p><del class='diffmod'>Page2</del><ins class='diffmod'>Page4</ins></p>\n", actual.Title);
@@ -443,18 +443,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageDifferenceForGuestFirstEditedVersion()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				var page = TestHelper.AddPage(context, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page2");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page4");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page5", ApprovalStatus.Approved, true);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				var page = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page2");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page4");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page5", ApprovalStatus.Approved, true);
 
-				var service = new ScribeService(context, null, null, null);
-				var pageId = context.PageVersions.First(x => x.Title == "Page3").Id;
+				var service = new ScribeService(database, null, null, null);
+				var pageId = database.PageVersions.First(x => x.Title == "Page3").Id;
 				var actual = service.GetPageDifference(pageId);
 
 				Assert.AreEqual("<p><del class='diffmod'>Page1</del><ins class='diffmod'>Page3</ins></p>\n", actual.Title);
@@ -464,18 +464,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageDifferenceForGuestLastEditedVersion()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				var page = TestHelper.AddPage(context, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page2");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page4");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page5", ApprovalStatus.Approved, true);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				var page = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page2");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page4");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page5", ApprovalStatus.Approved, true);
 
-				var service = new ScribeService(context, null, null, null);
-				var pageId = context.PageVersions.First(x => x.Title == "Page5").Id;
+				var service = new ScribeService(database, null, null, null);
+				var pageId = database.PageVersions.First(x => x.Title == "Page5").Id;
 				var actual = service.GetPageDifference(pageId);
 
 				Assert.AreEqual("<p><del class='diffmod'>Page3</del><ins class='diffmod'>Page5</ins></p>\n", actual.Title);
@@ -485,18 +485,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageDifferenceForGuestSecondEditedVersion()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				var page = TestHelper.AddPage(context, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page2");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page4");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page5", ApprovalStatus.Approved, true);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				var page = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page2");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page4");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page5", ApprovalStatus.Approved, true);
 
-				var service = new ScribeService(context, null, null, null);
-				var actual = service.GetPageDifference(context.PageVersions.First(x => x.Title == "Page3").Id);
+				var service = new ScribeService(database, null, null, null);
+				var actual = service.GetPageDifference(database.PageVersions.First(x => x.Title == "Page3").Id);
 
 				Assert.AreEqual("<p><del class='diffmod'>Page1</del><ins class='diffmod'>Page3</ins></p>\n", actual.Title);
 			}
@@ -505,17 +505,17 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageDifferenceForGuestUnpublishedVersion()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				var page1 = TestHelper.AddPage(context, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page3");
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page4", ApprovalStatus.Approved, true);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page3");
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page4", ApprovalStatus.Approved, true);
 
-				var service = new ScribeService(context, null, null, null);
-				var pageId = context.PageVersions.First(x => x.Title == "Page3").Id;
+				var service = new ScribeService(database, null, null, null);
+				var pageId = database.PageVersions.First(x => x.Title == "Page3").Id;
 
 				TestHelper.ExpectedException<PageNotFoundException>(() => service.GetPageDifference(pageId), "Failed to find the page with that version ID.");
 			}
@@ -524,19 +524,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageDifferenceOfFirstPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var page1 = TestHelper.AddPage(context, "Page1", "Hello World", user);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x =>
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x =>
 				{
 					x.Title = "Page2";
 					x.Text = "Hello...";
 				});
 
-				var service = new ScribeService(context, null, null, null);
-				var pageId = context.PageVersions.First(x => x.Title == "Page1").Id;
+				var service = new ScribeService(database, null, null, null);
+				var pageId = database.PageVersions.First(x => x.Title == "Page1").Id;
 				var actual = service.GetPageDifference(pageId);
 
 				Assert.AreEqual("Page1", actual.Title);
@@ -547,17 +547,17 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageHistory()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var page1 = TestHelper.AddPage(context, "Page1", "Hello World", user);
-				var anotherPage = TestHelper.AddPage(context, "Another Page", "Hello World", user);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page2");
-				TestHelper.UpdatePage(context, user, anotherPage.ToView(), x => x.Title = "Another Page2");
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page3");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user);
+				var anotherPage = TestHelper.AddPage(database, "Another Page", "Hello World", user);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page2");
+				TestHelper.UpdatePage(database, user, anotherPage.ToView(), x => x.Title = "Another Page2");
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page3");
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPageHistory(page1.Id);
 
 				Assert.AreEqual("Page3", actual.Title);
@@ -575,38 +575,38 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageHistoryForGuess()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				var page1 = TestHelper.AddPage(context, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page2");
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page4");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page2");
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page4");
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPageHistory(page1.Id);
 
 				Assert.AreEqual("Page3", actual.Title);
 				var actualVersions = actual.Versions.ToList();
 				Assert.AreEqual(2, actualVersions.Count);
-				Assert.AreEqual(context.PageVersions.First(x => x.Title == "Page3").Id, actualVersions[0].Id);
-				Assert.AreEqual(context.PageVersions.First(x => x.Title == "Page1").Id, actualVersions[1].Id);
+				Assert.AreEqual(database.PageVersions.First(x => x.Title == "Page3").Id, actualVersions[0].Id);
+				Assert.AreEqual(database.PageVersions.First(x => x.Title == "Page1").Id, actualVersions[1].Id);
 			}
 		}
 
 		[TestMethod]
 		public void GetPageHistoryWithSomeApproved()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddDefaultSettings(context, user);
-				var page1 = TestHelper.AddPage(context, "Page1", "Hello World", user);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page1.ToView(), x => x.Title = "Page3");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddDefaultSettings(database, user);
+				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page3");
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPageHistory(page1.Id);
 
 				Assert.AreEqual("Page3", actual.Title);
@@ -621,9 +621,9 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageInvalidId()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				TestHelper.ExpectedException<Exception>(() => service.GetPage(int.MaxValue), "Failed to find the page with that ID.");
 			}
 		}
@@ -631,14 +631,14 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageOfPublishedPageWithLinkToPublishedPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				var page = TestHelper.AddPage(context, "Page1", "Hello, [Page2](Page2)", user, ApprovalStatus.Approved, true);
-				TestHelper.AddPage(context, "Page2", "Hello World", user, ApprovalStatus.Approved, true);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				var page = TestHelper.AddPage(database, "Page1", "Hello, [Page2](Page2)", user, ApprovalStatus.Approved, true);
+				TestHelper.AddPage(database, "Page2", "Hello World", user, ApprovalStatus.Approved, true);
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPage(page.Id);
 
 				Assert.AreEqual("Page1", actual.Title);
@@ -649,14 +649,14 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageOfPublishedPageWithLinkToUnpublishedPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				var page = TestHelper.AddPage(context, "Page1", "Hello, [Page2](Page2)", user, ApprovalStatus.Approved, true);
-				TestHelper.AddPage(context, "Page2", "Hello World", user);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				var page = TestHelper.AddPage(database, "Page1", "Hello, [Page2](Page2)", user, ApprovalStatus.Approved, true);
+				TestHelper.AddPage(database, "Page2", "Hello World", user);
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPage(page.Id);
 
 				Assert.AreEqual("Page1", actual.Title);
@@ -667,22 +667,22 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagePreview()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				page.EditingById = john.Id;
-				context.SaveChanges();
+				database.SaveChanges();
 
 				var expectedEditingOn = DateTime.UtcNow;
-				var actualEntity = context.PageVersions.First(x => x.Id == page.Id);
+				var actualEntity = database.PageVersions.First(x => x.Id == page.Id);
 				Assert.AreEqual(SqlDateTime.MinValue, actualEntity.EditingOn);
 
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				var actual = service.GetPagePreview(page.ToView());
-				actualEntity = context.PageVersions.First(x => x.Id == page.Id);
+				actualEntity = database.PageVersions.First(x => x.Id == page.Id);
 
 				Assert.AreEqual("<p>Hello World</p>\n", actual);
 				Assert.IsTrue(actualEntity.EditingOn >= expectedEditingOn);
@@ -692,18 +692,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagePublishWithOnlyApprovedHistory()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				var page = TestHelper.AddPage(context, "Test", "Hello World", user, ApprovalStatus.Approved, true, false, "tag");
-				TestHelper.UpdatePage(context, user, page.ToView(), x =>
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				var page = TestHelper.AddPage(database, "Test", "Hello World", user, ApprovalStatus.Approved, true, false, "tag");
+				TestHelper.UpdatePage(database, user, page.ToView(), x =>
 				{
 					x.Title = "Test2";
 					x.Text = "Hello World2";
 				});
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPage(page.Id);
 
 				TestHelper.AreEqual(new[] { "tag" }, actual.Tags);
@@ -716,19 +716,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPages()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Hello Page2");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Hello Page3");
-				var page2 = TestHelper.AddPage(context, "Another Page", "Hello World", john);
-				TestHelper.UpdatePage(context, user, page2.ToView(), x => x.Title = "Another Page2");
-				TestHelper.AddPage(context, "More Page", "Hello World", john);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Hello Page2");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Hello Page3");
+				var page2 = TestHelper.AddPage(database, "Another Page", "Hello World", john);
+				TestHelper.UpdatePage(database, user, page2.ToView(), x => x.Title = "Another Page2");
+				TestHelper.AddPage(database, "More Page", "Hello World", john);
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages().Results.ToList();
 
 				Assert.AreEqual(3, actual.Count);
@@ -741,19 +741,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesFilterUsingStatusOfApproved()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", user);
-				TestHelper.AddPage(context, "Page2", "Hello World", user, ApprovalStatus.Pending);
-				TestHelper.AddPage(context, "Page3", "Hello World", user, ApprovalStatus.Approved);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "Page1", "Hello World", user);
+				TestHelper.AddPage(database, "Page2", "Hello World", user, ApprovalStatus.Pending);
+				TestHelper.AddPage(database, "Page3", "Hello World", user, ApprovalStatus.Approved);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				var values = new object[] { (int) ApprovalStatus.Approved };
 				var actual = service.GetPages(new PagedRequest { Filter = "ApprovalStatus == @0", FilterValues = values });
 
@@ -767,21 +767,21 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesFilterUsingStatusOfPending()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", user);
-				TestHelper.AddPage(context, "Page2", "Hello World", user, ApprovalStatus.Pending);
-				TestHelper.AddPage(context, "Page3", "Hello World", user, ApprovalStatus.Approved);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "Page1", "Hello World", user);
+				TestHelper.AddPage(database, "Page2", "Hello World", user, ApprovalStatus.Pending);
+				TestHelper.AddPage(database, "Page3", "Hello World", user, ApprovalStatus.Approved);
+				database.SaveChanges();
 
 				var path = Path.GetTempPath() + "ScribeTests";
-				var searchService = new SearchService(context, path, john);
-				var service = new ScribeService(context, null, searchService, john);
+				var searchService = new SearchService(database, path, john);
+				var service = new ScribeService(database, null, searchService, john);
 				var values = new object[] { (int)ApprovalStatus.Pending };
 				var actual = service.GetPages(new PagedRequest { Filter = "ApprovalStatus == @0", FilterValues = values });
 
@@ -795,21 +795,21 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesFilterUsingTag()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3");
-				TestHelper.AddPage(context, "Page2", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2");
-				TestHelper.AddPage(context, "Page3", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag3");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3");
+				TestHelper.AddPage(database, "Page2", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2");
+				TestHelper.AddPage(database, "Page3", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag3");
+				database.SaveChanges();
 
 				var path = Path.GetTempPath() + "ScribeTests";
-				var searchService = new SearchService(context, path, john);
-				var service = new ScribeService(context, null, searchService, john);
+				var searchService = new SearchService(database, path, john);
+				var service = new ScribeService(database, null, searchService, john);
 				var actual = service.GetPages(new PagedRequest { Filter = "Tags.Contains(\"Tag3\")" });
 
 				Assert.AreEqual("Tags.Contains(\"Tag3\")", actual.Filter);
@@ -822,20 +822,20 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesShouldNotReturnDeletedPages()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				page.Page.IsDeleted = true;
-				context.SaveChanges();
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages();
 
-				Assert.AreEqual(1, context.PageVersions.Count());
-				Assert.AreEqual(1, context.PageVersions.Count(x => x.Page.IsDeleted));
+				Assert.AreEqual(1, database.PageVersions.Count());
+				Assert.AreEqual(1, database.PageVersions.Count(x => x.Page.IsDeleted));
 				Assert.AreEqual(0, actual.Results.Count());
 			}
 		}
@@ -843,19 +843,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesShouldOnlyReturnPublishedPages()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
 				var settings = new SettingsView { EnableGuestMode = true, LdapConnectionString = string.Empty };
-				TestHelper.AddSettings(context, user, settings);
-				TestHelper.AddPage(context, "Hello Page", "Hello World", user);
-				TestHelper.AddPage(context, "Public Page", "Hello Real World", user, ApprovalStatus.Approved, true);
-				context.SaveChanges();
+				TestHelper.AddSettings(database, user, settings);
+				TestHelper.AddPage(database, "Hello Page", "Hello World", user);
+				TestHelper.AddPage(database, "Public Page", "Hello Real World", user, ApprovalStatus.Approved, true);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages();
 
-				Assert.AreEqual(2, context.PageVersions.Count());
+				Assert.AreEqual(2, database.PageVersions.Count());
 				Assert.AreEqual(1, actual.Results.Count());
 				Assert.AreEqual("Public Page", actual.Results.First().Title);
 			}
@@ -864,18 +864,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithFilter()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john);
+					TestHelper.AddPage(database, "Hello Page " + i, "Hello World", john);
 				}
-				context.SaveChanges();
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var values = new[] { "Page 5" };
 				var actual = service.GetPages(new PagedRequest { Filter = "Title.Contains(@0)", FilterValues = values });
 
@@ -893,19 +893,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithOrder()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "First Page", "Hello World", john);
-				TestHelper.AddPage(context, "Second Page", "Hello World", john);
-				TestHelper.AddPage(context, "Third Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fourth Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fifth Page", "Hello World", john);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "First Page", "Hello World", john);
+				TestHelper.AddPage(database, "Second Page", "Hello World", john);
+				TestHelper.AddPage(database, "Third Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fourth Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fifth Page", "Hello World", john);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Order = "Title" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
@@ -928,18 +928,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithOrderAscendingThenByDescending()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "a", "a", john);
-				TestHelper.AddPage(context, "c", "a", john);
-				TestHelper.AddPage(context, "b", "c", john);
-				TestHelper.AddPage(context, "e", "b", john);
-				TestHelper.AddPage(context, "d", "b", john);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "a", "a", john);
+				TestHelper.AddPage(database, "c", "a", john);
+				TestHelper.AddPage(database, "b", "c", john);
+				TestHelper.AddPage(database, "e", "b", john);
+				TestHelper.AddPage(database, "d", "b", john);
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Order = "Text, Title descending" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
@@ -962,19 +962,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithOrderByCreatedOn()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "First Page", "Hello World", john);
-				TestHelper.AddPage(context, "Second Page", "Hello World", john);
-				TestHelper.AddPage(context, "Third Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fourth Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fifth Page", "Hello World", john);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "First Page", "Hello World", john);
+				TestHelper.AddPage(database, "Second Page", "Hello World", john);
+				TestHelper.AddPage(database, "Third Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fourth Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fifth Page", "Hello World", john);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Order = "CreatedOn" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
@@ -997,19 +997,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithOrderById()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "First Page", "Hello World", john);
-				TestHelper.AddPage(context, "Second Page", "Hello World", john);
-				TestHelper.AddPage(context, "Third Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fourth Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fifth Page", "Hello World", john);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "First Page", "Hello World", john);
+				TestHelper.AddPage(database, "Second Page", "Hello World", john);
+				TestHelper.AddPage(database, "Third Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fourth Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fifth Page", "Hello World", john);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Order = "Id" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
@@ -1032,19 +1032,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithOrderByModifiedOn()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "First Page", "Hello World", john);
-				TestHelper.AddPage(context, "Second Page", "Hello World", john);
-				TestHelper.AddPage(context, "Third Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fourth Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fifth Page", "Hello World", john);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "First Page", "Hello World", john);
+				TestHelper.AddPage(database, "Second Page", "Hello World", john);
+				TestHelper.AddPage(database, "Third Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fourth Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fifth Page", "Hello World", john);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Order = "ModifiedOn" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
@@ -1067,19 +1067,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithOrderByTags()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "First Page", "Hello World", john, tags: new[] { "One" });
-				TestHelper.AddPage(context, "Second Page", "Hello World", john, tags: new[] { "2" });
-				TestHelper.AddPage(context, "Third Page", "Hello World", john, tags: new[] { "Three" });
-				TestHelper.AddPage(context, "Fourth Page", "Hello World", john, tags: new[] { "4" });
-				TestHelper.AddPage(context, "Fifth Page", "Hello World", john, tags: new[] { "Five" });
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "First Page", "Hello World", john, tags: new[] { "One" });
+				TestHelper.AddPage(database, "Second Page", "Hello World", john, tags: new[] { "2" });
+				TestHelper.AddPage(database, "Third Page", "Hello World", john, tags: new[] { "Three" });
+				TestHelper.AddPage(database, "Fourth Page", "Hello World", john, tags: new[] { "4" });
+				TestHelper.AddPage(database, "Fifth Page", "Hello World", john, tags: new[] { "Five" });
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Order = "Tags" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
@@ -1102,19 +1102,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithOrderByTitle()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "First Page", "Hello World", john);
-				TestHelper.AddPage(context, "Second Page", "Hello World", john);
-				TestHelper.AddPage(context, "Third Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fourth Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fifth Page", "Hello World", john);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "First Page", "Hello World", john);
+				TestHelper.AddPage(database, "Second Page", "Hello World", john);
+				TestHelper.AddPage(database, "Third Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fourth Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fifth Page", "Hello World", john);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest{ Order = "Title" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
@@ -1137,19 +1137,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithOrderDescending()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "First Page", "Hello World", john);
-				TestHelper.AddPage(context, "Second Page", "Hello World", john);
-				TestHelper.AddPage(context, "Third Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fourth Page", "Hello World", john);
-				TestHelper.AddPage(context, "Fifth Page", "Hello World", john);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "First Page", "Hello World", john);
+				TestHelper.AddPage(database, "Second Page", "Hello World", john);
+				TestHelper.AddPage(database, "Third Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fourth Page", "Hello World", john);
+				TestHelper.AddPage(database, "Fifth Page", "Hello World", john);
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest{ Order = "Title descending" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
@@ -1172,18 +1172,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithOrderDescendingThenByAscending()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "a", "a", john);
-				TestHelper.AddPage(context, "c", "a", john);
-				TestHelper.AddPage(context, "b", "c", john);
-				TestHelper.AddPage(context, "e", "b", john);
-				TestHelper.AddPage(context, "d", "b", john);
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "a", "a", john);
+				TestHelper.AddPage(database, "c", "a", john);
+				TestHelper.AddPage(database, "b", "c", john);
+				TestHelper.AddPage(database, "e", "b", john);
+				TestHelper.AddPage(database, "d", "b", john);
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest{ Order = "Text descending, Title" });
 
 				Assert.AreEqual(string.Empty, actual.Filter);
@@ -1206,25 +1206,25 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithPagedFilter()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
 					if (i % 2 == 0)
 					{
-						TestHelper.AddPage(context, "Even Page " + i, "Hello World", john);
+						TestHelper.AddPage(database, "Even Page " + i, "Hello World", john);
 					}
 					else
 					{
-						TestHelper.AddPage(context, "Odd Page " + i, "Hello World", john);
+						TestHelper.AddPage(database, "Odd Page " + i, "Hello World", john);
 					}
 				}
-				context.SaveChanges();
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Filter = "Title.Contains(\"Odd\")", Page = 1, PerPage = 2 });
 
 				Assert.AreEqual("Title.Contains(\"Odd\")", actual.Filter);
@@ -1241,25 +1241,25 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithPagedFilterSecondPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
 					if (i % 2 == 0)
 					{
-						TestHelper.AddPage(context, "Even Page " + i, "Hello World", john);
+						TestHelper.AddPage(database, "Even Page " + i, "Hello World", john);
 					}
 					else
 					{
-						TestHelper.AddPage(context, "Odd Page " + i, "Hello World", john);
+						TestHelper.AddPage(database, "Odd Page " + i, "Hello World", john);
 					}
 				}
-				context.SaveChanges();
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Filter = "Title.Contains(\"Odd\")", Page = 2, PerPage = 2 });
 
 				Assert.AreEqual("Title.Contains(\"Odd\")", actual.Filter);
@@ -1276,18 +1276,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithPageRequestOutOfRange()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john);
+					TestHelper.AddPage(database, "Hello Page " + i, "Hello World", john);
 				}
-				context.SaveChanges();
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Page = 30, PerPage = 5 });
 
 				Assert.AreEqual("", actual.Filter);
@@ -1304,18 +1304,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithPagingFirstPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john);
+					TestHelper.AddPage(database, "Hello Page " + i, "Hello World", john);
 				}
-				context.SaveChanges();
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Page = 1, PerPage = 4 });
 
 				Assert.AreEqual("", actual.Filter);
@@ -1332,18 +1332,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithPagingLastPartialPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john);
+					TestHelper.AddPage(database, "Hello Page " + i, "Hello World", john);
 				}
-				context.SaveChanges();
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Page = 3, PerPage = 4 });
 
 				Assert.AreEqual("", actual.Filter);
@@ -1359,18 +1359,18 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPagesWithPagingSecondPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
-					TestHelper.AddPage(context, "Hello Page " + i, "Hello World", john);
+					TestHelper.AddPage(database, "Hello Page " + i, "Hello World", john);
 				}
-				context.SaveChanges();
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPages(new PagedRequest { Page = 2, PerPage = 4 });
 
 				Assert.AreEqual("", actual.Filter);
@@ -1387,17 +1387,17 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageWithHistory()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page2");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page3");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page4");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page2");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page3");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page4");
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPage(page.Id);
 
 				Assert.AreEqual("Page4", actual.Title);
@@ -1407,17 +1407,17 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetPageWithHistoryAsGuest()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page3");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Title = "Page4");
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page3");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page4");
 
-				var service = new ScribeService(context, null, null, null);
+				var service = new ScribeService(database, null, null, null);
 				var actual = service.GetPage(page.Id);
 
 				Assert.AreEqual("Page2", actual.Title);
@@ -1427,22 +1427,22 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetTags()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3", "Tag4");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Tags = new[] { "Tag1", "Tag2", "Tag3" });
-				TestHelper.AddPage(context, "Page2", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2");
-				TestHelper.AddPage(context, "Page3", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag3");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3", "Tag4");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Tags = new[] { "Tag1", "Tag2", "Tag3" });
+				TestHelper.AddPage(database, "Page2", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2");
+				TestHelper.AddPage(database, "Page3", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag3");
+				database.SaveChanges();
 
 				var path = Path.GetTempPath() + "ScribeTests";
-				var searchService = new SearchService(context, path, john);
-				var service = new ScribeService(context, null, searchService, john);
+				var searchService = new SearchService(database, path, john);
+				var service = new ScribeService(database, null, searchService, john);
 				var actual = service.GetTags(new PagedRequest { Filter = "Tag3" }).Results.Select(x => x.Tag).ToArray();
 
 				Assert.AreEqual(3, actual.Length);
@@ -1453,14 +1453,14 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetUsers()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, user);
+				var service = new ScribeService(database, null, null, user);
 				var actual = service.GetUsers();
 
 				Assert.AreEqual(1, actual.Page);
@@ -1473,16 +1473,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetUsersFilterUsingTag()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user1 = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddUser(context, "John Doe", "Password1", "foo");
-				TestHelper.AddUser(context, "Jane Smith", "Password2", "bar");
-				context.SaveChanges();
+				var user1 = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddUser(database, "John Doe", "Password1", "foo");
+				TestHelper.AddUser(database, "Jane Smith", "Password2", "bar");
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, user1);
+				var service = new ScribeService(database, null, null, user1);
 				var actual = service.GetUsers(new PagedRequest { Filter = "Tags.Contains(\"foo\")" });
 
 				Assert.AreEqual(1, actual.Page);
@@ -1495,16 +1495,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void GetUsersFilterUsingUserName()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user1 = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddUser(context, "John Doe", "Password1", "foo");
-				TestHelper.AddUser(context, "Jane Smith", "Password2", "bar");
-				context.SaveChanges();
+				var user1 = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddUser(database, "John Doe", "Password1", "foo");
+				TestHelper.AddUser(database, "Jane Smith", "Password2", "bar");
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, user1);
+				var service = new ScribeService(database, null, null, user1);
 				var actual = service.GetUsers(new PagedRequest { Filter = "UserName == \"JaneSmith\"" });
 
 				Assert.AreEqual(1, actual.Page);
@@ -1517,26 +1517,26 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void RenameTag()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(context, user, new SettingsView { SoftDelete = true });
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3", "Tag4");
-				TestHelper.UpdatePage(context, user, page.ToView(), x => x.Tags = new[] { "Tag1", "Tag2", "Tag3" });
-				TestHelper.AddPage(context, "Page2", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3", "Tag4");
+				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Tags = new[] { "Tag1", "Tag2", "Tag3" });
+				TestHelper.AddPage(database, "Page2", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2");
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), john);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), john);
 				service.RenameTag(new RenameValues { OldName = "Tag2", NewName = "TagTwo" });
 
 				var actual = service.GetTags().Results.Select(x => x.Tag).ToArray();
 				Assert.AreEqual(3, actual.Length);
 				TestHelper.AreEqual(new[] { "Tag1", "Tag3", "TagTwo" }, actual);
 
-				var firstPage1 = context.PageVersions.First();
+				var firstPage1 = database.PageVersions.First();
 				Assert.AreEqual(1, firstPage1.Id);
 				Assert.AreEqual("Page1", firstPage1.Title);
 				Assert.AreEqual(",Tag1,Tag2,Tag3,Tag4,", firstPage1.Tags);
@@ -1546,19 +1546,19 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void SavePage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
+				var user = TestHelper.AddUser(database, "John Doe", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
 
 				var input = new PageView { Text = "The quick brown fox jumped over the lazy dogs back.", Title = "Title" };
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), user);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), user);
 				var actualView = service.SavePage(input);
 
 				Assert.AreEqual(input.Title, actualView.Title);
 				Assert.AreEqual(input.Text, actualView.Text);
 
-				var actualEntity = context.PageVersions.First();
+				var actualEntity = database.PageVersions.First();
 				Assert.AreEqual(input.Title, actualEntity.Title);
 				Assert.AreEqual(input.Text, actualEntity.Text);
 			}
@@ -1567,20 +1567,20 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void SavePageForHistory()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "John Doe", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				database.SaveChanges();
 
 				var input = new PageView { Text = "The quick brown fox jumped over the lazy dogs back.", Title = "Title" };
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), user);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), user);
 				var actualView = service.SavePage(input);
 
 				Assert.AreEqual(input.Title, actualView.Title);
 				Assert.AreEqual(input.Text, actualView.Text);
 
-				var actualEntity = context.PageVersions.First();
+				var actualEntity = database.PageVersions.First();
 				Assert.AreEqual(input.Title, actualEntity.Title);
 				Assert.AreEqual(input.Text, actualEntity.Text);
 				Assert.AreEqual(1, actualEntity.Page.Versions.Count);
@@ -1598,14 +1598,14 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void SavePageWithDuplicateTitles()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				TestHelper.AddPage(context, "Title", "Hello World", user);
+				var user = TestHelper.AddUser(database, "John Doe", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddPage(database, "Title", "Hello World", user);
 
 				var input = new PageView { Text = "The quick brown fox jumped over the lazy dogs back.", Title = "Title" };
-				var service = new ScribeService(context, null, TestHelper.GetSearchService(), user);
+				var service = new ScribeService(database, null, TestHelper.GetSearchService(), user);
 				TestHelper.ExpectedException<InvalidOperationException>(() => service.SavePage(input), "This page title is already used.");
 			}
 		}
@@ -1613,14 +1613,14 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void SaveUser()
 		{
-			var provider = TestHelper.GetContextProvider();
+			var provider = TestHelper.GetDatabaseProvider();
 
-			using (var context = provider.GetContext())
+			using (var database = provider.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!", "administrator");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "John Doe", "Password!", "administrator");
+				database.SaveChanges();
 
-				var service = new ScribeService(context, null, null, user);
+				var service = new ScribeService(database, null, null, user);
 				var view = service.GetUser(user.Id);
 
 				view.DisplayName = "Jane Smith";
@@ -1640,16 +1640,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void UpdatePageForApproval()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!", "approver");
-				var page = TestHelper.AddPage(context, "Title", "Hello World", user, ApprovalStatus.Pending);
+				var user = TestHelper.AddUser(database, "John Doe", "Password!", "approver");
+				var page = TestHelper.AddPage(database, "Title", "Hello World", user, ApprovalStatus.Pending);
 
-				var service = new ScribeService(context, null, null, user);
+				var service = new ScribeService(database, null, null, user);
 				var actualView = service.UpdatePage(new PageUpdate { Id = page.Id, Type = PageUpdateType.Approve });
 				Assert.AreEqual(ApprovalStatus.Approved, actualView.ApprovalStatus);
 
-				var actualEntity = context.PageVersions.First();
+				var actualEntity = database.PageVersions.First();
 				Assert.AreEqual(ApprovalStatus.Approved, actualEntity.ApprovalStatus);
 			}
 		}
@@ -1657,12 +1657,12 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void UpdatePageForApprovalWithoutTag()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Title", "Hello World", user, ApprovalStatus.Pending);
+				var user = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Title", "Hello World", user, ApprovalStatus.Pending);
 
-				var service = new ScribeService(context, null, null, user);
+				var service = new ScribeService(database, null, null, user);
 				TestHelper.ExpectedException<UnauthorizedAccessException>(() => service.UpdatePage(new PageUpdate { Id = page.Id, Type = PageUpdateType.Approve }), "You do not have the permission to update this page.");
 			}
 		}
@@ -1670,16 +1670,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void UpdatePageForPublish()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!", "publisher");
-				var page = TestHelper.AddPage(context, "Title", "Hello World", user, ApprovalStatus.Pending);
+				var user = TestHelper.AddUser(database, "John Doe", "Password!", "publisher");
+				var page = TestHelper.AddPage(database, "Title", "Hello World", user, ApprovalStatus.Pending);
 
-				var service = new ScribeService(context, null, null, user);
+				var service = new ScribeService(database, null, null, user);
 				var actualView = service.UpdatePage(new PageUpdate { Id = page.Id, Type = PageUpdateType.Publish });
 				Assert.IsTrue(actualView.IsPublished);
 
-				var actualEntity = context.PageVersions.First();
+				var actualEntity = database.PageVersions.First();
 				Assert.IsTrue(actualEntity.IsPublished);
 			}
 		}
@@ -1687,16 +1687,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void UpdatePageForRejected()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!", "approver");
-				var page = TestHelper.AddPage(context, "Title", "Hello World", user, ApprovalStatus.Pending);
+				var user = TestHelper.AddUser(database, "John Doe", "Password!", "approver");
+				var page = TestHelper.AddPage(database, "Title", "Hello World", user, ApprovalStatus.Pending);
 
-				var service = new ScribeService(context, null, null, user);
+				var service = new ScribeService(database, null, null, user);
 				var actualView = service.UpdatePage(new PageUpdate { Id = page.Id, Type = PageUpdateType.Reject });
 				Assert.AreEqual(ApprovalStatus.Rejected, actualView.ApprovalStatus);
 
-				var actualEntity = context.PageVersions.First();
+				var actualEntity = database.PageVersions.First();
 				Assert.AreEqual(ApprovalStatus.Rejected, actualEntity.ApprovalStatus);
 			}
 		}
@@ -1704,12 +1704,12 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void UpdatePageForRejectedWithoutTag()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Title", "Hello World", user, ApprovalStatus.Pending);
+				var user = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Title", "Hello World", user, ApprovalStatus.Pending);
 
-				var service = new ScribeService(context, null, null, user);
+				var service = new ScribeService(database, null, null, user);
 				TestHelper.ExpectedException<UnauthorizedAccessException>(() => service.UpdatePage(new PageUpdate { Id = page.Id, Type = PageUpdateType.Reject }), "You do not have the permission to update this page.");
 			}
 		}
@@ -1717,16 +1717,16 @@ namespace Scribe.UnitTests
 		[TestMethod]
 		public void UpdatePageForUnpublish()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "John Doe", "Password!", "publisher");
-				var page = TestHelper.AddPage(context, "Title", "Hello World", user, ApprovalStatus.Pending);
+				var user = TestHelper.AddUser(database, "John Doe", "Password!", "publisher");
+				var page = TestHelper.AddPage(database, "Title", "Hello World", user, ApprovalStatus.Pending);
 
-				var service = new ScribeService(context, null, null, user);
+				var service = new ScribeService(database, null, null, user);
 				var actualView = service.UpdatePage(new PageUpdate { Id = page.Id, Type = PageUpdateType.Unpublish });
 				Assert.IsFalse(actualView.IsPublished);
 
-				var actualEntity = context.PageVersions.First();
+				var actualEntity = database.PageVersions.First();
 				Assert.IsFalse(actualEntity.IsPublished);
 			}
 		}

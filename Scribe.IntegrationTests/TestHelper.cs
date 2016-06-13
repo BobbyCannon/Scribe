@@ -136,16 +136,16 @@ namespace Scribe.IntegrationTests
 			Assert.Fail("The expected exception was not thrown.");
 		}
 
-		public static IScribeDatabase GetContext(bool clearDatabase = true)
+		public static IScribeDatabase GetDatabase(bool clearDatabase = true)
 		{
-			var context = new ScribeSqlDatabase();
+			var database = new ScribeSqlDatabase();
 
 			if (clearDatabase)
 			{
-				context.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+				database.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 			}
 
-			return context;
+			return database;
 		}
 
 		public static ISearchService GetSearchService()

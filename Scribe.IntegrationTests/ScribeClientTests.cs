@@ -27,13 +27,13 @@ namespace Scribe.IntegrationTests
 		[TestMethod]
 		public void BeginEditingPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				database.SaveChanges();
 
 				var client = new ScribeClient(TestSite, TestService);
 				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
@@ -46,37 +46,37 @@ namespace Scribe.IntegrationTests
 		[TestMethod]
 		public void CancelEditingPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
-				context.PageVersions.First().EditingById = john.Id;
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				database.PageVersions.First().EditingById = john.Id;
+				database.SaveChanges();
 
 				var client = new ScribeClient(TestSite, TestService);
 				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
-				Assert.AreEqual(john.Id, context.PageVersions.First().EditingById);
+				Assert.AreEqual(john.Id, database.PageVersions.First().EditingById);
 				client.CancelEditingPage(page.Id);
 			}
 
-			using (var context = TestHelper.GetContext(false))
+			using (var database = TestHelper.GetDatabase(false))
 			{
-				Assert.IsNull(context.PageVersions.First().EditingById);
+				Assert.IsNull(database.PageVersions.First().EditingById);
 			}
 		}
 
 		[TestMethod]
 		public void DeleteFile()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var file = TestHelper.AddFile(context, john, "File.png", "image/png", new byte[0]);
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var file = TestHelper.AddFile(database, john, "File.png", "image/png", new byte[0]);
+				database.SaveChanges();
 
 				var client = new ScribeClient(TestSite, TestService);
 				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
@@ -88,20 +88,20 @@ namespace Scribe.IntegrationTests
 					Assert.AreEqual("Hello Page", result.Title);
 				}, "Bad Request");
 
-				Assert.AreEqual(0, context.PageVersions.Count());
+				Assert.AreEqual(0, database.PageVersions.Count());
 			}
 		}
 
 		[TestMethod]
 		public void DeletePage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				database.SaveChanges();
 
 				var client = new ScribeClient(TestSite, TestService);
 				Assert.IsFalse(client.IsAuthenticated);
@@ -117,20 +117,20 @@ namespace Scribe.IntegrationTests
 					Assert.AreEqual("Hello Page", result.Title);
 				}, "Bad Request");
 
-				Assert.AreEqual(0, context.PageVersions.Count());
+				Assert.AreEqual(0, database.PageVersions.Count());
 			}
 		}
 
 		[TestMethod]
 		public void GetPage()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				database.SaveChanges();
 
 				var client = new ScribeClient(TestSite, TestService);
 				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
@@ -142,13 +142,13 @@ namespace Scribe.IntegrationTests
 		[TestMethod]
 		public void GetPagePreview()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				var page = TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				database.SaveChanges();
 
 				var client = new ScribeClient(TestSite, TestService);
 				client.LogIn(new Credentials { UserName = "John Doe", Password = "Password!" });
@@ -161,13 +161,13 @@ namespace Scribe.IntegrationTests
 		[TestMethod]
 		public void GetPages()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				database.SaveChanges();
 			}
 
 			var client = new ScribeClient(TestSite, TestService);
@@ -180,14 +180,14 @@ namespace Scribe.IntegrationTests
 		[TestMethod]
 		public void GetPagesUsingFilter()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
-				TestHelper.AddPage(context, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				TestHelper.AddPage(database, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
+				database.SaveChanges();
 			}
 
 			var client = new ScribeClient(TestSite, TestService);
@@ -200,14 +200,14 @@ namespace Scribe.IntegrationTests
 		[TestMethod]
 		public void GetPagesUsingFilterWithParameters()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
-				TestHelper.AddPage(context, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				TestHelper.AddPage(database, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
+				database.SaveChanges();
 			}
 
 			var client = new ScribeClient(TestSite, TestService);
@@ -220,14 +220,14 @@ namespace Scribe.IntegrationTests
 		[TestMethod]
 		public void GetPagesUsingOrder()
 		{
-			using (var context = TestHelper.GetContext())
+			using (var database = TestHelper.GetDatabase())
 			{
-				var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(context, user);
-				var john = TestHelper.AddUser(context, "John Doe", "Password!");
-				TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
-				TestHelper.AddPage(context, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
-				context.SaveChanges();
+				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+				TestHelper.AddDefaultSettings(database, user);
+				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+				TestHelper.AddPage(database, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
+				database.SaveChanges();
 			}
 
 			var client = new ScribeClient(TestSite, TestService);

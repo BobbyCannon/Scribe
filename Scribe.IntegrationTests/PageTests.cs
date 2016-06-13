@@ -29,14 +29,14 @@ namespace Scribe.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				using (var context = TestHelper.GetContext())
+				using (var database = TestHelper.GetDatabase())
 				{
 					browser.NavigateTo($"{TestSite}");
 
-					var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-					TestHelper.AddDefaultSettings(context, user);
-					TestHelper.AddUser(context, "John Doe", "Password!");
-					context.SaveChanges();
+					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+					TestHelper.AddDefaultSettings(database, user);
+					TestHelper.AddUser(database, "John Doe", "Password!");
+					database.SaveChanges();
 				}
 
 				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
@@ -68,15 +68,15 @@ namespace Scribe.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				using (var context = TestHelper.GetContext())
+				using (var database = TestHelper.GetDatabase())
 				{
 					browser.NavigateTo($"{TestSite}");
 
-					var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator");
-					TestHelper.AddDefaultSettings(context, user);
-					var john = TestHelper.AddUser(context, "John Doe", "Password!");
-					TestHelper.AddPage(context, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
-					context.SaveChanges();
+					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
+					TestHelper.AddDefaultSettings(database, user);
+					var john = TestHelper.AddUser(database, "John Doe", "Password!");
+					TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
+					database.SaveChanges();
 				}
 
 				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
@@ -100,16 +100,16 @@ namespace Scribe.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				using (var context = TestHelper.GetContext())
+				using (var database = TestHelper.GetDatabase())
 				{
 					browser.NavigateTo($"{TestSite}");
 
-					var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-					TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-					TestHelper.AddUser(context, "John Doe", "Password!");
-					TestHelper.AddPage(context, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
-					TestHelper.AddPage(context, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
-					context.SaveChanges();
+					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+					TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+					TestHelper.AddUser(database, "John Doe", "Password!");
+					TestHelper.AddPage(database, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
+					TestHelper.AddPage(database, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
+					database.SaveChanges();
 				}
 
 				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
@@ -127,16 +127,16 @@ namespace Scribe.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				using (var context = TestHelper.GetContext())
+				using (var database = TestHelper.GetDatabase())
 				{
 					browser.NavigateTo($"{TestSite}");
 
-					var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-					TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = false });
-					TestHelper.AddUser(context, "John Doe", "Password!");
-					TestHelper.AddPage(context, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
-					TestHelper.AddPage(context, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
-					context.SaveChanges();
+					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+					TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = false });
+					TestHelper.AddUser(database, "John Doe", "Password!");
+					TestHelper.AddPage(database, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
+					TestHelper.AddPage(database, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
+					database.SaveChanges();
 				}
 
 				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
@@ -155,16 +155,16 @@ namespace Scribe.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				using (var context = TestHelper.GetContext())
+				using (var database = TestHelper.GetDatabase())
 				{
 					browser.NavigateTo($"{TestSite}");
 
-					var user = TestHelper.AddUser(context, "Administrator", "Password!", "administrator", "approver", "publisher");
-					TestHelper.AddSettings(context, user, new SettingsView { EnableGuestMode = true });
-					TestHelper.AddUser(context, "John Doe", "Password!");
-					TestHelper.AddPage(context, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
-					TestHelper.AddPage(context, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
-					context.SaveChanges();
+					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
+					TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+					TestHelper.AddUser(database, "John Doe", "Password!");
+					TestHelper.AddPage(database, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
+					TestHelper.AddPage(database, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
+					database.SaveChanges();
 				}
 
 				HttpClient.Post(TestSite, "api/Settings/Reload").Dispose();
