@@ -64,7 +64,7 @@
 				<button class="blue" ng-disabled="!settings.$dirty" ng-click="save()">Save</button>
 			</div>
 			<div class="span12">
-				@Html.ActionLink("Manage Users", "Users", "Account", new { @class = "button link" }, null)
+				@Html.ActionLink("Manage Users", "Users", "Account", null, new { @class = "button link" })
 			</div>
 		</div>
 	</form>
@@ -80,8 +80,8 @@
 				'use strict';
 
 				$scope.model = @(Html.Raw(Model.ToJson(true)));
-				$scope.publicPages = @(Html.Raw(Speedy.Extensions.ToJson(ViewBag.PublicPages)));
-				$scope.privatePages = @(Html.Raw(Speedy.Extensions.ToJson(ViewBag.PrivatePages)));
+				$scope.publicPages = @(Html.Raw(Speedy.Extensions.ToJson(ViewBag.PublicPages, true)));
+				$scope.privatePages = @(Html.Raw(Speedy.Extensions.ToJson(ViewBag.PrivatePages, true)));
 
 				$scope.input = {
 					tab: 'viewCss'

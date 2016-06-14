@@ -26,6 +26,7 @@ namespace Scribe.Website
 
 		private Event _event;
 		private static readonly string[] _ignoredRequest;
+		private static readonly string[] _ignoredAnalytics;
 
 		#endregion
 
@@ -34,6 +35,7 @@ namespace Scribe.Website
 		static MvcApplication()
 		{
 			_ignoredRequest = new[] { "setup", "/bundle/", "/signalr/", "/api/" };
+			_ignoredAnalytics = new[] { "setup", "/bundle/", "/signalr/" };
 		}
 
 		#endregion
@@ -52,17 +54,19 @@ namespace Scribe.Website
 		protected void Application_AuthenticateRequest(object sender, EventArgs e)
 		{
 			var uri = Request.Url.AbsoluteUri.ToLower();
-			_event = Tracker?.StartEvent(AnalyticEventNames.WebRequest.ToString(),
-				new EventValue("URI", uri),
-				new EventValue("IsSecure", Request.IsSecureConnection),
-				new EventValue("IsAuthenticated", Request.IsAuthenticated),
-				new EventValue("UrlReferrer", Request.UrlReferrer?.ToString() ?? string.Empty),
-				new EventValue("UserHostAddress", Request.UserHostAddress ?? string.Empty),
-				new EventValue("UserAgent", Request.UserAgent ?? string.Empty),
-				new EventValue("IdentityName", User?.Identity?.Name ?? string.Empty)
-				);
 
-			Context.Items["Event"] = _event;
+			if (!uri.ContainsAny(_ignoredAnalytics))
+			{
+				_event = Tracker?.StartEvent(AnalyticEventNames.WebRequest.ToString(),
+					new EventValue("URI", uri),
+					new EventValue("UrlReferrer", Request.UrlReferrer?.ToString() ?? string.Empty),
+					new EventValue("UserHostAddress", Request.UserHostAddress ?? string.Empty),
+					new EventValue("UserAgent", Request.UserAgent ?? string.Empty),
+					new EventValue("IdentityName", User?.Identity?.Name ?? string.Empty)
+					);
+
+				Context.Items["Event"] = _event;
+			}
 		}
 
 		protected void Application_BeginRequest()

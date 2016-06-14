@@ -102,7 +102,8 @@ namespace Scribe.Website.Controllers
 		{
 			var accountService = new AccountService(Database, AuthenticationService);
 			var service = new ScribeService(Database, accountService, null, GetCurrentUser());
-			return View(service.GetUsers(new PagedRequest { Filter = $"Tags={tag}", Page = 1, PerPage = int.MaxValue }));
+			ViewBag.Tag = tag;
+			return View(service.GetUsers(new PagedRequest { Filter = $"Tags.Contains(\"{tag}\")", Page = 1, PerPage = int.MaxValue }));
 		}
 
 		[MvcAuthorize(Roles = "Administrator")]

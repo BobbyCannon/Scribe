@@ -6,7 +6,7 @@
 <div ng-controller="controller" ng-cloak>
 	<input id="userFilter" ng-model="input.userFilter" class="pull-right" type="text" title="filter" placeholder="filter" />
 	<h1>
-		All users with tag "{{model.filter}}"
+		All users with tag (@ViewBag.Tag)
 	</h1>
 	<table class="expand striped">
 		<thead>
@@ -41,7 +41,7 @@
 		</tbody>
 	</table>
 	<div>
-		@Html.ActionLink("Manage Users", "Users", "Account", new { @class = "button link" }, null)
+		@Html.ActionLink("Manage Users", "Users", "Account", null, new { @class = "button link" })
 	</div>
 </div>
 @section scripts
