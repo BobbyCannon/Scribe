@@ -2,11 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
 using System.Web.Security;
 
 #endregion
@@ -16,6 +19,29 @@ namespace Scribe
 	public static class Extensions
 	{
 		#region Methods
+
+		/// <summary>
+		/// Calculate an MD5 hash for the string.
+		/// </summary>
+		/// <param name="input"> The string to hash. </param>
+		/// <returns> The MD5 formatted hash for the input. </returns>
+		public static string CalculateHash(this string input)
+		{
+			// Calculate MD5 hash from input.
+			var md5 = MD5.Create();
+			var inputBytes = Encoding.ASCII.GetBytes(input);
+			var hash = md5.ComputeHash(inputBytes);
+
+			// Convert byte array to hex string.
+			var sb = new StringBuilder();
+			foreach (var item in hash)
+			{
+				sb.Append(item.ToString("X2"));
+			}
+
+			// Return the MD5 string.
+			return sb.ToString().ToLower();
+		}
 
 		public static string CleanMessage(this Exception ex)
 		{
@@ -69,6 +95,23 @@ namespace Scribe
 			return !identity.Name.Contains(';') ? string.Empty : identity.Name.Split(';').Last();
 		}
 
+		/// <summary>
+		/// Gets the domain for the provided URI.
+		/// </summary>
+		/// <param name="uri"> The URI to process. </param>
+		/// <returns> The URI for only the domain. </returns>
+		public static string GetDomain(this Uri uri)
+		{
+			var response = uri.Scheme + "://" + uri.Host;
+
+			if (((uri.Scheme == "https") && (uri.Port != 443)) || ((uri.Scheme == "http") && (uri.Port != 80)))
+			{
+				response += ":" + uri.Port;
+			}
+
+			return response;
+		}
+
 		public static int GetId(this IIdentity identity)
 		{
 			return !identity.Name.Contains(';') ? 0 : identity.Name.Split(';').First().ConvertToInt();
@@ -110,11 +153,48 @@ namespace Scribe
 			}
 		}
 
+		/// <summary>
+		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the
+		/// provided delay time.
+		/// </summary>
+		/// <param name="action"> The action to attempt to retry. </param>
+		/// <param name="timeout"> The timeout to stop retrying. </param>
+		/// <param name="delay"> The delay between retries. </param>
+		/// <returns> The response from the action. </returns>
+		public static void Retry(Action action, int timeout, int delay)
+		{
+			var watch = Stopwatch.StartNew();
+
+			try
+			{
+				action();
+			}
+			catch (Exception)
+			{
+				Thread.Sleep(delay);
+
+				var remaining = (int) (timeout - watch.Elapsed.TotalMilliseconds);
+				if (remaining <= 0)
+				{
+					throw;
+				}
+
+				Retry(action, remaining, delay);
+			}
+		}
+
 		public static string ToDetailedString(this Exception ex)
 		{
 			var builder = new StringBuilder();
 			AddExceptionToBuilder(builder, ex);
 			return builder.ToString();
+		}
+
+		public static string ToSingleLine(this string value)
+		{
+			return value.Replace("\r\n", string.Empty)
+				.Replace("\r", string.Empty)
+				.Replace("\n", string.Empty);
 		}
 
 		/// <summary>
@@ -160,7 +240,7 @@ namespace Scribe
 				secondsRemaining %= threshold;
 
 				var unitText = ConvertShortUnitToLongUnit(unit, count > 1);
-				builder.AppendFormat(", {0} {1}", count, unitText);
+				builder.Append($", {count} {unitText}");
 				thresholdsHit++;
 
 				if (limited)
@@ -206,6 +286,7 @@ namespace Scribe
 				case DateTruncate.Minute:
 					return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, 0);
 
+				case DateTruncate.Second:
 				default:
 					return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second);
 			}

@@ -1,0 +1,134 @@
+﻿@model Account
+
+@{
+	ViewBag.Title = "Register";
+}
+<div class="row" ng-controller="Controller">
+	<div class="span6 offset2 margin-top-10">
+		<img id="picture" class="thumbnail center round" alt="profile picture" ng-src="{{ user.pictureUrl }}" />
+		<div class="text-center margin-top-bottom-10 margin-left-right-20">
+			<small>
+				We use Gravatar for your profile picture.<br />
+				It's based on your email address.<br />
+				Click <a href="http://www.gravatar.com/" target="_blank">here</a> for more information.
+			</small>
+		</div>
+	</div>
+	<div class="span14 offset2">
+		@using (Html.BeginForm("Register", "Account", FormMethod.Post, new { name = "form" }))
+		{
+			<h1>Register</h1>
+			<input type="email" class="dummy" />
+			<input type="password" class="dummy" />
+
+			<ul class="form">
+				<li>
+					<div>
+						User Name
+						<span id="userNameError" class="error" ng-show="form.userName.$dirty && form.userName.$invalid">
+							<span id="userNameInvalidError" ng-show="form.userName.$error.pattern">is invalid.</span>
+							<span id="userNameRequiredError" ng-show="form.userName.$error.required">is required</span>
+							<span id="userNameMinLengthError" ng-show="form.userName.$error.minlength">is too short</span>
+							<span id="userNameMaxLengthError" ng-show="form.userName.$error.maxlength">is too long</span>
+						</span>
+					</div>
+					<input id="userName" name="userName" class="x-large" type="text" ng-model="user.userName" spellcheck="false" autocomplete="off" required="required" ng-pattern="/^[\w ]+$/" ng-trim="true" ng-minlength="3" ng-maxlength="256" />
+				</li>
+				<li>
+					<div>
+						Email Address
+						<span id="emailAddressError" class="error" ng-show="form.emailAddress.$dirty && form.emailAddress.$invalid">
+							<span id="emailAddressInvalidError" ng-show="form.emailAddress.$invalid && !form.emailAddress.$error.required && !form.emailAddress.$error.minlength && !form.emailAddress.$error.maxlength">is invalid</span>
+							<span id="emailAddressRequiredError" ng-show="form.emailAddress.$error.required">is required</span>
+							<span id="emailAddressMinLengthError" ng-show="form.emailAddress.$error.minlength">is too short</span>
+							<span id="emailAddressMaxLengthError" ng-show="form.emailAddress.$error.maxlength">is too long</span>
+						</span>
+					</div>
+					<input id="emailAddress" name="emailAddress" class="x-large" type="email" ng-model="user.emailAddress" spellcheck="false" autocomplete="off" required="required" ng-trim="true" ng-minlength="6" ng-maxlength="256" />
+				</li>
+				<li>
+					<div>
+						Password
+						<span id="passwordError" class="error" ng-show="form.password.$dirty && form.password.$invalid">
+							<span id="passwordRequiredError" ng-show="form.password.$error.required">is required</span>
+							<span id="passwordMaxLengthError" ng-show="form.password.$error.maxlength">is too long</span>
+						</span>
+					</div>
+					<input id="password" name="password" class="x-large" type="password" ng-model="user.password" spellcheck="false" autocomplete="off" required="required" ng-trim="false" ng-maxlength="256" />
+				</li>
+				<li ng-show="user.password && user.password.length > 0">
+					<div class="progress x-large" style="margin-bottom: 10px;">
+						<div ng-class="passwordCheck.css" ng-style="{ width: passwordCheck.width }">{{ passwordCheck.verdict }}</div>
+					</div>
+				</li>
+				<li>
+					<input id="phone" name="phone" type="text" ng-model="user.phone" spellcheck="false" autocomplete="off" ng-hide="true" />
+					<input id="pictureUrl" name="pictureUrl" type="text" ng-model="user.pictureUrl" spellcheck="false" autocomplete="off" ng-hide="true" />
+					@Html.AntiForgeryToken()
+				</li>
+				<li>
+					<br />
+					<button id="register" class="blue" type="submit" ng-disabled="$root.isRequesting || !form.$valid">Register</button>
+					<img src="@(Constants.Images.ProcessingImage)" class="loader" ng-show="$root.isRequesting" />
+					@Html.ActionLink("Cancel", "LogIn", "Account", null, new { @class = "button link", id = "cancel" })
+				</li>
+				<li ng-show="data.error && data.error.length > 0">
+					<h6 id="error" class="burgundy" style="margin: 20px 0">{{ data.error }}</h6>
+				</li>
+			</ul>
+		}
+	</div>
+</div>
+@section scripts {
+	<script type="text/javascript">
+
+		scribe.controller('Controller',
+		[
+			'$scope', '$http', '$location', '$window',
+			function ($scope, $http, $location, $window) {
+
+				'use strict';
+
+				var params = scribe.getQueryParams();
+
+				$scope.user = {
+					emailAddress: params['emailAddress'] || '@Model.EmailAddress',
+					userName: params['userName'] || '@Model.UserName',
+					password: '',
+					phone: '',
+					pictureUrl: scribe.getGravatarLink(params['emailAddress'] || '@Model.EmailAddress')
+				};
+
+				$scope.passwordCheck = {
+					score: 0,
+					verdict: 'weak',
+					width: '0%',
+					css: 'bar blue'
+				};
+
+				$scope.data = {
+					error: '@Html.Raw(ViewBag.Error)'
+				};
+
+				$scope.$watch('user.emailAddress',
+					_.debounce(function (newVal, oldVal, scope) {
+							scope.user.pictureUrl = scribe.getGravatarLink(scope.user.emailAddress);
+							scope.$apply();
+						},
+						1000));
+
+				$scope.$watch('user.password',
+					function (newVal, oldVal, scope) {
+							scope.passwordCheck = scribe.checkPassword(newVal);
+						});
+
+						if ($scope.user.userName.length > 0) {
+							angular.element('#password').focus();
+						} else {
+							angular.element('#userName').focus();
+						}
+					}
+		]);
+
+	</script>
+}

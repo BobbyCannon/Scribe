@@ -17,6 +17,8 @@ namespace Scribe.Website
 
 			routes.MapRoute("Analytics", "Analytics", new { controller = "Analytics", action = "Home" });
 			routes.MapRoute("Login", "Login", new { controller = "Account", action = "Login", returnUrl = UrlParameter.Optional });
+			routes.MapRoute("Register", "Register", new { controller = "Account", action = "Register", returnUrl = UrlParameter.Optional });
+			routes.MapRoute("ForgotPassword", "ForgotPassword", new { controller = "Account", action = "ForgotPassword", returnUrl = UrlParameter.Optional });
 			routes.MapRoute("Users", "Users", new { controller = "Account", action = "Users" });
 			routes.MapRoute("User", "User/{id}", new { controller = "Account", action = "User", id = UrlParameter.Optional });
 			routes.MapRoute("UsersWithTag", "UsersWithTag/{tag}", new { controller = "Account", action = "UsersWithTag", tag = UrlParameter.Optional });

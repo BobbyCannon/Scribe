@@ -28,6 +28,7 @@ namespace Scribe.Data.Entities
 			CreatedPages = new Collection<PageVersion>();
 			ModifiedFiles = new Collection<File>();
 			PagesBeingEdited = new Collection<PageVersion>();
+			Settings = new Collection<Setting>();
 		}
 
 		#endregion
@@ -84,10 +85,20 @@ namespace Scribe.Data.Entities
 		public string PasswordHash { get; private set; }
 
 		/// <summary>
+		/// Gets or sets the picture URL.
+		/// </summary>
+		public string PictureUrl { get; set; }
+
+		/// <summary>
 		/// Do not use this property to set the password - use <see cref="SetPassword" /> instead. Use
 		/// <see cref="HashPassword" /> for authentication with the salt and password.
 		/// </summary>
 		public string Salt { get; private set; }
+
+		/// <summary>
+		/// Gets or sets the user settings.
+		/// </summary>
+		public virtual ICollection<Setting> Settings { get; set; }
 
 		/// <summary>
 		/// Gets or sets the tags for the user in the format ",Administrator,Editor,Approver," (no spaces between tags).
@@ -95,7 +106,7 @@ namespace Scribe.Data.Entities
 		public string Tags { get; set; }
 
 		/// <summary>
-		/// Gets the user name for the user.
+		/// Gets or sets the user name for the user.
 		/// </summary>
 		public string UserName { get; set; }
 
@@ -155,6 +166,11 @@ namespace Scribe.Data.Entities
 				Tags = Tags.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().OrderBy(x => x),
 				UserName = UserName
 			};
+		}
+
+		public void UpdatePictureUrl()
+		{
+			PictureUrl = "https://www.gravatar.com/avatar/" + EmailAddress.CalculateHash() + "?s=180";
 		}
 
 		/// <summary>

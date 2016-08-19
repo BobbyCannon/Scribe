@@ -49,7 +49,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Interop.UIAutomationClient, Version=10.0.0.0, Culture=neutral, PublicKeyToken=365143bb27e7ac8b, processorArchitecture=MSIL">
-      <HintPath>..\packages\TestR.PowerShell.0.9.4\lib\net452\Interop.UIAutomationClient.dll</HintPath>
+      <HintPath>..\packages\TestR.PowerShell.0.9.9\lib\net452\Interop.UIAutomationClient.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="KellermanSoftware.Compare-NET-Objects, Version=3.5.0.0, Culture=neutral, PublicKeyToken=d970ace04cc85217, processorArchitecture=MSIL">
@@ -60,20 +60,20 @@
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
       <Private>False</Private>
     </Reference>
-    <Reference Include="Moq, Version=4.5.9.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\packages\Moq.4.5.9\lib\net45\Moq.dll</HintPath>
+    <Reference Include="Moq, Version=4.5.21.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.5.21\lib\net45\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy, Version=4.4.18.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.4.4.18\lib\net452\Speedy.dll</HintPath>
+    <Reference Include="Speedy, Version=4.4.19.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.EntityFramework.4.4.19\lib\net452\Speedy.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy.EntityFramework, Version=4.4.18.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.EntityFramework.4.4.18\lib\net452\Speedy.EntityFramework.dll</HintPath>
+    <Reference Include="Speedy.EntityFramework, Version=4.4.19.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.EntityFramework.4.4.19\lib\net452\Speedy.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -97,12 +97,12 @@
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="TestR, Version=0.9.4.0, Culture=neutral, PublicKeyToken=5a14763867648ba8, processorArchitecture=MSIL">
-      <HintPath>..\packages\TestR.PowerShell.0.9.4\lib\net452\TestR.dll</HintPath>
+    <Reference Include="TestR, Version=0.9.9.0, Culture=neutral, PublicKeyToken=5a14763867648ba8, processorArchitecture=MSIL">
+      <HintPath>..\packages\TestR.PowerShell.0.9.9\lib\net452\TestR.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="TestR.PowerShell, Version=0.9.4.0, Culture=neutral, PublicKeyToken=5a14763867648ba8, processorArchitecture=MSIL">
-      <HintPath>..\packages\TestR.PowerShell.0.9.4\lib\net452\TestR.PowerShell.dll</HintPath>
+    <Reference Include="TestR.PowerShell, Version=0.9.9.0, Culture=neutral, PublicKeyToken=5a14763867648ba8, processorArchitecture=MSIL">
+      <HintPath>..\packages\TestR.PowerShell.0.9.9\lib\net452\TestR.PowerShell.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>

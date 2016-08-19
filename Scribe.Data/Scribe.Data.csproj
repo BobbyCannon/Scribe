@@ -42,16 +42,16 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy, Version=4.4.18.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.4.4.18\lib\net452\Speedy.dll</HintPath>
+    <Reference Include="Speedy, Version=4.4.19.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.EntityFramework.4.4.19\lib\net452\Speedy.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Speedy.EntityFramework, Version=4.4.18.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Speedy.EntityFramework.4.4.18\lib\net452\Speedy.EntityFramework.dll</HintPath>
+    <Reference Include="Speedy.EntityFramework, Version=4.4.19.0, Culture=neutral, PublicKeyToken=107627dc0526abd8, processorArchitecture=MSIL">
+      <HintPath>..\packages\Speedy.EntityFramework.4.4.19\lib\net452\Speedy.EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -79,6 +79,10 @@
     <Compile Include="Migrations\201606081944368_AddedAnalytics.cs" />
     <Compile Include="Migrations\201606081944368_AddedAnalytics.Designer.cs">
       <DependentUpon>201606081944368_AddedAnalytics.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201608191644512_AddedUserSettings.cs" />
+    <Compile Include="Migrations\201608191644512_AddedUserSettings.Designer.cs">
+      <DependentUpon>201608191644512_AddedUserSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="ScribeDatabaseProvider.cs" />
     <Compile Include="ScribeDataChannel.cs" />
@@ -124,6 +128,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201606081944368_AddedAnalytics.resx">
       <DependentUpon>201606081944368_AddedAnalytics.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608191644512_AddedUserSettings.resx">
+      <DependentUpon>201608191644512_AddedUserSettings.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

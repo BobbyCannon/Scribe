@@ -3,26 +3,47 @@
 @{
 	ViewBag.Title = "Profile";
 }
-<div ng-controller="controller" ng-cloak>
-	<h1>Profile</h1>
-	<dl class="form">
-		<dt>Display Name</dt>
-		<dd>
-			<input class="x-large" type="text" ng-model="model.displayName" ng-disabled="model.disabled" />
-		</dd>
-		<dt>Email Address</dt>
-		<dd>
-			<input class="x-large" type="text" ng-model="model.emailAddress" ng-disabled="model.disabled" />
-		</dd>
-		<dt>User Name</dt>
-		<dd>
-			<input class="x-large" type="text" ng-model="model.userName" ng-disabled="model.disabled" />
-		</dd>
-		<dt></dt>
-		<dd>
-			<button class="blue" ng-click="Save()" ng-hide="model.disabled">Save</button>
-		</dd>
-	</dl>
+
+<div class="row" ng-controller="controller" ng-cloak>
+	<div class="span6 offset2 margin-top-10">
+		<img id="picture" class="thumbnail center round" alt="profile picture" ng-src="{{ model.pictureUrl }}" />
+		<div class="text-center margin-top-bottom-10 margin-left-right-20">
+			<small>
+				We use Gravatar for your profile picture.<br />
+				It's based on your email address.<br />
+				Click <a href="http://www.gravatar.com/" target="_blank">here</a> for more information.
+			</small>
+		</div>
+	</div>
+	<div class="span14 offset2">
+		<h1>Profile</h1>
+		<ul class="form">
+			<li>
+				<div>Display Name</div>
+				<input class="x-large" type="text" ng-model="model.displayName" ng-disabled="model.disabled" />
+			</li>
+			<li>
+				<div>User Name</div>
+				<input class="x-large" type="text" ng-model="model.userName" ng-disabled="model.disabled" />
+			</li>
+			<li>
+				<div>Email Address</div>
+				<input class="x-large" type="text" ng-model="model.emailAddress" ng-disabled="model.disabled" />
+			</li>
+			<li ng-hide="model.disabled">
+				<div>Password</div>
+				<input class="x-large" type="password" ng-model="model.password" ng-disabled="model.disabled" />
+			</li>
+			<li ng-show="model.password && model.password.length > 0">
+				<div class="progress x-large" style="margin-bottom: 10px;">
+					<div ng-class="passwordCheck.css" ng-style="{ width: passwordCheck.width }">{{ passwordCheck.verdict }}</div>
+				</div>
+			</li>
+			<li ng-hide="model.disabled">
+				<button class="blue" ng-click="Save()" ng-hide="model.disabled">Save</button>
+			</li>
+		</ul>
+	</div>
 </div>
 @section scripts
 {
@@ -36,6 +57,13 @@
 
 				$scope.model = @(Html.Raw(Model.ToJson(true)));
 
+				$scope.passwordCheck = {
+					score: 0,
+					verdict: 'weak',
+					width: '0%',
+					css: 'bar blue'
+				};
+
 				$scope.Save = function () {
 					$http.post('/Account/Profile', $scope.model)
 						.success(function () {
@@ -44,7 +72,19 @@
 						.error(function () {
 							toastr.error('There was an issue updating your profile.');
 						});
-				}
+				};
+
+				$scope.$watch('model.emailAddress',
+					_.debounce(function (newVal, oldVal, scope) {
+						scope.model.pictureUrl = scribe.getGravatarLink(scope.model.emailAddress);
+							scope.$apply();
+						},
+						1000));
+
+				$scope.$watch('model.password',
+					function (newVal, oldVal, scope) {
+						scope.passwordCheck = scribe.checkPassword(newVal);
+					});
 			}
 		]);
 

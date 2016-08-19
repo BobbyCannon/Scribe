@@ -15,7 +15,7 @@ using Scribe.Data;
 using Scribe.Data.Entities;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
-using Scribe.Services;
+using Scribe.Website.Services.Settings;
 using Directory = System.IO.Directory;
 using LuceneVersion = Lucene.Net.Util.Version;
 
@@ -34,7 +34,7 @@ namespace Scribe.Website.Services
 		private readonly string _indexPath2;
 		private static readonly LuceneVersion _luceneversion = LuceneVersion.LUCENE_30;
 		private static readonly Regex _removeTagsRegex = new Regex("<(.|\n)*?>");
-		private readonly SettingsService _settings;
+		private readonly SiteSettings _settings;
 		private readonly User _user;
 
 		#endregion
@@ -44,7 +44,7 @@ namespace Scribe.Website.Services
 		public SearchService(IScribeDatabase database, string path, User user)
 		{
 			_database = database;
-			_settings = new SettingsService(database, user);
+			_settings = SiteSettings.Load(database);
 			_indexPath2 = path;
 			_user = user;
 		}
@@ -109,7 +109,7 @@ namespace Scribe.Website.Services
 			var user = _database.Users.First();
 			var privateService = new ScribeService(_database, null, null, user);
 			privateService.Converter.ClearEvents();
-			AddIndex(PrivateSearchPath, true, privateService.GetPages(new PagedRequest { PerPage = int.MaxValue, Including = new [] { "details" } }).Results.ToArray());
+			AddIndex(PrivateSearchPath, true, privateService.GetPages(new PagedRequest { PerPage = int.MaxValue, Including = new[] { "details" } }).Results.ToArray());
 
 			var publicService = new ScribeService(_database, null, null, null);
 			publicService.Converter.ClearEvents();

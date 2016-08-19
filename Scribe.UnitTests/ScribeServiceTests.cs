@@ -28,7 +28,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 
@@ -53,7 +53,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 
@@ -78,7 +78,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = false });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = false });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var file1 = TestHelper.AddFile(database, john, "File1.png", "image/png", new byte[0]);
 				var file2 = TestHelper.AddFile(database, john, "File2.png", "image/png", new byte[0]);
@@ -99,7 +99,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = false });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = false });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				database.SaveChanges();
 
@@ -114,7 +114,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var file1 = TestHelper.AddFile(database, john, "File1.png", "image/png", new byte[0]);
 				var file2 = TestHelper.AddFile(database, john, "File2.png", "image/png", new byte[0]);
@@ -139,7 +139,7 @@ namespace Scribe.UnitTests
 			using (var database = provider.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = false });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = false });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				database.SaveChanges();
@@ -163,7 +163,7 @@ namespace Scribe.UnitTests
 			using (var database = provider.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = false });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = false });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Hello Page2");
@@ -187,7 +187,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = false });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = false });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				database.SaveChanges();
 
@@ -205,7 +205,7 @@ namespace Scribe.UnitTests
 			using (var database = provider.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				pageVersion = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				database.SaveChanges();
@@ -230,7 +230,7 @@ namespace Scribe.UnitTests
 			using (var database = provider.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Hello Page2");
@@ -291,7 +291,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var file1 = TestHelper.AddFile(database, john, "File1.png", "image/png", new byte[0]);
 				TestHelper.AddFile(database, john, "File2.png", "image/png", new byte[0]);
@@ -310,7 +310,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var file1 = TestHelper.AddFile(database, john, "File1.png", "image/png", new byte[0]);
 				var file2 = TestHelper.AddFile(database, john, "File2.png", "image/png", new byte[0]);
@@ -332,7 +332,7 @@ namespace Scribe.UnitTests
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
 				var page = TestHelper.AddPage(database, "Front Page", "Hello World", user, ApprovalStatus.Approved, true, true);
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = false, FrontPagePrivateId = page.Id });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = false, FrontPagePrivateId = page.Id });
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Front Page2", ApprovalStatus.Approved, true);
 
 				var service = new ScribeService(database, null, null, null);
@@ -348,7 +348,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				TestHelper.AddPage(database, "Front Page1", "Hello World1", user);
 				var page2 = TestHelper.AddPage(database, "Front Page2", "Hello World2", user, ApprovalStatus.Approved, true, true);
 				TestHelper.UpdatePage(database, user, page2.ToView(), x => x.Title = "New Front Page2", ApprovalStatus.Approved, true);
@@ -367,7 +367,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				TestHelper.AddPage(database, "Front Page1", "Hello World1", user);
 				var page2 = TestHelper.AddPage(database, "Front Page2", "Hello World2", user, ApprovalStatus.Approved, true, true);
 				TestHelper.UpdatePage(database, user, page2.ToView(), x => x.Title = "New Front Page2", ApprovalStatus.Approved, true);
@@ -386,7 +386,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 
@@ -403,7 +403,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user);
 				TestHelper.UpdatePage(database, user, page1.ToView(), x =>
 				{
@@ -426,7 +426,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
 				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
 				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page3");
@@ -446,7 +446,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				var page = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page2");
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
@@ -467,7 +467,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				var page = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page2");
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
@@ -488,7 +488,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				var page = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page2");
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
@@ -508,7 +508,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
 				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
 				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page3");
@@ -527,7 +527,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user);
 				TestHelper.UpdatePage(database, user, page1.ToView(), x =>
 				{
@@ -550,7 +550,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user);
 				var anotherPage = TestHelper.AddPage(database, "Another Page", "Hello World", user);
 				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page2");
@@ -578,7 +578,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user, ApprovalStatus.Approved, true);
 				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page2");
 				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page3", ApprovalStatus.Approved, true);
@@ -601,7 +601,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var page1 = TestHelper.AddPage(database, "Page1", "Hello World", user);
 				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
 				TestHelper.UpdatePage(database, user, page1.ToView(), x => x.Title = "Page3");
@@ -634,7 +634,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				var page = TestHelper.AddPage(database, "Page1", "Hello, [Page2](Page2)", user, ApprovalStatus.Approved, true);
 				TestHelper.AddPage(database, "Page2", "Hello World", user, ApprovalStatus.Approved, true);
 
@@ -652,7 +652,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				var page = TestHelper.AddPage(database, "Page1", "Hello, [Page2](Page2)", user, ApprovalStatus.Approved, true);
 				TestHelper.AddPage(database, "Page2", "Hello World", user);
 
@@ -670,7 +670,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				page.EditingById = john.Id;
@@ -695,7 +695,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				var page = TestHelper.AddPage(database, "Test", "Hello World", user, ApprovalStatus.Approved, true, false, "tag");
 				TestHelper.UpdatePage(database, user, page.ToView(), x =>
 				{
@@ -719,7 +719,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Hello Page2");
@@ -746,7 +746,7 @@ namespace Scribe.UnitTests
 			using (var database = provider.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "Page1", "Hello World", user);
 				TestHelper.AddPage(database, "Page2", "Hello World", user, ApprovalStatus.Pending);
@@ -772,7 +772,7 @@ namespace Scribe.UnitTests
 			using (var database = provider.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "Page1", "Hello World", user);
 				TestHelper.AddPage(database, "Page2", "Hello World", user, ApprovalStatus.Pending);
@@ -800,7 +800,7 @@ namespace Scribe.UnitTests
 			using (var database = provider.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3");
 				TestHelper.AddPage(database, "Page2", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2");
@@ -825,7 +825,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				page.Page.IsDeleted = true;
@@ -847,7 +847,7 @@ namespace Scribe.UnitTests
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
 				var settings = new SettingsView { EnableGuestMode = true, LdapConnectionString = string.Empty };
-				TestHelper.AddSettings(database, user, settings);
+				TestHelper.AddSettings(database, settings);
 				TestHelper.AddPage(database, "Hello Page", "Hello World", user);
 				TestHelper.AddPage(database, "Public Page", "Hello Real World", user, ApprovalStatus.Approved, true);
 				database.SaveChanges();
@@ -867,7 +867,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
@@ -896,7 +896,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "First Page", "Hello World", john);
 				TestHelper.AddPage(database, "Second Page", "Hello World", john);
@@ -931,7 +931,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "a", "a", john);
 				TestHelper.AddPage(database, "c", "a", john);
@@ -965,7 +965,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "First Page", "Hello World", john);
 				TestHelper.AddPage(database, "Second Page", "Hello World", john);
@@ -1000,7 +1000,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "First Page", "Hello World", john);
 				TestHelper.AddPage(database, "Second Page", "Hello World", john);
@@ -1035,7 +1035,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "First Page", "Hello World", john);
 				TestHelper.AddPage(database, "Second Page", "Hello World", john);
@@ -1070,7 +1070,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "First Page", "Hello World", john, tags: new[] { "One" });
 				TestHelper.AddPage(database, "Second Page", "Hello World", john, tags: new[] { "2" });
@@ -1105,7 +1105,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "First Page", "Hello World", john);
 				TestHelper.AddPage(database, "Second Page", "Hello World", john);
@@ -1140,7 +1140,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "First Page", "Hello World", john);
 				TestHelper.AddPage(database, "Second Page", "Hello World", john);
@@ -1175,7 +1175,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				TestHelper.AddPage(database, "a", "a", john);
 				TestHelper.AddPage(database, "c", "a", john);
@@ -1209,7 +1209,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
@@ -1244,7 +1244,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
@@ -1279,7 +1279,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
@@ -1307,7 +1307,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
@@ -1335,7 +1335,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
@@ -1362,7 +1362,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				for (var i = 1; i <= 9; i++)
 				{
@@ -1390,7 +1390,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page2");
@@ -1410,7 +1410,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-				TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
+				TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john);
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Title = "Page2", ApprovalStatus.Approved, true);
@@ -1432,7 +1432,7 @@ namespace Scribe.UnitTests
 			using (var database = provider.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3", "Tag4");
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Tags = new[] { "Tag1", "Tag2", "Tag3" });
@@ -1522,7 +1522,7 @@ namespace Scribe.UnitTests
 			using (var database = provider.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddSettings(database, user, new SettingsView { SoftDelete = true });
+				TestHelper.AddSettings(database, new SettingsView { SoftDelete = true });
 				var john = TestHelper.AddUser(database, "John Doe", "Password!");
 				var page = TestHelper.AddPage(database, "Page1", "Hello World", john, ApprovalStatus.None, false, false, "Tag1", "Tag2", "Tag3", "Tag4");
 				TestHelper.UpdatePage(database, user, page.ToView(), x => x.Tags = new[] { "Tag1", "Tag2", "Tag3" });
@@ -1549,7 +1549,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "John Doe", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 
 				var input = new PageView { Text = "The quick brown fox jumped over the lazy dogs back.", Title = "Title" };
 				var service = new ScribeService(database, null, TestHelper.GetSearchService(), user);
@@ -1570,7 +1570,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "John Doe", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				database.SaveChanges();
 
 				var input = new PageView { Text = "The quick brown fox jumped over the lazy dogs back.", Title = "Title" };
@@ -1601,7 +1601,7 @@ namespace Scribe.UnitTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "John Doe", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
+				TestHelper.AddDefaultSettings(database);
 				TestHelper.AddPage(database, "Title", "Hello World", user);
 
 				var input = new PageView { Text = "The quick brown fox jumped over the lazy dogs back.", Title = "Title" };

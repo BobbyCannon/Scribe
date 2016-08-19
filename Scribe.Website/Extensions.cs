@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Net.Mail;
 using System.Text;
 using Scribe.Data.Entities;
 using Scribe.Models.Views;
@@ -18,11 +19,17 @@ namespace Scribe.Website
 
 		public static ProfileView Create(this User user)
 		{
+			if (string.IsNullOrEmpty(user.PictureUrl))
+			{
+				user.UpdatePictureUrl();
+			}
+
 			return new ProfileView
 			{
 				Disabled = !user.IsEnabled || user.IsActiveDirectory,
 				DisplayName = user.DisplayName,
 				EmailAddress = user.EmailAddress,
+				PictureUrl = user.PictureUrl,
 				UserId = user.Id,
 				UserName = user.UserName
 			};
@@ -58,8 +65,24 @@ namespace Scribe.Website
 			return response;
 		}
 
+		/// <summary>
+		/// Determines if the string is a valid email address.
+		/// </summary>
+		/// <param name="emailaddress"> The string to validate. </param>
+		/// <returns> Returns true if the email address is valid. False if otherwise. </returns>
+		public static bool IsValidEmailAddress(this string emailaddress)
+		{
+			try
+			{
+				var m = new MailAddress(emailaddress);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
 		#endregion
 	}
-
-	
 }

@@ -30,6 +30,12 @@
 				@Html.Hidden("returnUrl", (string) ViewBag.ReturnUrl)
 			</td>
 		</tr>
+		<tr>
+			<td colspan="2" class="text-center padding-top-10">
+				@Html.ActionLink("Register", "Register", null, null, null) if you don't have an account.<br />
+				Forgot your password? @Html.ActionLink("Reset It!", "ForgotPassword", null, null, null)<br />
+			</td>
+		</tr>
 	</table>
 	<div class="text-center darkBlue margin-top-20">
 		@Html.ValidationMessage("userName", new { id = "validationMessage" })

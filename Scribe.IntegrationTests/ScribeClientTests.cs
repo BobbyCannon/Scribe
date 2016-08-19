@@ -30,8 +30,8 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
-				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddDefaultSettings(database);
+				var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				database.SaveChanges();
 
@@ -49,8 +49,8 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
-				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddDefaultSettings(database);
+				var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				database.PageVersions.First().EditingById = john.Id;
 				database.SaveChanges();
@@ -73,8 +73,8 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
-				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddDefaultSettings(database);
+				var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 				var file = TestHelper.AddFile(database, john, "File.png", "image/png", new byte[0]);
 				database.SaveChanges();
 
@@ -98,8 +98,8 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
-				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddDefaultSettings(database);
+				var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				database.SaveChanges();
 
@@ -127,8 +127,8 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
-				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddDefaultSettings(database);
+				var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				database.SaveChanges();
 
@@ -145,8 +145,8 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
-				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddDefaultSettings(database);
+				var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 				var page = TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				database.SaveChanges();
 
@@ -164,8 +164,8 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
-				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddDefaultSettings(database);
+				var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 				TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				database.SaveChanges();
 			}
@@ -183,8 +183,8 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
-				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddDefaultSettings(database);
+				var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 				TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				TestHelper.AddPage(database, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
 				database.SaveChanges();
@@ -203,8 +203,8 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
-				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddDefaultSettings(database);
+				var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 				TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				TestHelper.AddPage(database, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
 				database.SaveChanges();
@@ -223,8 +223,8 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase())
 			{
 				var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-				TestHelper.AddDefaultSettings(database, user);
-				var john = TestHelper.AddUser(database, "John Doe", "Password!");
+				TestHelper.AddDefaultSettings(database);
+				var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 				TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 				TestHelper.AddPage(database, "Another Page 2", "Hello World... again", john, ApprovalStatus.None, false, "anotherTag");
 				database.SaveChanges();

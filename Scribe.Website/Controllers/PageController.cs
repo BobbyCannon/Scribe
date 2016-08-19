@@ -9,10 +9,10 @@ using Bloodhound.Models;
 using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
-using Scribe.Services;
 using Scribe.Website.Attributes;
 using Scribe.Website.Hubs;
 using Scribe.Website.Services;
+using Scribe.Website.Services.Settings;
 
 #endregion
 
@@ -133,20 +133,22 @@ namespace Scribe.Website.Controllers
 		public ActionResult Settings()
 		{
 			var user = GetCurrentUser();
-			var service = new SettingsService(Database, user);
+			var settings = SiteSettings.Load(Database, true);
 			var privateService = new ScribeService(Database, null, null, user);
 			var publicService = new ScribeService(Database, null, null, null);
 
 			ViewBag.PrivatePages = privateService.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
 			ViewBag.PublicPages = publicService.GetPages(new PagedRequest { PerPage = int.MaxValue }).Results.Select(x => new PageReferenceView { Id = x.Id, Title = x.Id + " - " + x.Title });
 
-			return View(service.GetSettings());
+			return View(settings.ToView());
 		}
 
 		[AllowAnonymous]
 		public ActionResult Setup()
 		{
-			return View();
+			var setup = new SetupView();
+			setup.UserName = "administrator";
+			return View(setup);
 		}
 
 		[AllowAnonymous]

@@ -13,6 +13,7 @@ using Scribe.Services;
 using Scribe.Website;
 using Scribe.Website.Hubs;
 using Scribe.Website.Services;
+using Scribe.Website.Services.Notifications;
 using WebActivatorEx;
 
 #endregion
@@ -86,6 +87,7 @@ namespace Scribe.Website
 			kernel.Bind<IScribeDatabase>().To<ScribeSqlDatabase>();
 			kernel.Bind<IAuthenticationService>().To<AuthenticationService>();
 			kernel.Bind<INotificationHub>().To<NotificationHubService>();
+			kernel.Bind<INotificationService>().To<SmtpNotificationService>();
 		}
 
 		#endregion

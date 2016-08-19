@@ -12,10 +12,12 @@ namespace Scribe.Models.Views
 
 		public SettingsView()
 		{
+			ContactEmail = string.Empty;
 			EnableGuestMode = false;
 			FrontPagePrivateId = -1;
 			FrontPagePublicId = -1;
 			LdapConnectionString = string.Empty;
+			MailServer = "127.0.0.1";
 			OverwriteFilesOnUpload = false;
 			PrintCss = string.Empty;
 			SoftDelete = true;
@@ -26,6 +28,8 @@ namespace Scribe.Models.Views
 
 		#region Properties
 
+		public string ContactEmail { get; set; }
+
 		public bool EnableGuestMode { get; set; }
 
 		public int FrontPagePrivateId { get; set; }
@@ -33,6 +37,8 @@ namespace Scribe.Models.Views
 		public int FrontPagePublicId { get; set; }
 
 		public string LdapConnectionString { get; set; }
+
+		public string MailServer { get; set; }
 
 		public bool OverwriteFilesOnUpload { get; set; }
 

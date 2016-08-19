@@ -26,7 +26,8 @@ namespace Scribe.Website
 				"~/Scripts/pickadate/picker.date.js",
 				"~/Scripts/pickadate/picker.time.js",
 				"~/Scripts/toastr.js",
-				"~/Scripts/scribe.js"));
+				"~/Scripts/scribe.js",
+				"~/Scripts/scribe.md5.js"));
 
 			bundles.Add(new StyleBundle("~/bundle/css").Include(
 				"~/Scripts/pickadate/themes/classic.css",

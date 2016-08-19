@@ -12,7 +12,7 @@ using Bloodhound;
 using Bloodhound.Models;
 using Scribe.Data;
 using Scribe.Data.Migrations;
-using Scribe.Website.Services;
+using Scribe.Website.Services.Settings;
 using Speedy;
 using Database = System.Data.Entity.Database;
 
@@ -24,9 +24,10 @@ namespace Scribe.Website
 	{
 		#region Fields
 
-		private Event _event;
-		private static readonly string[] _ignoredRequest;
 		private static readonly string[] _ignoredAnalytics;
+		private static readonly string[] _ignoredRequest;
+
+		private Event _event;
 
 		#endregion
 
@@ -57,7 +58,7 @@ namespace Scribe.Website
 
 			if (!uri.ContainsAny(_ignoredAnalytics))
 			{
-				_event = Tracker?.StartEvent(AnalyticEventNames.WebRequest.ToString(),
+				_event = Tracker?.StartEvent(AnalyticEvents.WebRequest.ToString(),
 					new EventValue("URI", uri),
 					new EventValue("UrlReferrer", Request.UrlReferrer?.ToString() ?? string.Empty),
 					new EventValue("UserHostAddress", Request.UserHostAddress ?? string.Empty),
@@ -89,7 +90,7 @@ namespace Scribe.Website
 		{
 			_event?.Complete();
 			_event = null;
-			
+
 			if (Request.Path.ToLower().StartsWith("/api/") && (Response.StatusCode == 302))
 			{
 				Response.StatusCode = 401;
@@ -118,11 +119,11 @@ namespace Scribe.Website
 
 			using (var datacontext = new ScribeSqlDatabase())
 			{
-				var settingsService = new SettingsService(datacontext, null);
+				var siteSettings = SiteSettings.Load(datacontext);
 
 				IsConfigured = datacontext.Users.Any();
-				PrintCss = settingsService.PrintCss;
-				ViewCss = settingsService.ViewCss;
+				PrintCss = siteSettings.PrintCss ?? string.Empty;
+				ViewCss = siteSettings.ViewCss ?? string.Empty;
 			}
 		}
 

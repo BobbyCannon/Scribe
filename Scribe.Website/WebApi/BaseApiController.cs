@@ -3,12 +3,10 @@
 using System;
 using System.Linq;
 using System.Security.Authentication;
-using System.Threading;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using Scribe.Data;
 using Scribe.Data.Entities;
-using Scribe.Services;
 using Scribe.Website.Services;
 
 #endregion
@@ -101,6 +99,11 @@ namespace Scribe.Website.WebApi
 			}
 
 			return _user;
+		}
+
+		protected string GetHostUri()
+		{
+			return ControllerContext.Request.RequestUri.GetDomain();
 		}
 
 		#endregion

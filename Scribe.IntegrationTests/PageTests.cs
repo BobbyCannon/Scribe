@@ -34,8 +34,8 @@ namespace Scribe.IntegrationTests
 					browser.NavigateTo($"{TestSite}");
 
 					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-					TestHelper.AddDefaultSettings(database, user);
-					TestHelper.AddUser(database, "John Doe", "Password!");
+					TestHelper.AddDefaultSettings(database);
+					TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 					database.SaveChanges();
 				}
 
@@ -73,8 +73,8 @@ namespace Scribe.IntegrationTests
 					browser.NavigateTo($"{TestSite}");
 
 					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator");
-					TestHelper.AddDefaultSettings(database, user);
-					var john = TestHelper.AddUser(database, "John Doe", "Password!");
+					TestHelper.AddDefaultSettings(database);
+					var john = TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 					TestHelper.AddPage(database, "Hello Page", "Hello World", john, ApprovalStatus.None, false, "myTag");
 					database.SaveChanges();
 				}
@@ -105,8 +105,8 @@ namespace Scribe.IntegrationTests
 					browser.NavigateTo($"{TestSite}");
 
 					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-					TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
-					TestHelper.AddUser(database, "John Doe", "Password!");
+					TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
+					TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 					TestHelper.AddPage(database, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
 					TestHelper.AddPage(database, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
 					database.SaveChanges();
@@ -132,8 +132,8 @@ namespace Scribe.IntegrationTests
 					browser.NavigateTo($"{TestSite}");
 
 					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-					TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = false });
-					TestHelper.AddUser(database, "John Doe", "Password!");
+					TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = false });
+					TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 					TestHelper.AddPage(database, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
 					TestHelper.AddPage(database, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
 					database.SaveChanges();
@@ -160,8 +160,8 @@ namespace Scribe.IntegrationTests
 					browser.NavigateTo($"{TestSite}");
 
 					var user = TestHelper.AddUser(database, "Administrator", "Password!", "administrator", "approver", "publisher");
-					TestHelper.AddSettings(database, user, new SettingsView { EnableGuestMode = true });
-					TestHelper.AddUser(database, "John Doe", "Password!");
+					TestHelper.AddSettings(database, new SettingsView { EnableGuestMode = true });
+					TestHelper.AddUser(database, "John Doe", "john.doe@test.com", "Password!");
 					TestHelper.AddPage(database, "Hello Page", "Hello Internal World", user, ApprovalStatus.None, false, "myTag");
 					TestHelper.AddPage(database, "Public Page", "Hello World", user, ApprovalStatus.Approved, true, "myTag");
 					database.SaveChanges();

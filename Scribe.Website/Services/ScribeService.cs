@@ -12,6 +12,7 @@ using Scribe.Models.Data;
 using Scribe.Models.Enumerations;
 using Scribe.Models.Views;
 using Scribe.Services;
+using Scribe.Website.Services.Settings;
 using Speedy.Linq;
 
 #endregion
@@ -25,7 +26,7 @@ namespace Scribe.Website.Services
 		private readonly AccountService _accountService;
 		private readonly IScribeDatabase _database;
 		private readonly ISearchService _searchService;
-		private readonly SettingsService _settingsService;
+		private readonly SiteSettings _siteSettings;
 		private readonly User _user;
 
 		#endregion
@@ -37,7 +38,7 @@ namespace Scribe.Website.Services
 			_database = database;
 			_accountService = accountService;
 			_searchService = searchService;
-			_settingsService = new SettingsService(database, user);
+			_siteSettings = SiteSettings.Load(database);
 			_user = user;
 
 			Converter = new MarkupConverter();
@@ -55,7 +56,7 @@ namespace Scribe.Website.Services
 
 		public MarkupConverter Converter { get; }
 
-		public bool IsGuestRequest => _user == null && _settingsService.EnableGuestMode;
+		public bool IsGuestRequest => _user == null && _siteSettings.EnableGuestMode;
 
 		#endregion
 
@@ -116,7 +117,7 @@ namespace Scribe.Website.Services
 				throw new ArgumentException("Failed to find the file with the provided ID.", nameof(id));
 			}
 
-			if (_settingsService.SoftDelete)
+			if (_siteSettings.SoftDelete)
 			{
 				file.IsDeleted = true;
 			}
@@ -138,7 +139,7 @@ namespace Scribe.Website.Services
 				return;
 			}
 
-			if (_settingsService.SoftDelete)
+			if (_siteSettings.SoftDelete)
 			{
 				page.IsDeleted = true;
 			}
@@ -210,7 +211,7 @@ namespace Scribe.Website.Services
 
 		public PageView GetFrontPage()
 		{
-			var id = IsGuestRequest ? _settingsService.FrontPagePublicId : _settingsService.FrontPagePrivateId;
+			var id = IsGuestRequest ? _siteSettings.FrontPagePublicId : _siteSettings.FrontPagePrivateId;
 			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.PageId == id);
 
 			return page != null
@@ -415,7 +416,7 @@ namespace Scribe.Website.Services
 			var file = _database.Files.FirstOrDefault(x => x.Name == view.Name)
 				?? new File { Name = view.Name, CreatedBy = _user, CreatedOn = DateTime.UtcNow };
 
-			if (!_settingsService.OverwriteFilesOnUpload && file.Id != 0)
+			if (!_siteSettings.OverwriteFilesOnUpload && file.Id != 0)
 			{
 				throw new InvalidOperationException("The file already exists and cannot be overwritten.");
 			}
@@ -613,6 +614,7 @@ namespace Scribe.Website.Services
 
 			return response;
 		}
+
 		private void UpdateEditingPage(PageView model)
 		{
 			var page = GetCurrentPagesQuery().FirstOrDefault(x => x.PageId == model.Id && x.EditingById == _user.Id);

@@ -16,6 +16,7 @@ using Scribe.Models.Views;
 using Scribe.Services;
 using Scribe.UnitTests.Properties;
 using Scribe.Website.Services;
+using Scribe.Website.Services.Settings;
 using Speedy;
 using TestR.Desktop;
 using TestR.Logging;
@@ -52,11 +53,12 @@ namespace Scribe.UnitTests
 			}
 		}
 
-		public static void AddDefaultSettings(IScribeDatabase database, User administrator)
+		public static void AddDefaultSettings(IScribeDatabase database)
 		{
-			var service = new SettingsService(database, administrator);
+			var service = SiteSettings.Load(database);
 			var settings = new SettingsView
 			{
+				ContactEmail = string.Empty,
 				EnableGuestMode = false,
 				LdapConnectionString = string.Empty,
 				OverwriteFilesOnUpload = false,
@@ -64,7 +66,8 @@ namespace Scribe.UnitTests
 				ViewCss = string.Empty
 			};
 
-			service.Save(settings);
+			service.Apply(settings);
+			service.Save();
 		}
 
 		public static File AddFile(IScribeDatabase database, User user, string name, string type, byte[] data)
@@ -97,21 +100,21 @@ namespace Scribe.UnitTests
 
 			if (homepage)
 			{
-				var settingsService = new SettingsService(database, user);
-				var settings = settingsService.GetSettings();
+				var settings = SiteSettings.Load(database);
 				settings.FrontPagePrivateId = view.Id;
 				settings.FrontPagePublicId = view.Id;
-				settingsService.Save(settings);
+				settings.Save();
 				database.SaveChanges();
 			}
 
 			return database.PageVersions.OrderByDescending(x => x.PageId == view.Id).First();
 		}
 
-		public static SettingsView AddSettings(IScribeDatabase database, User administrator, SettingsView settings)
+		public static SettingsView AddSettings(IScribeDatabase database, SettingsView settings)
 		{
-			var service = new SettingsService(database, administrator);
-			service.Save(settings);
+			var service = SiteSettings.Load(database);
+			service.Apply(settings);
+			service.Save();
 			database.SaveChanges();
 			return settings;
 		}

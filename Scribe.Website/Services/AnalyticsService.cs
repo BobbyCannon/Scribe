@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Scribe.Data;
 using Scribe.Website.Models;
@@ -33,12 +34,16 @@ namespace Scribe.Website.Services
 		public AnalyticsHomeView Get(DateTime? startDate, DateTime? endDate)
 		{
 			var response = new AnalyticsHomeView();
-			response.EndDate = (endDate ?? DateTime.Now).Date;
-			response.StartDate = (startDate ?? response.EndDate.AddMonths(-1)).Date;
+			endDate = endDate ?? DateTime.Now;
+			startDate = startDate ?? endDate.Value.AddMonths(-1);
+			response.EndDate = endDate.Value.ToShortDateString();
+			response.StartDate = startDate.Value.ToShortDateString();
 
-			var filterStart = response.StartDate.ToUniversalTime();
-			var filterStartSixMonthsAgo = response.StartDate.ToUniversalTime().AddMonths(-6);
-			var filterEnd = response.EndDate.AddDays(1).ToUniversalTime();
+			var filterStart = startDate.Value.ToUniversalTime();
+			var filterStartSixMonthsAgo = filterStart.AddMonths(-6);
+			var filterEnd = endDate.Value.AddDays(1).ToUniversalTime();
+
+			var watch = Stopwatch.StartNew();
 
 			response.MostActivePages = _database.Pages
 				.Where(x => x.CurrentVersion.ModifiedOn >= filterStart && x.CurrentVersion.ModifiedOn < filterEnd)
@@ -51,6 +56,9 @@ namespace Scribe.Website.Services
 				.OrderByDescending(x => x.Value)
 				.Take(10)
 				.ToList();
+
+			Debug.WriteLine("MostActivePages: " + watch.Elapsed);
+			watch.Restart();
 
 			var users = _database.Users
 				.Select(x => new
@@ -74,6 +82,9 @@ namespace Scribe.Website.Services
 				})
 				.ToList();
 
+			Debug.WriteLine("MostActiveEditors: " + watch.Elapsed);
+			watch.Restart();
+
 			var systemGroups = new List<string> { "administrator", "approver", "publisher" };
 
 			response.MostActiveGroups = users
@@ -89,8 +100,11 @@ namespace Scribe.Website.Services
 				.Take(10)
 				.ToList();
 
+			Debug.WriteLine("MostActiveGroups: " + watch.Elapsed);
+			watch.Restart();
+
 			response.MostViewPages = _database.Events
-				.Where(x => x.Name == AnalyticEventNames.WebRequest.ToString())
+				.Where(x => x.Name == AnalyticEvents.WebRequest.ToString())
 				.Where(y => y.StartedOn >= filterStart && y.StartedOn < filterEnd)
 				.GroupBy(x => x.Values.FirstOrDefault(y => y.Name == "Page Id").Value)
 				.Where(x => x.Key != null)
@@ -109,6 +123,9 @@ namespace Scribe.Website.Services
 				.Take(10)
 				.ToList();
 
+			Debug.WriteLine("MostViewPages: " + watch.Elapsed);
+			watch.Restart();
+
 			response.NewPagesByUser = _database.Pages
 				.Where(x => !x.IsDeleted && x.CreatedOn >= filterStart)
 				.GroupBy(x => x.Versions.OrderBy(y => y.Id).FirstOrDefault().CreatedBy.DisplayName)
@@ -120,6 +137,9 @@ namespace Scribe.Website.Services
 				.OrderByDescending(x => x.Value)
 				.Take(10)
 				.ToList();
+
+			Debug.WriteLine("NewPagesByUser: " + watch.Elapsed);
+			watch.Restart();
 
 			var newPagesPerMonth = _database.Pages
 				.Where(x => !x.IsDeleted && x.CreatedOn >= filterStartSixMonthsAgo)
@@ -136,6 +156,9 @@ namespace Scribe.Website.Services
 
 			newPagesPerMonth.Reverse();
 			response.NewPagesPerMonth = newPagesPerMonth;
+
+			Debug.WriteLine("NewPagesPerMonth: " + watch.Elapsed);
+			watch.Restart();
 
 			return response;
 		}

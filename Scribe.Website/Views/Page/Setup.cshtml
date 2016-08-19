@@ -1,4 +1,5 @@
-﻿@{
+﻿@model SetupView
+@{
 	ViewBag.Title = "Setup";
 }
 <div ng-controller="controller">
@@ -7,9 +8,13 @@
 			<div class="span12">
 				<h1>Administrator</h1>
 				<dl>
-					<dt>UserName</dt>
+					<dt>User Name</dt>
 					<dd>
 						<input class="x-large" type="text" ng-model="model.userName" />
+					</dd>
+					<dt>Email Address</dt>
+					<dd>
+						<input class="x-large" type="text" ng-model="model.emailAddress" />
 					</dd>
 					<dt>
 						Password
@@ -49,12 +54,12 @@
 			function ($scope, $http, $window) {
 				'use strict';
 
-				$scope.model = {};
+				$scope.model = @(Html.Raw(Model.ToJson(true)));
 
 				$scope.save = function () {
 					$http.post('/api/Settings/Setup', $scope.model)
 						.success(function () {
-							$window.location = '/';
+							$window.location = '/Settings';
 						})
 						.error(function (error) {
 							if (error.message) {

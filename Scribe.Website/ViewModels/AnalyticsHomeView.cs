@@ -12,7 +12,7 @@ namespace Scribe.Website.ViewModels
 	{
 		#region Properties
 
-		public DateTime EndDate { get; set; }
+		public string EndDate { get; set; }
 
 		public IEnumerable<AnalyticData<int>> MostActiveEditors { get; set; }
 
@@ -26,7 +26,7 @@ namespace Scribe.Website.ViewModels
 
 		public IEnumerable<AnalyticData<int>> NewPagesPerMonth { get; set; }
 
-		public DateTime StartDate { get; set; }
+		public string StartDate { get; set; }
 
 		#endregion
 	}

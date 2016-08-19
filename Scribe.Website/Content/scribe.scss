@@ -229,7 +229,6 @@ a {
 	@include border-box();
 	color: $blue;
 	text-decoration: none;
-	vertical-align: top;
 
 	&:active,
 	&:hover {
@@ -760,6 +759,28 @@ ul {
 			}
 		}
 	}
+
+	&.form {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		vertical-align: top;
+
+		li {
+			margin-bottom: 10px;
+		}
+
+		@for $i from 1 through 6 {
+			h#{$i} {
+				margin: 0;
+			}
+		}
+
+		input {
+			margin: 0;
+			width: 100%;
+		}
+	}
 }
 
 p {
@@ -819,12 +840,22 @@ img {
 	.margin-top-#{$i} {
 		@include rem-units(margin-top, $i, '!important');
 	}
+
+	.margin-top-bottom-#{$i} {
+		@include rem-units(margin-top, $i, '!important');
+		@include rem-units(margin-bottom, $i, '!important');
+	}
 	
 	.margin-left-#{$i} {
 		@include rem-units(margin-left, $i, '!important');
 	}
 
 	.margin-right-#{$i} {
+		@include rem-units(margin-right, $i, '!important');
+	}
+	
+	.margin-left-right-#{$i} {
+		@include rem-units(margin-left, $i, '!important');
 		@include rem-units(margin-right, $i, '!important');
 	}
 
@@ -854,6 +885,38 @@ img {
 .ng-cloak,
 .hide {
 	display: none !important;
+}
+
+.dummy {
+	height: 0 !important;
+	width: 0  !important;
+	visibility: hidden  !important;
+	position: absolute  !important;
+	left:0 !important;
+	top:0 !important;
+}
+
+.thumbnail {
+	display: block;
+	@include rem-units(padding, 4);
+	background-color: $white;
+	border: 1px solid $gray;
+	border-radius: 0;
+	@include rem-units(max-height, 180);
+	@include rem-units(max-width, 180);
+	-moz-transition: all 0.2s ease-in-out;
+	-o-transition: all 0.2s ease-in-out;
+	-webkit-transition: all 0.2s ease-in-out;
+	transition: all 0.2s ease-in-out;
+	width: 100%;
+
+	&.center {
+		margin: 0 auto;
+	}
+
+	&.round {
+		border-radius: 50%;
+	}
 }
 
 .fa-lg {
@@ -1084,6 +1147,38 @@ ins.diffmod {
 
 .picker__holder {
 	overflow: hidden;
+}
+
+.progress {
+	overflow: hidden;
+	@include rem-units(height, 22);
+	background: none;
+	background-color: $darkGray;
+
+	&.x-large {
+		@include rem-units(width, 320);
+	}
+	
+	.bar {
+		float: left;
+		width: 0;
+		height: 100%;
+		background-color: $purple;
+		background-image: none;
+		color: $white;
+		text-align: center;
+		@include rem-units(font-size, 13);
+		-moz-transition: width 0.6s ease;
+		-o-transition: width 0.6s ease;
+		-webkit-transition: width 0.6s ease;
+		transition: width 0.6s ease;
+
+		@each $colorName in $colorArray {
+			&.#{nth($colorName, 1)} {
+				background-color: nth($colorName, 2);
+			}
+		}
+	}
 }
 
 @media screen and (max-width: 960px) {

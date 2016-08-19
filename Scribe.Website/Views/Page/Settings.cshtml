@@ -13,25 +13,22 @@
 					<dd>
 						<input class="x-large" type="text" ng-model="model.ldapConnectionString" />
 					</dd>
+					<dt>Email</dt>
+					<dd>
+						<div>Contact Email Address</div>
+						<input class="x-large" type="text" ng-model="model.contactEmail" /><br />
+						<div>Email Server</div>
+						<input class="x-large" type="text" ng-model="model.mailServer" />
+					</dd>
 					<dt>
-						Enable Guest Mode
+						Options
 					</dt>
 					<dd class="padding-top-4">
 						<input id="enableGuestMode" type="checkbox" ng-model="model.enableGuestMode" />
 						<label for="enableGuestMode">Only show approved pages guest users</label><br />
-						<small class="padding-left-8">You search indexes will be rebuilt if this is changed.</small>
-					</dd>
-					<dt>
-						Overwrite Files
-					</dt>
-					<dd class="padding-top-4">
+						<small class="padding-left-8">The search indexes will be rebuilt if this is changed.</small><br />
 						<input id="overwriteFilesOnUpload" type="checkbox" ng-model="model.overwriteFilesOnUpload" />
-						<label for="overwriteFilesOnUpload">Automatically overwrite existing files on upload </label>
-					</dd>
-					<dt>
-						Soft Delete
-					</dt>
-					<dd class="padding-top-4">
+						<label for="overwriteFilesOnUpload">Automatically overwrite existing files on upload </label><br />
 						<input id="softDelete" type="checkbox" ng-model="model.softDelete" />
 						<label for="softDelete">Soft delete pages and files </label>
 					</dd>
