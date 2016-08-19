@@ -174,8 +174,7 @@ namespace Scribe.IntegrationTests
 			using (var database = TestHelper.GetDatabase(false))
 			{
 				var siteSettings = SiteSettings.Load(database, true);
-				var userSettings = new UserSettings(database.Settings, database.Users.First(y => y.Id == user.Id));
-				userSettings.Load();
+				var userSettings = UserSettings.Load(database.Settings, database.Users.First(y => y.Id == user.Id));
 
 				var expectedStart = $"MIME-Version: 1.0\r\nFrom: \"{siteSettings.ContactEmail}\" <{siteSettings.ContactEmail}>\r\nTo: \"[UserName]\" <[EmailAddress]>\r\n".Replace("[UserName]", user.UserName).Replace("[EmailAddress]", user.EmailAddress);
 				var expectedEnd = $"Subject: Scribe: Reset Password\r\nContent-Type: text/html; charset=us-ascii\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n<p>You are receiving this email because a request has been made to reset the password associated with the email address of [EmailAddress]. If you would like to reset the password for this account simply click on the link below or paste it into the url field on your favorite browser: </p><p><a href=3D\"{TestSite}/Account/ResetPassword/[PasswordToken]\">{TestSite}/Account/ResetPassword/[PasswordToken]</a></p><p>If you didn't request this email then you can just ignore it. The forgot password link will expire in 24 hours after it was issued. Also your personal information has not been disclosed to anyone. If you have any questions, feel free to <a href=3D\"mailto:{siteSettings.ContactEmail}\">contact us</a>.</p>\r\n\r\n".Replace("[EmailAddress]", user.EmailAddress).Replace("[PasswordToken]", userSettings.ResetPasswordId.ToString());

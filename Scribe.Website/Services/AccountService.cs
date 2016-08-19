@@ -187,7 +187,7 @@ namespace Scribe.Website.Services
 				throw new ArgumentException(Constants.UserCouldNotBeFound, nameof(userName));
 			}
 
-			var settings = new UserSettings(_database.Settings, user);
+			var settings = UserSettings.Load(_database.Settings, user);
 			settings.ResetPasswordId = Guid.NewGuid();
 			settings.ResetPasswordExpiresOn = DateTime.UtcNow.AddDays(1);
 			settings.Save();

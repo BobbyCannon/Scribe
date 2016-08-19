@@ -14,7 +14,7 @@ using HttpClient = Scribe.Web.HttpClient;
 namespace Scribe.IntegrationTests
 {
 	[TestClass]
-	public class PageTests : BrowserTestCmdlet
+	public class PageTests : BaseTests
 	{
 		#region Constants
 

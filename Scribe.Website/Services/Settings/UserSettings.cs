@@ -12,7 +12,7 @@ namespace Scribe.Website.Services.Settings
 	{
 		#region Constructors
 
-		public UserSettings(IRepository<Setting> settings, User user)
+		private UserSettings(IRepository<Setting> settings, User user)
 			: base(settings, user)
 		{
 		}
@@ -36,7 +36,7 @@ namespace Scribe.Website.Services.Settings
 		public static UserSettings Load(IRepository<Setting> settings, User user)
 		{
 			var response = new UserSettings(settings, user);
-			response.Load();
+			response.Load(true);
 			return response;
 		}
 

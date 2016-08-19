@@ -19,8 +19,8 @@ namespace Scribe.IntegrationTests
         /// <seealso cref="BrowserType" />
         protected void ForEachBrowser(Action<Browser> action)
         {
-			BrowserType = BrowserType.InternetExplorer;
-            ForEachBrowser(action, false, false);
+	        BrowserType = BrowserType.All;
+            ForEachBrowser(action, false);
         }
 
         #endregion
