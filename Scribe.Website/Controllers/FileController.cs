@@ -9,7 +9,6 @@ using System.Web.Mvc;
 using Scribe.Data;
 using Scribe.Models.Data;
 using Scribe.Models.Views;
-using Scribe.Services;
 using Scribe.Website.Attributes;
 using Scribe.Website.Services;
 
@@ -33,7 +32,7 @@ namespace Scribe.Website.Controllers
 		[AllowAnonymous]
 		public ActionResult File(int id)
 		{
-			var service = new ScribeService(Database, null, null, GetCurrentUser(null,false));
+			var service = new ScribeService(Database, null, null, GetCurrentUser(null, false));
 
 			if (!string.IsNullOrEmpty(Request.Headers["If-Modified-Since"]))
 			{

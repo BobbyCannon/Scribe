@@ -10,7 +10,6 @@ using Scribe.Website.Attributes;
 using Scribe.Website.Services;
 using Scribe.Website.Services.Notifications;
 using Scribe.Website.Services.Settings;
-using EventValue = Bloodhound.Models.EventValue;
 
 #endregion
 
@@ -185,20 +184,8 @@ namespace Scribe.Website.Controllers
 		{
 			var service = new AccountService(Database, AuthenticationService);
 			var userSettings = service.Register(account);
-			var siteSettings = SiteSettings.Load(Database);
 
 			Database.SaveChanges();
-
-			try
-			{
-				NotificationService.SendNotification(siteSettings, AccountService.CreateEmailValidationRequestMessage(siteSettings, userSettings, GetHostUri()));
-			}
-			catch
-			{
-				MvcApplication.Tracker?.AddEvent(AnalyticEvents.FailedToSendEmail.ToString(),
-					new EventValue("User Id", userSettings.User.Id),
-					new EventValue("Email Address", userSettings.User.EmailAddress));
-			}
 
 			return userSettings;
 		}

@@ -2,7 +2,6 @@
 
 using System.Web.Mvc;
 using Scribe.Data;
-using Scribe.Services;
 using Scribe.Website.Services;
 
 #endregion

@@ -74,7 +74,7 @@ namespace Scribe.Website.WebApi
 		[AllowAnonymous]
 		public void Setup(SetupView setup)
 		{
-			if (MvcApplication.IsConfigured)
+			if (Database.Users.Any())
 			{
 				throw new InvalidOperationException("The site has already been setup.");
 			}

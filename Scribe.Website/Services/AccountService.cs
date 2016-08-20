@@ -38,18 +38,6 @@ namespace Scribe.Website.Services
 
 		#region Methods
 
-		public User Add(string userName, string password)
-		{
-			var user = AddOrUpdateUser(userName, password, null);
-			if (user == null)
-			{
-				throw new DataException("The profile could not be found.");
-			}
-
-			_authenticationService.LogIn(user, false);
-			return user;
-		}
-
 		public User Authenticate(Credentials model)
 		{
 			var user = _database.Users.FirstOrDefault(x => x.UserName == model.UserName);
@@ -65,19 +53,6 @@ namespace Scribe.Website.Services
 			}
 
 			return user;
-		}
-
-		public static Notification CreateEmailValidationRequestMessage(SiteSettings siteSettings, UserSettings settings, string hostUri)
-		{
-			var link = hostUri + "/Account/ValidateEmailAddress/" + settings.EmailAddressValidationId;
-			var message = new Notification();
-			var user = settings.User;
-
-			message.Target = user.UserName + ";" + user.EmailAddress;
-			message.Title = "Scribe: Email Validation";
-			message.Content = $"<p>You are receiving this email because a request has been made to validate the email address of {user.EmailAddress}. Simply click on the link below or paste it as the address in your favorite browser to validate your account: </p><p><a href=\"{link}\">{link}</a></p><p>If you didn't request this email then you can just ignore it. Also your personal information has not been disclosed to anyone. If you have any questions, feel free to <a href=\"mailto:{siteSettings.ContactEmail}\">contact us</a>.</p>";
-
-			return message;
 		}
 
 		public static Notification CreateResetPasswordRequestMessage(SiteSettings siteSettings, UserSettings settings, string hostUri)
@@ -169,12 +144,7 @@ namespace Scribe.Website.Services
 
 			_database.Users.AddOrUpdate(user);
 
-			var service = UserSettings.Load(_database.Settings, user);
-			service.EmailAddressValidationId = Guid.NewGuid();
-			service.EmailAddressValidationExpiresOn = DateTime.UtcNow.AddDays(1);
-			service.Save();
-
-			return service;
+			return UserSettings.Load(_database.Settings, user);
 		}
 
 		public UserSettings SetForgotPasswordToken(string userName)
@@ -195,9 +165,9 @@ namespace Scribe.Website.Services
 			return settings;
 		}
 
-		public User Update(User user, ProfileView profileUpdate)
+		public User Update(User loggedInUser, ProfileView profileUpdate)
 		{
-			if (user.Id != profileUpdate.UserId)
+			if (loggedInUser.Id != profileUpdate.UserId)
 			{
 				throw new DataException("The profile update is not for your account.");
 			}
@@ -208,11 +178,11 @@ namespace Scribe.Website.Services
 				throw new DataException("The profile could not be found.");
 			}
 
-			if (user.Id != profile.Id)
+			if (loggedInUser.Id != profile.Id)
 			{
 				throw new DataException("The profile cannot be updated by this account.");
 			}
-			
+
 			profile.DisplayName = profileUpdate.DisplayName;
 			profile.UserName = profileUpdate.UserName;
 			profile.EmailAddress = profileUpdate.EmailAddress;

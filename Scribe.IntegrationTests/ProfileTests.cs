@@ -42,10 +42,8 @@ namespace Scribe.IntegrationTests
 
 					using (var server = TestHelper.StartSmtpServer())
 					{
-						var userName = x.Elements.TextInputs["userName"];
-						userName.TypingDelay = 30;
-
-						userName.TypeText(user.EmailAddress, true);
+						x.SlowMotion = true;
+						x.Elements.TextInputs["userName"].Text = user.EmailAddress;
 						x.Elements.Buttons["submit"].Click();
 
 						WaitAndValidate(x, server, user);
