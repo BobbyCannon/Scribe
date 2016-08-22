@@ -76,7 +76,7 @@ namespace Scribe.Website.Services.Settings
 					continue;
 				}
 
-				var setting = values.SingleOrDefault(x => x.Name == propertyInfo.Name);
+				var setting = values.FirstOrDefault(x => string.Equals(x.Name, propertyInfo.Name, StringComparison.OrdinalIgnoreCase));
 				if (setting != null)
 				{
 					propertyInfo.SetValue(this, setting.Value.FromJson(propertyInfo.PropertyType));
@@ -101,7 +101,7 @@ namespace Scribe.Website.Services.Settings
 				var propertyValue = propertyInfo.GetValue(this, null);
 				var value = propertyValue?.ToJson();
 
-				var setting = values.FirstOrDefault(s => s.Name == propertyInfo.Name);
+				var setting = values.FirstOrDefault(s => string.Equals(s.Name, propertyInfo.Name, StringComparison.OrdinalIgnoreCase));
 				if (setting != null)
 				{
 					setting.Value = value;

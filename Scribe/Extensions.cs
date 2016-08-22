@@ -11,6 +11,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Web.Security;
+using Newtonsoft.Json;
 
 #endregion
 
@@ -18,6 +19,21 @@ namespace Scribe
 {
 	public static class Extensions
 	{
+		#region Fields
+
+		private static readonly char[] _validJsonStartCharacters;
+
+		#endregion
+
+		#region Constructors
+
+		static Extensions()
+		{
+			_validJsonStartCharacters = new[] { '{', '[', '"' };
+		}
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
@@ -88,6 +104,27 @@ namespace Scribe
 		{
 			int response;
 			return !int.TryParse(input, out response) ? defaultValue : response;
+		}
+
+		/// <summary>
+		/// Convert the string into an object.
+		/// </summary>
+		/// <param name="item"> The JSON data to deserialize. </param>
+		/// <param name="type"> The type to convert into. </param>
+		/// <returns> The deserialized object. </returns>
+		public static object FromJson(this string item, Type type)
+		{
+			if (string.IsNullOrWhiteSpace(item))
+			{
+				return null;
+			}
+
+			if ((item.Length > 0) && _validJsonStartCharacters.Contains(item[0]))
+			{
+				return JsonConvert.DeserializeObject(item, type);
+			}
+
+			return type == typeof(string) ? item : JsonConvert.DeserializeObject("\"" + item + "\"", type);
 		}
 
 		public static string GetDisplayName(this IIdentity identity)

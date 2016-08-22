@@ -46,16 +46,16 @@ namespace Scribe.Website.Services.Settings
 
 		public void Apply(SettingsView settings)
 		{
-			ContactEmail = settings.ContactEmail;
+			ContactEmail = settings.ContactEmail ?? string.Empty;
 			EnableGuestMode = settings.EnableGuestMode;
 			FrontPagePrivateId = settings.FrontPagePrivateId;
 			FrontPagePublicId = settings.FrontPagePublicId;
 			LdapConnectionString = settings.LdapConnectionString ?? string.Empty;
-			MailServer = settings.MailServer;
+			MailServer = settings.MailServer ?? string.Empty;
 			OverwriteFilesOnUpload = settings.OverwriteFilesOnUpload;
-			PrintCss = settings.PrintCss;
+			PrintCss = settings.PrintCss ?? string.Empty;
 			SoftDelete = settings.SoftDelete;
-			ViewCss = settings.ViewCss;
+			ViewCss = settings.ViewCss ?? string.Empty;
 		}
 
 		public static SiteSettings Load(IScribeDatabase database, bool ignoreCache = false)
